@@ -5,17 +5,8 @@ import Link from "next/link";
 import { ArrowUp, Check, Copy, ImageIcon, Paperclip, ShieldAlert } from "lucide-react";
 import textos from "@/config/textos.json";
 import Radar from "@/components/estudiante/Radar";
-import {
-  CODIGO_DEMO,
-  franjas,
-  inferirEscenario,
-  limpiar,
-  lugares,
-  medios,
-  parecidos,
-  repreguntas,
-  type Escenario,
-} from "@/lib/mock/estudiante";
+import { CODIGO_DEMO } from "@/lib/mock/estudiante";
+import { iniciar, limpiar, responder, type Cierre, type Estado } from "@/lib/mock/conversacion";
 
 type Item =
   | { tipo: "bot"; texto: string }
@@ -26,14 +17,12 @@ type Item =
   | { tipo: "radar" }
   | { tipo: "codigo" };
 
-type Fase = "inicio" | "lugar" | "cuando" | "cerrado";
-
 const ESPERA = 900;
 
 export default function Chat({ inicial = "" }: { inicial?: string }) {
   const [items, setItems] = useState<Item[]>([{ tipo: "bot", texto: textos.bienvenida }]);
-  const [fase, setFase] = useState<Fase>("inicio");
-  const [escenario, setEscenario] = useState<Escenario>("normal");
+  const [estado, setEstado] = useState<Estado | null>(null);
+  const [cerrado, setCerrado] = useState(false);
   const [texto, setTexto] = useState(inicial);
   const [opciones, setOpciones] = useState<string[]>([]);
   const [escribiendo, setEscribiendo] = useState(false);
@@ -53,63 +42,42 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
     }, ESPERA);
   }
 
-  function cerrar(esc: Escenario) {
+  function cerrar(c: Cierre) {
     setOpciones([]);
-    setFase("cerrado");
-    if (esc === "broma") {
+    setCerrado(true);
+    if (c.tipo === "no_suma") {
       agregar({ tipo: "bot", texto: textos.cierre_no_suma }, { tipo: "radar" });
       return;
     }
-    const n = parecidos[esc];
-    const cierre = n > 0 ? textos.cierre_parecidos.replace("{n}", String(n)) : textos.cierre_primero;
-    agregar(
-      { tipo: "bot", texto: cierre },
-      ...(esc === "rojo" ? [{ tipo: "rojo" } as Item] : []),
-      { tipo: "codigo" },
-    );
+    const cierre = c.tipo === "primero" ? textos.cierre_primero : textos.cierre_parecidos.replace("{n}", String(c.n));
+    agregar({ tipo: "bot", texto: cierre }, ...(c.rojo ? [{ tipo: "rojo" } as Item] : []), { tipo: "codigo" });
   }
 
   function enviar(valor: string) {
     const t = valor.trim();
-    if (!t || escribiendo || fase === "cerrado") return;
+    if (!t || escribiendo || cerrado) return;
     setTexto("");
     setOpciones([]);
 
-    if (fase === "inicio") {
-      const { limpio, cambio } = limpiar(t);
-      const esc = inferirEscenario(t);
-      setEscenario(esc);
-      agregar({ tipo: "yo", texto: t });
-      if (cambio) agregar({ tipo: "limpio", texto: limpio });
-      responde(() => {
-        if (esc === "broma" || esc === "rojo") return cerrar(esc);
-        if (esc === "primero") {
-          agregar({ tipo: "bot", texto: repreguntas.medio });
-          setOpciones(medios);
-          setFase("cuando");
-          return;
-        }
-        agregar({ tipo: "bot", texto: repreguntas.dondeCuando });
-        setOpciones(lugares);
-        setFase("lugar");
-      });
-      return;
-    }
-
+    const { limpio, cambio } = limpiar(t);
     agregar({ tipo: "yo", texto: t });
-    if (fase === "lugar" && lugares.includes(t)) {
-      responde(() => {
-        agregar({ tipo: "bot", texto: repreguntas.cuando });
-        setOpciones(franjas);
-        setFase("cuando");
-      });
-      return;
-    }
-    responde(() => cerrar(escenario));
+    if (cambio) agregar({ tipo: "limpio", texto: limpio });
+
+    // El motor decide si pregunta algo más o cierra (lib/mock/conversacion.ts).
+    const e = estado ? responder(estado, t) : iniciar(t);
+    setEstado(e);
+    responde(() => {
+      if (e.pregunta) {
+        agregar({ tipo: "bot", texto: e.pregunta.texto });
+        setOpciones(e.pregunta.opciones);
+      } else if (e.cierre) {
+        cerrar(e.cierre);
+      }
+    });
   }
 
   function adjuntar() {
-    if (fase === "cerrado") return;
+    if (cerrado) return;
     agregar({ tipo: "adjunto" });
   }
 
@@ -130,7 +98,7 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
             ))}
           </div>
         )}
-        {fase === "cerrado" && !escribiendo && (
+        {cerrado && !escribiendo && (
           <div className="entra grid grid-cols-2 gap-2 pt-3">
             <Link href="/" className="rounded-2xl bg-e-card py-3 text-center text-sm font-semibold hover:bg-e-card-2">
               {textos.boton_ver_radar}
@@ -143,7 +111,7 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
         <div ref={fin} />
       </div>
 
-      {fase !== "cerrado" && (
+      {!cerrado && (
         <div className="sticky bottom-0 space-y-2 bg-e-bg/95 px-4 pb-4 pt-2 backdrop-blur">
           {opciones.length > 0 && !escribiendo && (
             <div className="entra flex flex-wrap gap-2 pb-1">

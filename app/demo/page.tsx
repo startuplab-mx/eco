@@ -19,8 +19,13 @@ const GUION: Paso[] = [
   },
   {
     titulo: "Cuenta algo como quiera",
-    texto: "El chat pregunta solo lo que falta (dónde, cuándo) y cierra con \"otros 6 contaron algo parecido\". Le ofrece un código opcional.",
+    texto: "El chat pregunta solo lo que falta, máximo dos cosas. Aquí \"afuera\" no alcanza para ubicar la celda: pregunta dónde y cuándo, y cierra con \"otros 6 contaron algo parecido\".",
     telefono: "/contar?e=normal",
+  },
+  {
+    titulo: "Si pasa en línea",
+    texto: "No pregunta dónde ni a qué hora: en línea no hay lugar ni franja. Pregunta en qué app o juego, si no lo dijo.",
+    telefono: "/contar?e=linea",
   },
   {
     titulo: "Si hay riesgo inmediato",
@@ -34,7 +39,7 @@ const GUION: Paso[] = [
   },
   {
     titulo: "Si se identifica sin querer",
-    texto: "El sistema quita lo que dice quién es (\"soy de su grupo\") antes de guardar y se lo avisa en una línea.",
+    texto: "El sistema quita lo que dice quién es (\"soy de su mismo grupo\") antes de guardar y se lo avisa en una línea. Como fue por mensajes, pregunta la app.",
     telefono: "/contar?e=primero",
   },
   {

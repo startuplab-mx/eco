@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test lib/mock/*.test.ts",
+    "simular": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/simular-chat.ts"
   },
   "dependencies": {
     "lucide-react": "^1.48.0",

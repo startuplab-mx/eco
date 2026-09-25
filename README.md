@@ -36,12 +36,15 @@ Abre `http://localhost:3000/demo` para el guion de 10 minutos, con la vista del 
 | `/tablero/accesos` | Embajada | Registro de accesos para CONALEP |
 | `/demo` | Quien presenta | Guion del demo |
 
-El chat reacciona a lo que se escribe. Para el demo, `/contar?e=normal|rojo|broma|primero` precarga un texto de ejemplo:
+El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta solo lo que falta, con las reglas de [`docs/repreguntas.md`](docs/repreguntas.md). Para el demo, `/contar?e=normal|linea|rojo|broma|primero` precarga un texto de ejemplo:
 
-- `normal`: pregunta dónde y cuándo, cierra con "otros 6".
+- `normal`: "afuera" no alcanza para la celda; pregunta dónde y cuándo, cierra con "otros 6".
+- `linea`: venta de droga en línea. Pregunta la app; nunca dónde ni a qué hora.
 - `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo de 911.
 - `broma`: no se suma a nada y muestra el radar.
 - `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "eres el primero".
+
+`npm test` corre la batería de casos del chat. `npm run simular -- "mensaje" "respuesta"` muestra qué haría el chat con cualquier mensaje.
 
 ## Qué respeta el mockup
 
