@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* Estudiante: siempre oscuro, aspecto de app de chat, nada institucional. */
+:root {
+  --e-bg: #0d0d0f;
+  --e-card: #18181c;
+  --e-card-2: #222228;
+  --e-line: #2c2c33;
+  --e-ink: #f4f4ef;
+  --e-muted: #9b9ba3;
+  --e-acento: #d7ff3c;
+  --e-acento-ink: #0d0d0f;
+  --e-rojo: #ff8a7a;
+}
+
+/* Tablero: claro por defecto, con modo oscuro seleccionado (no invertido). */
+.tablero {
+  color-scheme: light;
+  --t-page: #f9f9f7;
+  --t-surface: #fcfcfb;
+  --t-ink: #0b0b0b;
+  --t-ink-2: #52514e;
+  --t-muted: #898781;
+  --t-grid: #e1e0d9;
+  --t-axis: #c3c2b7;
+  --t-border: rgba(11, 11, 11, 0.1);
+  --t-hover: rgba(11, 11, 11, 0.04);
+  --t-neutral: #d9d8d2;
+
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --s5: #e87ba4;
+
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+
+  --seq-100: #cde2fb;
+  --seq-200: #9ec5f4;
+  --seq-300: #6da7ec;
+  --seq-400: #3987e5;
+  --seq-500: #256abf;
+  --seq-600: #184f95;
+  --seq-700: #0d366b;
+  --ord-1: #86b6ef;
+  --ord-2: #5598e7;
+  --ord-3: #2a78d6;
+  --ord-4: #1c5cab;
+  --ord-5: #104281;
+  --seq-t-claro: #0b0b0b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .tablero {
+    color-scheme: dark;
+    --t-page: #0d0d0d;
+    --t-surface: #1a1a19;
+    --t-ink: #ffffff;
+    --t-ink-2: #c3c2b7;
+    --t-muted: #898781;
+    --t-grid: #2c2c2a;
+    --t-axis: #383835;
+    --t-border: rgba(255, 255, 255, 0.1);
+    --t-hover: rgba(255, 255, 255, 0.05);
+    --t-neutral: #383835;
+
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --s5: #d55181;
+
+    --seq-100: #184f95;
+    --seq-200: #1c5cab;
+    --seq-300: #256abf;
+    --seq-400: #2a78d6;
+    --seq-500: #3987e5;
+    --seq-600: #6da7ec;
+    --seq-700: #9ec5f4;
+    --ord-1: #184f95;
+    --ord-2: #1c5cab;
+    --ord-3: #2a78d6;
+    --ord-4: #5598e7;
+    --ord-5: #86b6ef;
+    --seq-t-claro: #ffffff;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bricolage), var(--font-geist-sans), system-ui, sans-serif;
+
+  --color-e-bg: var(--e-bg);
+  --color-e-card: var(--e-card);
+  --color-e-card-2: var(--e-card-2);
+  --color-e-line: var(--e-line);
+  --color-e-ink: var(--e-ink);
+  --color-e-muted: var(--e-muted);
+  --color-e-acento: var(--e-acento);
+  --color-e-acento-ink: var(--e-acento-ink);
+  --color-e-rojo: var(--e-rojo);
+
+  --color-t-page: var(--t-page);
+  --color-t-surface: var(--t-surface);
+  --color-t-ink: var(--t-ink);
+  --color-t-ink-2: var(--t-ink-2);
+  --color-t-muted: var(--t-muted);
+  --color-t-grid: var(--t-grid);
+  --color-t-axis: var(--t-axis);
+  --color-t-border: var(--t-border);
+  --color-t-hover: var(--t-hover);
+  --color-t-neutral: var(--t-neutral);
+  --color-s1: var(--s1);
+  --color-good: var(--good);
+  --color-warning: var(--warning);
+  --color-critical: var(--critical);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rayado para celdas ocultas (menos de 5). */
+.oculta {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--t-grid) 0 1px,
+    transparent 1px 6px
+  );
+}
+
+@keyframes barrido {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pulso {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.entra {
+  animation: entra 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Lado del estudiante: fondo y barra de scroll oscuros (se nota en el iframe del demo). */
+:root:has(.estudiante) {
+  background: var(--e-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--e-line) var(--e-bg);
+}

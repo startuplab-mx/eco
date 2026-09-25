@@ -1,0 +1,22 @@
+{
+  "version": "0.1",
+  "quien_habla": ["afectado", "testigo", "involucrado", "indeterminado"],
+  "hechos": ["oferta", "contacto", "tarea_encargada", "amenaza", "aislamiento_observado",
+             "violencia", "conducta_maestro", "bronca", "acoso", "otro"],
+  "etapa": ["contacto", "oferta", "tarea", "enganche", "amenaza", "no_aplica"],
+  "es_reclutamiento": ["si", "probable", "no"],
+  "medio": ["presencial", "juego_en_linea", "tiktok", "instagram", "whatsapp",
+            "telegram", "otro_digital", "indeterminado"],
+  "franja": ["matutino", "vespertino", "noche", "fin_de_semana", "indeterminado"],
+  "actor": ["extrano", "adulto_conocido", "companero", "maestro", "grupo_nombrado", "indeterminado"],
+  "oferta_tipo": ["llevar_paquete", "avisar", "grabar", "vender", "chamba_indefinida", "regalos", "otro"],
+  "gravedad": ["verde", "amarillo", "rojo"],
+  "seriedad": ["serio", "probable_broma", "prueba", "incoherente"],
+  "fila_radar": ["dinero_chamba", "molestan_amenazan", "broncas", "maestro", "otras"],
+  "criterios_gravedad": {
+    "rojo": "oferta ya aceptada, tarea ya realizada, amenaza directa, cita concreta en tiempo y lugar, traslado o retención, ausencia abrupta con indicios, adulto del plantel dando dinero o regalos en privado a un estudiante",
+    "amarillo": "oferta concreta no aceptada, contacto reiterado, aislamiento con secretismo, dinero u objetos sin explicación, invitación a conocer a un grupo, exposición sostenida a contenido de idealización",
+    "verde": "vulnerabilidad sin señal de contacto, información de patrón sin persona en riesgo, cambio de grupo social sin control"
+  },
+  "regla": "Ante duda entre dos niveles, asignar el superior."
+}

@@ -1,1 +1,75 @@
 # eco
+
+Canal anónimo y radar para planteles CONALEP. Los estudiantes cuentan lo que ven sin dar su nombre; el sistema les dice cuántos más contaron algo parecido y arma, con eso, un tablero de patrones de reclutamiento para la Embajada de Estados Unidos. Lo desarrolla StartupLab MX.
+
+"eco" es un nombre de trabajo. El nombre final lo ponen los estudiantes.
+
+La especificación completa está en [`docs/especificacion.md`](docs/especificacion.md).
+
+## Estado: mockup sin funciones
+
+Esta rama es un demo navegable para enseñar el flujo antes de construir el pipeline. No hay IA, base de datos ni envíos: el chat sigue un guion y todos los números son inventados.
+
+```bash
+npm install
+npm run dev
+```
+
+Abre `http://localhost:3000/demo` para el guion de 10 minutos, con la vista del estudiante en un teléfono a la izquierda.
+
+## Pantallas
+
+| Ruta | Quién la ve | Qué muestra |
+|---|---|---|
+| `/` | Estudiante | Radar: cinco filas y el conteo de la semana o del mes |
+| `/contar` | Estudiante | Chat de máximo dos repreguntas, cierre con "otros N contaron algo parecido" y código opcional |
+| `/codigo` | Estudiante | Consulta con el código de seis caracteres |
+| `/salir` | Estudiante | Página neutra (apuntes de física) para la salida rápida |
+| `/tablero/entrar` | Embajada | Entrada al tablero |
+| `/tablero` | Embajada | Resumen |
+| `/tablero/mapa` | Embajada | Mapa físico por celdas gruesas |
+| `/tablero/canales` | Embajada | Canales digitales |
+| `/tablero/modo` | Embajada | Modo de operar: embudo por zona, ofertas, pruebas, franjas |
+| `/tablero/alertas` | Embajada | Fichas de patrón |
+| `/tablero/respuesta` | Embajada | Avisos rojos al plantel |
+| `/tablero/lexico` | Embajada | Cola de términos nuevos |
+| `/tablero/accesos` | Embajada | Registro de accesos para CONALEP |
+| `/demo` | Quien presenta | Guion del demo |
+
+El chat reacciona a lo que se escribe. Para el demo, `/contar?e=normal|rojo|broma|primero` precarga un texto de ejemplo:
+
+- `normal`: pregunta dónde y cuándo, cierra con "otros 6".
+- `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo de 911.
+- `broma`: no se suma a nada y muestra el radar.
+- `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "eres el primero".
+
+## Qué respeta el mockup
+
+- En el radar y en las gráficas y tablas del tablero, ningún conteo menor a 5 aparece: sale "—" o "< 5". Las dos excepciones están en los pendientes 1 y 2.
+- El tablero no tiene texto libre, mensajes, códigos, nombres ni horas exactas.
+- Todos los textos que ve el estudiante salen de `config/textos.json`, salvo las repreguntas.
+- La salida rápida reemplaza la entrada del historial: "atrás" no regresa.
+
+## Estructura
+
+```
+app/(estudiante)/     radar, chat y código (siempre en oscuro, sin nada institucional)
+app/salir/            página neutra
+app/tablero/          tablero de la embajada (claro y oscuro)
+app/demo/             guion para presentar
+components/           piezas de cada lado
+config/               textos.json, taxonomia.json, lexico.json (borradores)
+lib/mock/             datos sintéticos y guion del chat
+docs/                 especificación
+```
+
+## Qué sigue
+
+La especificación (§12) ordena la construcción en cinco fases: pipeline en terminal, datos sintéticos, página del estudiante, tablero y demo. Este mockup adelanta la forma de las fases 3 y 4 para validarla con la embajada y con los estudiantes antes de conectar nada.
+
+## Pendientes que salieron al armar el mockup
+
+1. **Mínimo de 5 contra reglas de 3.** Las reglas de Coincidencia y Medio nuevo se disparan con 3 reportes, y la ficha de patrón trae conteos de coincidentes y descartados que pueden ser menores a 5. Hay que decidir cómo se muestran sin romper la regla del mínimo.
+2. **"Otros N" con N menor a 5.** La especificación no pone mínimo al conteo de parecidos que ve el estudiante. El escenario rojo del demo dice "otros 3". Confirmar si se deja así.
+3. **El radar no se actualiza al momento.** Los mensajes que no son rojos entran en lotes con 2 a 12 horas de retraso, así que en el demo el radar no cambia en cuanto alguien cuenta algo. El guion de la especificación dice que sí; hay que ajustar el guion o explicarlo.
+4. **Línea anónima.** El bloque rojo dice "[línea anónima, por confirmar]". El 089 de denuncia anónima es el candidato obvio; falta confirmarlo con la Fiscalía.
