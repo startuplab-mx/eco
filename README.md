@@ -40,7 +40,7 @@ El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta s
 
 - `normal`: "afuera" no alcanza para la celda; pregunta dónde y cuándo, cierra con "otros 6".
 - `linea`: venta de droga en línea. Pregunta la app; nunca dónde ni a qué hora.
-- `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo de 911.
+- `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo: llamar al 911 y meterse a la escuela o a un lugar con gente.
 - `broma`: no se suma a nada y muestra el radar.
 - `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "eres el primero".
 
@@ -76,3 +76,5 @@ La especificación (§12) ordena la construcción en cinco fases: pipeline en te
 2. **"Otros N" con N menor a 5.** La especificación no pone mínimo al conteo de parecidos que ve el estudiante. El escenario rojo del demo dice "otros 3". Confirmar si se deja así.
 3. **El radar no se actualiza al momento.** Los mensajes que no son rojos entran en lotes con 2 a 12 horas de retraso, así que en el demo el radar no cambia en cuanto alguien cuenta algo. El guion de la especificación dice que sí; hay que ajustar el guion o explicarlo.
 4. **Línea anónima.** El bloque rojo dice "[línea anónima, por confirmar]". El 089 de denuncia anónima es el candidato obvio; falta confirmarlo con la Fiscalía.
+5. **Autolesión.** La especificación no la cubre. El chat ya la separa del peligro y muestra otro bloque fijo, pero la línea de apoyo está "por confirmar" y el texto lo tienen que validar especialistas. La Línea de la Vida es la candidata.
+6. **Código de seguimiento.** Aporta poco (casi lo mismo que el radar) y un código guardado en el celular puede delatar a quien contó algo. Propuesta: quitarlo del piloto.

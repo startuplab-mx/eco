@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUp, Check, Copy, ImageIcon, Paperclip, ShieldAlert } from "lucide-react";
+import { ArrowUp, Check, Copy, ImageIcon, LifeBuoy, Paperclip, ShieldAlert } from "lucide-react";
 import textos from "@/config/textos.json";
 import Radar from "@/components/estudiante/Radar";
 import { CODIGO_DEMO } from "@/lib/mock/estudiante";
@@ -14,6 +14,7 @@ type Item =
   | { tipo: "limpio"; texto: string }
   | { tipo: "adjunto" }
   | { tipo: "rojo" }
+  | { tipo: "autolesion" }
   | { tipo: "radar" }
   | { tipo: "codigo" };
 
@@ -47,6 +48,11 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
     setCerrado(true);
     if (c.tipo === "no_suma") {
       agregar({ tipo: "bot", texto: textos.cierre_no_suma }, { tipo: "radar" });
+      return;
+    }
+    // Autolesión: solo el bloque fijo. Sin conteo de parecidos ni código.
+    if (c.tipo === "autolesion") {
+      agregar({ tipo: "autolesion" });
       return;
     }
     const cierre = c.tipo === "primero" ? textos.cierre_primero : textos.cierre_parecidos.replace("{n}", String(c.n));
@@ -206,6 +212,13 @@ function Burbuja({ item }: { item: Item }) {
         <div className="entra flex gap-3 rounded-2xl border border-e-rojo/40 bg-e-rojo/10 p-4 text-[15px] leading-snug">
           <ShieldAlert className="mt-0.5 size-5 shrink-0 text-e-rojo" />
           <p>{textos.rojo_inmediato}</p>
+        </div>
+      );
+    case "autolesion":
+      return (
+        <div className="entra flex gap-3 rounded-2xl border border-e-acento/40 bg-e-acento/10 p-4 text-[15px] leading-snug">
+          <LifeBuoy className="mt-0.5 size-5 shrink-0 text-e-acento" />
+          <p>{textos.rojo_autolesion}</p>
         </div>
       );
     case "radar":

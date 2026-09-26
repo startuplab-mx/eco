@@ -34,6 +34,7 @@
   "codigo_nuevos": "Desde que lo contaste, {m} compas más contaron algo así.",
   "codigo_no_encontrado": "No encontramos ese código. Revisa que esté bien escrito.",
   "codigo_privacidad": "El código no está ligado a ti ni a tu cel. Solo sirve para ver esto.",
-  "rojo_inmediato": "Si crees que estás en peligro ahora: no vayas solo a ningún lado. Emergencias: 911. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
+  "rojo_inmediato": "Si estás en peligro ahora, llama al 911. Si puedes, métete a la escuela o a un lugar con gente. No vayas solo a ningún lado. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
+  "rojo_autolesion": "Si estás pensando en hacerte daño, habla ahora con alguien. Emergencias: 911. Línea de apoyo: [por confirmar con especialistas].",
   "salida_rapida": "Salir"
 }

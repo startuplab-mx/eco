@@ -11,7 +11,7 @@ export default function Respuesta() {
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Dato etiqueta="Rojos avisados en septiembre" valor={<Cuenta n={actual.rojos} />} />
-        <Dato etiqueta="Con riesgo inmediato" valor={<Cuenta n={actual.riesgo} />} nota="Recibieron el bloque fijo: 911 y línea anónima" />
+        <Dato etiqueta="Con riesgo inmediato" valor={<Cuenta n={actual.riesgo} />} nota="Recibieron el bloque fijo: 911 y buscar un lugar con gente" />
         <Dato etiqueta="Tiempo hasta el aviso" valor={actual.mediana} nota="Mediana. Los rojos no esperan lote" />
         <Dato etiqueta="Avisos entregados" valor="Todos" nota="Correo en el demo; Twilio en el piloto" />
       </div>

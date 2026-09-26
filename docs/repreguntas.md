@@ -28,9 +28,23 @@ Un maestro sin nada digital se toma como "adentro del plantel". Un maestro que e
 
 ## Cuándo no se pregunta nada
 
-- **Riesgo inmediato** (cita concreta, amenaza directa, traslado o retención, alguien que no aparece, "ayuda"): cierra al momento con el bloque fijo de emergencia. Si el riesgo aparece en una respuesta, también cierra así.
-- **Prueba o broma** ("hola", "prueba", "xd"): no se pregunta ni se castiga. Un mensaje con saludo o risa pero con contenido es serio.
+- **Riesgo inmediato**: cierra al momento con el bloque fijo, que dice que llame al 911, que si puede se meta a la escuela o a un lugar con gente y que no vaya solo a ningún lado. Si el riesgo aparece en una respuesta, también cierra así. Cuenta como riesgo inmediato:
+  - amenaza directa ("me van a levantar", "si hablo me matan", "me va a ir mal", "me caen a la salida");
+  - cita concreta ("lo vea en el oxxo mañana", "nos vemos en la parada");
+  - traslado o retención ("se llevaron a mi primo", "me encerraron");
+  - alguien que no aparece ("no ha regresado", "está desaparecida", "no contesta desde ayer");
+  - que lo sigan o lo busquen ("me vienen siguiendo", "me andan buscando");
+  - extorsión o cobro de piso, violencia sexual o un pedido de ayuda ("ayúdenme", "me pueden ayudar").
+
+  Se busca la combinación de persona y daño, no palabras sueltas. "Si no voy a asesorías me reprueba", "lo subieron a TikTok" o "me citaron en orientación" no disparan el bloque.
+- **Autolesión** ("me quiero matar", "ya no quiero vivir", "me corto"): cierra con un bloque fijo distinto, con el 911 y una línea de apoyo por confirmar. No muestra el conteo de parecidos ni el código.
+- **Violencia pasada contra otros sin amenaza** ("hubo balacera", "trae pistola en la mochila"): el chat la trata como seria y sigue con las repreguntas. La gravedad interna es roja y el plantel recibe el aviso.
+- **Prueba o broma**: solo cuando todo el mensaje es relleno ("hola", "prueba", "xd", "estoy probando la app"). No se pregunta ni se castiga. Un mensaje corto con contenido ("me levantaron", "hay fenta") es serio, igual que uno con saludo o risa y contenido.
 - **Ya trae todo**: si no falta nada, cierra sin preguntar.
+
+## Cómo escriben
+
+Antes de buscar nada se pasa la escritura de celular a su forma normal: q → que, k → qu ("kieren"), x → por, dnd → donde, ban → van, "no c" → no sé, y las letras repetidas ("holaaa"). También se quitan cosas que confunden: "de mi salón" cuando describe a una persona, "maestro" usado como saludo, "estaba parada" (no es la parada del camión), "el trabajo en equipo" (no es una oferta de trabajo).
 
 ## Límites
 
@@ -54,4 +68,4 @@ Un maestro sin nada digital se toma como "adentro del plantel". Un maestro que e
 | me dijeron que el viernes a la salida me esperan en la parada… | ninguna, bloque rojo |
 | hola prueba jaja | ninguna, muestra el radar |
 
-La lista completa está en `lib/mock/conversacion.test.ts` (`npm test`). Para probar un mensaje: `npm run simular -- "mensaje" "respuesta"`.
+La lista completa está en `lib/mock/conversacion.test.ts` y en `lib/mock/revision/` (`npm test` corre todo). Para probar un mensaje: `npm run simular -- "mensaje" "respuesta"`.

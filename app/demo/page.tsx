@@ -29,7 +29,7 @@ const GUION: Paso[] = [
   },
   {
     titulo: "Si hay riesgo inmediato",
-    texto: "No pregunta nada más. Cierra con el bloque fijo aprobado: no vayas solo, 911 y línea anónima. El aviso al plantel sale en ese momento.",
+    texto: "No pregunta nada más. Cierra con el bloque fijo: llama al 911 y, si puedes, métete a la escuela o a un lugar con gente. El aviso al plantel sale en ese momento.",
     telefono: "/contar?e=rojo",
   },
   {

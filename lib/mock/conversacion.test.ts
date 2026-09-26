@@ -7,6 +7,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { clasificar, conversar, detectar, esFisico, limpiar, MAX_PREGUNTAS } from "./conversacion.ts";
 import type { Campo, Clase } from "./conversacion.ts";
+import { CASOS as REVISION_A } from "./revision/casos.mjs";
+import { CASOS as REVISION_B } from "./revision/casos2.mjs";
+import { CASOS as REVISION_C } from "./revision/casos3.mjs";
 
 type Caso = {
   turnos: string[];
@@ -218,6 +221,8 @@ const LIMPIEZA: [string, string][] = [
   ["voy en tercer semestre y me ofrecieron un jale", "y me ofrecieron un jale"],
 ];
 const SIN_CAMBIO = [
+  "hola prueba jaja",
+  "hola, un señor en la parada nos ofreció trabajo",
   "estoy en la parada y hay un wey ofreciendo jale",
   "un wey afuera nos dijo que si queríamos ganar una lana fácil",
   "soy muy chismoso pero vi que venden en el baño",
@@ -230,3 +235,40 @@ test("limpieza quita lo que identifica a quien escribe", () => {
 test("limpieza no toca lo que describe el hecho", () => {
   for (const t of SIN_CAMBIO) assert.equal(limpiar(t).cambio, false, t);
 });
+
+// --- Revisión adversarial -----------------------------------------------------
+// Conversaciones escritas como las mandaría un estudiante (jerga, faltas,
+// mensajes largos), con lo que se espera en cada una. Ver docs/revision-chat.md.
+
+
+type CasoRevision = {
+  id: string;
+  t: string[];
+  clase?: Clase | Clase[];
+  p?: Campo[] | null;
+  cierre?: string;
+  limpio?: string;
+  sinCambio?: boolean;
+  lugar?: string;
+  contiene?: string;
+};
+
+for (const c of [...REVISION_A, ...REVISION_B, ...REVISION_C] as CasoRevision[]) {
+  test(`revisión ${c.id}: ${c.t[0].slice(0, 60)}`, () => {
+    const r = conversar(c.t);
+    if (c.clase) {
+      const aceptadas = Array.isArray(c.clase) ? c.clase : [c.clase];
+      assert.ok(aceptadas.includes(r.clase), `clase ${r.clase}, se esperaba ${aceptadas.join(" o ")}`);
+    }
+    if (c.p) {
+      const secuencia = [...r.hechas, ...(r.pregunta ? [r.pregunta.campo] : [])];
+      assert.deepEqual(secuencia, c.p, "secuencia de repreguntas (incluye la que queda abierta)");
+    }
+    if (c.cierre) assert.equal(r.cierre?.tipo, c.cierre, "cierre");
+    const l = limpiar(c.t[0]);
+    if (c.limpio !== undefined) assert.equal(l.limpio, c.limpio, "limpieza");
+    if (c.sinCambio) assert.equal(l.cambio, false, `la limpieza no debía cambiar nada: "${l.limpio}"`);
+    if (c.contiene) assert.ok(l.limpio.includes(c.contiene), `la limpieza se llevó el hecho: "${l.limpio}"`);
+    if (c.lugar) assert.equal(detectar(c.t[0]).lugar, c.lugar, "celda");
+  });
+}
