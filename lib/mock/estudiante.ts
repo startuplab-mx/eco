@@ -33,10 +33,9 @@ export function totalRadar(p: Periodo) {
 export const ejemplos = {
   normal: "un wey afuera nos dijo que si queríamos ganar una lana fácil",
   linea: "alguien está vendiendo droga en línea a los de la escuela",
+  chava: "a mi amiga un señor mayor la recoge en la entrada, le regala cosas y le pide fotos",
   rojo: "me dijeron que el viernes a la salida me esperan en la parada para llevar algo y que si no voy ya saben dónde vivo",
   broma: "hola prueba jaja",
   primero: "un profe le manda mensajes en la noche a una compa y le regala cosas, soy de su mismo grupo",
 };
 export type Escenario = keyof typeof ejemplos;
-
-export const CODIGO_DEMO = "K7P2QX";

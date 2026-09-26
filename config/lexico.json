@@ -1,13 +1,66 @@
 {
   "_nota": "Semilla del léxico. La embajada aprueba o descarta términos nuevos una vez al mes desde el tablero.",
-  "version": "0.1",
+  "version": "0.2",
   "terminos": [
-    { "termino": "jale", "significado": "trabajo u oferta de trabajo, a veces ilegal", "categoria": "oferta" },
-    { "termino": "lana", "significado": "dinero", "categoria": "oferta" },
-    { "termino": "lana fácil", "significado": "dinero sin explicar qué hay que hacer", "categoria": "oferta" },
-    { "termino": "punto", "significado": "lugar de venta o vigilancia", "categoria": "tarea_encargada" },
-    { "termino": "el de la moto", "significado": "descriptor recurrente de un adulto que se acerca", "categoria": "contacto" },
-    { "termino": "los del video", "significado": "grupo que se muestra en videos de redes", "categoria": "contacto" },
-    { "termino": "halcón", "significado": "persona que vigila y avisa", "categoria": "tarea_encargada" }
+    {
+      "termino": "jale",
+      "significado": "trabajo u oferta de trabajo, a veces ilegal",
+      "categoria": "oferta"
+    },
+    {
+      "termino": "lana",
+      "significado": "dinero",
+      "categoria": "oferta"
+    },
+    {
+      "termino": "lana fácil",
+      "significado": "dinero sin explicar qué hay que hacer",
+      "categoria": "oferta"
+    },
+    {
+      "termino": "punto",
+      "significado": "lugar de venta o vigilancia",
+      "categoria": "tarea_encargada"
+    },
+    {
+      "termino": "el de la moto",
+      "significado": "descriptor recurrente de un adulto que se acerca",
+      "categoria": "contacto"
+    },
+    {
+      "termino": "los del video",
+      "significado": "grupo que se muestra en videos de redes",
+      "categoria": "contacto"
+    },
+    {
+      "termino": "halcón",
+      "significado": "persona que vigila y avisa",
+      "categoria": "tarea_encargada"
+    },
+    {
+      "termino": "andar con uno de la maña",
+      "significado": "relación con alguien del grupo; vía de enganche",
+      "categoria": "enganche_afectivo"
+    },
+    {
+      "termino": "su novio la recoge",
+      "significado": "adulto que recoge a una estudiante en la escuela",
+      "categoria": "enganche_afectivo"
+    },
+    {
+      "termino": "packs",
+      "significado": "fotos íntimas",
+      "categoria": "fotos_intimas"
+    },
+    {
+      "termino": "trabajo de modelo",
+      "significado": "oferta que empieza pidiendo fotos",
+      "categoria": "modelaje"
+    },
+    {
+      "termino": "edecán",
+      "significado": "oferta de trabajo en eventos; a veces fachada",
+      "categoria": "modelaje"
+    }
   ]
 }

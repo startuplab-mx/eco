@@ -16,9 +16,6 @@ export default function PaginaRadar() {
           >
             {textos.boton_contar}
           </Link>
-          <Link href="/codigo" className="block py-2 text-center text-sm font-medium text-e-muted underline-offset-4 hover:underline">
-            {textos.boton_codigo}
-          </Link>
         </div>
       </main>
     </>

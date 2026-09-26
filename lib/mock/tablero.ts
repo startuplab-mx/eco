@@ -22,9 +22,9 @@ export const semanas = [
 
 export const filasMes = [
   { id: "dinero_chamba", nombre: "Dinero o \"chamba\"", n: 22 },
-  { id: "molestan_amenazan", nombre: "Molesta, insiste o amenaza", n: 20 },
+  { id: "molestan_amenazan", nombre: "Acosa, molesta o amenaza", n: 20 },
   { id: "broncas", nombre: "Broncas entre compas", n: 18 },
-  { id: "maestro", nombre: "Algo raro con un maestro", n: 9 },
+  { id: "maestro", nombre: "Algo raro con un maestro o maestra", n: 9 },
   { id: "otras", nombre: "Otras cosas", n: 20 },
 ];
 
@@ -38,7 +38,7 @@ export const resumen = {
   recibidosMes: 110,
   filtradosMes: 21,
   rojosMes: 5,
-  alertasNuevas: 3,
+  alertasNuevas: 4,
 };
 
 // --- Mapa físico -------------------------------------------------------------
@@ -117,14 +117,14 @@ export const celdas: Celda[] = [
 
 // --- Canales digitales ------------------------------------------------------
 
-export const TIPOS_CONTENIDO = ["Oferta", "Corridos", "Retos", "\"Padrino\""] as const;
+export const TIPOS_CONTENIDO = ["Oferta", "Corridos", "Retos", "\"Padrino\"", "Piden fotos o \"packs\""] as const;
 
 // Últimos 90 días. Celdas de 1 a 4 ya vienen suprimidas (0 = no hubo o se ocultó).
 export const plataformas = [
-  { nombre: "TikTok", valores: [11, 14, 6, 5] },
-  { nombre: "Juego en línea", valores: [12, 0, 0, 7] },
-  { nombre: "WhatsApp", valores: [15, 0, 0, 0] },
-  { nombre: "Instagram", valores: [5, 8, 0, 0] },
+  { nombre: "TikTok", valores: [11, 14, 6, 5, 0] },
+  { nombre: "Juego en línea", valores: [12, 0, 0, 7, 5] },
+  { nombre: "WhatsApp", valores: [15, 0, 0, 0, 6] },
+  { nombre: "Instagram", valores: [5, 8, 0, 0, 9] },
 ];
 export const plataformasOcultas = ["Telegram", "Otras apps"];
 
@@ -153,7 +153,9 @@ export const ofertas = [
   { tipo: "Chamba sin detalle", n: 12, monto: "Sin monto (\"lana fácil\")" },
   { tipo: "Avisar", n: 11, monto: "$4,000 al mes (de $3,000 a $5,000)" },
   { tipo: "Llevar paquete", n: 9, monto: "$800 por encargo (de $500 a $1,500)" },
+  { tipo: "Relación o \"novio\" que regala cosas", n: 8, monto: "Celular, ropa, salidas" },
   { tipo: "Regalos", n: 6, monto: "Recargas, skins, tenis" },
+  { tipo: "Trabajo de \"modelo\"", n: 6, monto: "Piden fotos primero" },
   { tipo: "Grabar", n: 3, monto: "" },
   { tipo: "Vender", n: 2, monto: "" },
 ];
@@ -161,9 +163,25 @@ export const ofertas = [
 export const pruebas = [
   { tarea: "Avisar o vigilar", n: 8 },
   { tarea: "Llevar algo de un lugar a otro", n: 6 },
+  { tarea: "Mandar fotos", n: 6 },
   { tarea: "Guardar algo", n: 5 },
   { tarea: "Traer a otro compa", n: 3 },
   { tarea: "Grabar o tomar fotos", n: 2 },
+];
+
+// A quién va dirigida la oferta, según lo que cuentan de otras personas.
+// Nunca se infiere nada de quien escribe.
+export const dirigidaA = [
+  { a: "A chavas", n: 17 },
+  { a: "A chavos", n: 21 },
+  { a: "A los dos", n: 9 },
+  { a: "No se sabe", n: 6 },
+];
+export const ofertaPorDestino = [
+  { a: "A chavas", oferta: "Relación o \"novio\" que regala cosas", n: 8 },
+  { a: "A chavas", oferta: "Trabajo de \"modelo\" (piden fotos)", n: 6 },
+  { a: "A chavos", oferta: "Avisar", n: 9 },
+  { a: "A chavos", oferta: "Llevar paquete", n: 7 },
 ];
 
 export const porFranja = [
@@ -194,6 +212,22 @@ export type Ficha = {
 };
 
 export const fichas: Ficha[] = [
+  {
+    id: "p-015",
+    regla: "Concentración",
+    descripcion: "8 o más mensajes serios en la misma celda en 7 días",
+    zona: "En línea",
+    periodo: "20 al 26 de septiembre",
+    reportes: 8,
+    medio: "Instagram",
+    ofertaTarea: "Trabajo de \"modelo\" dirigido a chavas; piden fotos",
+    monto: "Sin monto",
+    franja: "Noche",
+    etapa: "Contacto → oferta",
+    escalamiento: "No",
+    confianza: { reportes: 9, coincidentes: 2, descartados: 1 },
+    estado: "nueva",
+  },
   {
     id: "p-014",
     regla: "Concentración",

@@ -28,4 +28,3 @@ Cambios de fondo:
 - **Autolesión.** La especificación no la cubre. El bloque actual dice "Línea de apoyo: [por confirmar con especialistas]". La Línea de la Vida es la candidata. El texto lo deben validar especialistas.
 - **Violencia pasada contra terceros sin amenaza** ("hubo balacera", "trae pistola en la mochila"). El chat la trata como seria, sin bloque de emergencia. La gravedad interna es roja y el plantel recibe el aviso. Hay que confirmarlo.
 - **"Mi mamá me va a matar"** se toma como riesgo, por la regla de "ante duda, hacia arriba". Puede ser literal en una casa violenta.
-- **Código de seguimiento.** Aporta poco y un código guardado en el celular puede delatar a quien contó algo. Propuesta: quitarlo del piloto.

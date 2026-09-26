@@ -32,7 +32,7 @@ export default function Respuesta() {
       <Tarjeta titulo="Qué recibe el plantel" className="mt-4">
         <ul className="list-disc space-y-1.5 pl-5 text-sm text-t-ink-2">
           <li>El resumen de dos líneas que escribe la IA, la celda, la franja y la ruta legal fija. Nada más.</li>
-          <li>Sin nombre, sin código, sin texto original, sin hora exacta.</li>
+          <li>Sin nombre, sin texto original, sin hora exacta.</li>
           <li>No hay forma de responderle al estudiante ni de pedir más datos.</li>
           <li>La embajada no ve el contenido del aviso; solo que salió y cuánto tardó.</li>
         </ul>

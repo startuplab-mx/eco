@@ -169,6 +169,12 @@ const RIESGO = rxFon([
   "(subir|publicar|pasar|mandar|ensenar) (mis|tus|sus) (fotos|videos) si no",
   `(me|la|lo|nos|le|te) (viola|violan|violo|violaron|violaba|abuso|abusaron|obligo a|obligaron a)`,
   "abus\\w+ (sexualmente )?de",
+  // Trata y explotación sexual: afectan sobre todo a chavas.
+  "(llevar|llevarme|llevarla|llevarlas|llevarlo|llevarse|mandar|mandarla|mandarme)\\w* a (trabajar (a|en) )?(otro estado|otra ciudad|otro pais|estados unidos|el norte|la frontera)",
+  "(chava|amiga|prima|hermana|compa|morra|hija|novia|nina|vecina)\\w* [^,]{0,20}\\b(la|las) (vendieron|quieren vender|van a vender)",
+  "trata de personas", "tratantes?",
+  "(la|las|me|nos) (obligan|obligaron|obliga|quieren obligar) a (prostituirse|prostituirme|acostarse|acostarme|trabajar|vender)",
+  "prostitu\\w*", "explotacion sexual",
   "(pistola|arma|cuerno|fusca|cuchillo|navaja) para (matar|disparar|balear|picar)",
   "va a haber (una )?(balacera|tiroteo|disparos)", "(va|van) a (disparar|balear|balacear|atacar) (la|el|en la|en el) (escuela|cona|conalep|plantel|salon)",
   "necesito ayuda", "ocupo ayuda", "pido ayuda", "urge ayuda", "ayuda por favor", "por favor ayuda",
@@ -204,7 +210,7 @@ const AUTOLESION = rxFon([
   "me voy a (matar|morir|suicidar|colgar|aventar|tirar)",
   "quiero (morirme|matarme|morir)(?! de)", "pienso en (matarme|morirme|suicid\\w*|quitarme la vida)",
   "(ya )?no quiero (vivir|seguir viviendo|seguir aqui|estar aqui|existir)",
-  "no le encuentro (sentido|caso) a (la vida|vivir)", "no vale la pena vivir",
+  "no le encuentro (sentido|caso) a (la vida|vivir)", "no vale la pena vivir", "cansad[oa] de vivir",
   "cortarme", "me hago dano", "(quiero|voy a) hacerme dano", "suicid\\w*", "quitarme la vida",
   "me tome (muchas|unas|todas las|un monton de) pastillas", "sobredosis",
 ]);
@@ -233,7 +239,7 @@ const esRelleno = (t: string) =>
 const PRUEBA_APP =
   /(^|\b)((?<!no )es (una )?prueba|estoy probando|nomas probando|solo probando|probando (la app|esto|el chat|si funciona|si sirve)|prueba del (sistema|chat|app)|probaramos esto|probemos esto|probar (esto|la app|el chat)|(viendo|ver) como funciona|^test\b|^prueba\b)/;
 const HECHO =
-  /\b(droga\w*|mota|cristal|perico|piedra|fenta\w*|coca|vapes?|arma\w*|pistola|cuerno|fusca|navaja|cuchillo|reclut\w*|jale|chamba|lana|dinero|varo|feria|vend\w*|venta|miedo|bronca\w*|pelea\w*|punto|halcon\w*|cobr\w*|narco\w*|cartel|mana|mafia|sicari\w*|fotos|nudes|packs?|viol\w*|abus\w*|bullying|molest\w*|acos\w*|insult\w*|rob\w*|asalt\w*|peg\w*|golpe\w*|toca\w*|manose\w*|llevar|paquete\w*|tiendita|levant\w*|amenaz\w*|sigue\w*|pastilla\w*)\b/;
+  /\b(droga\w*|mota|cristal|perico|piedra|fenta\w*|coca|vapes?|arma\w*|pistola|cuerno|fusca|navaja|cuchillo|reclut\w*|jale|chamba|lana|dinero|varo|feria|vend\w*|venta|miedo|bronca\w*|pelea\w*|punto|halcon\w*|cobr\w*|narco\w*|cartel|mana|mafia|sicari\w*|fotos|nudes|packs?|viol\w*|abus\w*|bullying|molest\w*|acos\w*|insult\w*|rob\w*|asalt\w*|peg\w*|golpe\w*|toca\w*|manose\w*|llevar|paquete\w*|tiendita|levant\w*|amenaz\w*|sigue\w*|pastilla\w*|novio|modelo|trata|prostitu\w*)\b/;
 
 export function clasificar(texto: string): Clase {
   const p = preparar(texto);
@@ -301,7 +307,7 @@ const CUANDO = rx([
   "cada (dia|semana|tarde|manana|noche|rato|vez)", "a veces", "seguido", "a cada rato",
   "\\d{1,2} ?(am|pm|hrs|horas)", "a las (\\d+|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)",
   "turno (matutino|vespertino|de la manana|de la tarde)", "matutino", "vespertino",
-  "(estoy|estamos) (aqui|ahi|afuera)", "(estoy|estamos) en (la|el) (parada|entrada|esquina|salida|camion|combi|metro|calle|escuela|plantel|bano|patio)",
+  "(estoy|estamos) (sol[oa]s? )?(aqui|ahi|afuera)", "(estoy|estamos) (sol[oa]s? )?en (la|el) (parada|entrada|esquina|salida|camion|combi|metro|calle|escuela|plantel|bano|patio)",
   "cuando (salimos|salgo|salen|entramos|entro|entran|voy|vamos|regreso|regresamos|sali|iba|ibamos|venia|veniamos|salia|saliamos|regresaba)",
   "de regreso", "de ida",
 ]);
@@ -314,7 +320,7 @@ const OFRECER =
 const VAGO =
   "(jale|jalecito|chamba|chambita|chambear|trabajo|trabajito|trabajar|negocio|bisne|propuesta|oportunidad|jalar|jalo|entrarle|unirse|unirte|meterse|meterme|lana|dinero|varo|feria|billete|dinerito|algo)";
 const TAREA =
-  "(llevar|llevara|lleve|paquetes?|mochila|cuidar|vigilar|vigila|avisar|avise|avisara|halcon\\w*|puntear|vender|vende|venden|vendia|vendian|venta|vendiendo|distribuir|repartir|entregar|cobrar|guardar|guarda|esconder|grabar|graba|fotos|regal\\w*|tenis|cel|celular|recargas?|skins|pavos|diamantes|robux|mota|droga|cristal|vapes?|sicari\\w*|matar)";
+  "(llevar|llevara|lleve|paquetes?|mochila|cuidar|vigilar|vigila|avisar|avise|avisara|halcon\\w*|puntear|vender|vende|venden|vendia|vendian|venta|vendiendo|distribuir|repartir|entregar|cobrar|guardar|guarda|esconder|grabar|graba|fotos|regal\\w*|tenis|cel|celular|recargas?|skins|pavos|diamantes|robux|mota|droga|cristal|vapes?|sicari\\w*|matar|packs?|nudes|novia|novio|pareja|fiestas?|salir con \\w+|andar con \\w+)";
 const MONTO =
   /(\$ ?\d|\b\d+ ?(mil|pesos|varos|baros|k)\b|\bmil pesos\b|\b(un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|quince|veinte|cincuenta|cien) mil\b|\b\d+ (al|a la|por) (mes|semana|dia|viaje|encargo|video)\b)/;
 const GANANCIA =
@@ -390,7 +396,16 @@ export const OPCIONES_LUGAR: [string, Celda][] = [
 ];
 export const OPCIONES_CUANDO = ["En la mañana", "En la tarde", "En la noche", "Fin de semana", "Pasa seguido"];
 export const OPCIONES_MEDIO = ["TikTok", "Instagram", "WhatsApp", "Telegram", "Juego en línea", "Otra app"];
-export const OPCIONES_OFERTA = ["Dinero", "Llevar o guardar algo", "Avisar o vigilar", "Vender algo", "Regalos", "No dijeron qué"];
+export const OPCIONES_OFERTA = [
+  "Dinero",
+  "Llevar o guardar algo",
+  "Avisar o vigilar",
+  "Vender algo",
+  "Regalos o salidas",
+  "Mandar fotos",
+  "Ser su novia o pareja",
+  "No dijeron qué",
+];
 
 const PREGUNTAS: Record<Campo, Pregunta> = {
   lugar: {

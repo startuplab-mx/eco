@@ -55,7 +55,7 @@ export default function Resumen() {
       </Tarjeta>
 
       <Resguardo>
-        El tablero no muestra texto libre, mensajes individuales, códigos, nombres ni horas exactas. Todo conteo menor a 5 sale
+        El tablero no muestra texto libre, mensajes individuales, nombres ni horas exactas. Todo conteo menor a 5 sale
         como &ldquo;&lt; 5&rdquo;.
       </Resguardo>
     </>

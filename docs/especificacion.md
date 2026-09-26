@@ -2,7 +2,9 @@
 
 > Documento de especificación para construir el prototipo con Claude Code. Nombre del producto por definir (los estudiantes lo bautizan). En este documento se le llama **el Radar**.
 >
-> Estado: versión 1, 25 de septiembre de 2026. Cliente: Embajada de Estados Unidos en México (Sección de Diplomacia Pública / equipo antirreclutamiento). Desarrolla: StartupLab MX. Beneficiario: CONALEP, piloto en un plantel de la Zona Metropolitana del Valle de México.
+> Estado: versión 1.1, 25 de septiembre de 2026. Cambios sobre la versión 1, decididos al revisar el mockup: sin código de seguimiento (§4.3); textos sin masculino genérico hacia quien escribe; taxonomía v0.2 con las vías de enganche que afectan más a chavas (§5, Anexo A); bloque de peligro con 911 y buscar un lugar con gente, y bloque aparte para autolesión (§4.3). Detalle en `docs/revision-chat.md`.
+>
+> Versión 1, 25 de septiembre de 2026. Cliente: Embajada de Estados Unidos en México (Sección de Diplomacia Pública / equipo antirreclutamiento). Desarrolla: StartupLab MX. Beneficiario: CONALEP, piloto en un plantel de la Zona Metropolitana del Valle de México.
 
 ---
 
@@ -12,7 +14,7 @@ El reclutamiento de adolescentes por el crimen organizado es un proceso con etap
 
 El Radar es un canal digital, anónimo y sin operadores humanos, para que los estudiantes de un plantel cuenten lo que ven, lo que les pasa o lo que les preocupa. Lo que cuentan se procesa con IA para:
 
-1. Devolverle al estudiante, de inmediato, la señal de que **no es el único** que habla ("otros 6 contaron algo parecido").
+1. Devolverle al estudiante, de inmediato, la señal de que **no es la única persona** que habla ("6 personas más contaron algo parecido").
 2. Construir un **radar** de lo que se está reportando alrededor del plantel, que los estudiantes consultan aunque no tengan nada que contar.
 3. Extraer **patrones de reclutamiento** (dónde, cuándo, por qué medio, con qué oferta, en qué etapa) para un tablero que la embajada usa para ubicar zonas y modos de operar.
 4. Avisar a CONALEP cuando hay un caso rojo.
@@ -42,7 +44,7 @@ Estas reglas gobiernan cualquier decisión de diseño o código. Si una funciona
 
 | Usuario | Qué ve | Qué no ve |
 |---|---|---|
-| **Estudiante** | El radar (cinco filas + conteo), el chat, la respuesta "otros X contaron algo parecido" | Categorías internas, semáforo, cualquier texto de otros, nombres |
+| **Estudiante** | El radar (cinco filas + conteo), el chat, la respuesta "X personas más contaron algo parecido" | Categorías internas, semáforo, cualquier texto de otros, nombres |
 | **Embajada** (2–3 personas) | Tablero: resumen, mapa físico, canales digitales, modo de operar, alertas de patrón, respuesta institucional | Texto libre, mensajes individuales, códigos, celdas < 5, horas exactas |
 | **CONALEP** (una persona designada por plantel) | Un mensaje al teléfono del cargo cuando hay rojo, con resumen de dos líneas | Todo lo demás; no hay sistema de seguimiento para CONALEP en este alcance |
 | **StartupLab** (administrador) | Todo, con registro de cada acceso | — |
@@ -73,9 +75,9 @@ Esta semana en tu plantel
 23 compas contaron algo aquí.
 
 · Alguien ofreciendo dinero o "chamba"      6
-· Alguien que molesta, insiste o amenaza    5
+· Alguien que acosa, molesta o amenaza      5
 · Broncas entre compas                      4
-· Algo raro con un maestro                  3
+· Algo raro con un maestro o maestra        3
 · Otras cosas                               5
 
 [ Contar algo ]
@@ -98,7 +100,7 @@ Bot:    ¿Qué viste, qué te pasó o qué te preocupa? Cuéntalo como quieras.
 Chavo:  un wey afuera nos dijo que si queríamos ganar una lana fácil
 Bot:    ¿Fue en la entrada, en la parada o por otro lado? ¿Y más o menos cuándo?
 Chavo:  en la parada saliendo, ayer
-Bot:    Recibido. Otros 6 contaron algo parecido cerca de tu plantel este mes.
+Bot:    Recibido. 6 personas más contaron algo parecido cerca de tu plantel este mes.
 ```
 
 Reglas del chat:
@@ -109,11 +111,13 @@ Reglas del chat:
 - Tono: corto, directo, en su registro. Sin emojis en exceso, sin institucionalidad.
 - Se puede adjuntar una captura de pantalla; el navegador le quita metadatos (EXIF, ubicación, modelo) antes de enviar.
 - Al cerrar, siempre devuelve el conteo de parecidos:
-  - Si hay parecidos: "Otros N contaron algo parecido cerca de tu plantel este mes."
-  - Si no hay: "Eres el primero en contar algo así aquí. Si otros lo cuentan, lo vas a ver en el radar."
+  - Si hay parecidos: "N personas más contaron algo parecido cerca de tu plantel este mes."
+  - Si no hay: "Nadie había contado algo así aquí. Si alguien más lo cuenta, lo vas a ver en el radar."
   - Si el mensaje se marcó como prueba o broma: "Recibido. Por ahora no se suma a nada; esto es lo que otros han contado cerca de ti." y muestra el radar.
-- **Excepción rojo con riesgo inmediato** (cita en tiempo y lugar, amenaza directa, traslado): el cierre incluye un bloque fijo, aprobado, no generado: no vayas solo, 911, línea anónima de la Fiscalía. Nada más.
-- Al final se ofrece un **código de seguimiento** de seis caracteres, opcional, para volver y ver el estado. El código no se liga a nada más y no se recupera si se pierde.
+- **Excepción rojo con riesgo inmediato** (cita en tiempo y lugar, amenaza directa, traslado, desaparición, extorsión, violencia sexual, trata): el cierre incluye un bloque fijo, aprobado, no generado: llama al 911; si puedes, métete a la escuela o a un lugar con gente; no vayas a ningún lado sin compañía; línea anónima. Nada más.
+- **Autolesión** ("me quiero matar", "me corté"): bloque fijo distinto, con el 911 y una línea de apoyo que deben validar especialistas. Sin conteo de parecidos.
+- **Sin código de seguimiento** (cambio de la v1.1). Aportaba poco más que el radar, y un código guardado en el celular puede delatar a quien contó algo.
+- Lenguaje sin masculino genérico hacia quien escribe: "personas", "alguien", "compas".
 
 ### 4.4 Lo que la página no hace
 
@@ -136,15 +140,16 @@ El texto limpio se convierte en una ficha estructurada, validada contra un esque
 | Campo | Valores | Notas |
 |---|---|---|
 | `quien_habla` | afectado, testigo, involucrado, indeterminado | |
-| `hechos[]` | oferta, contacto, tarea_encargada, amenaza, aislamiento_observado, violencia, conducta_maestro, bronca, acoso, otro | Multi-etiqueta |
+| `hechos[]` | oferta, contacto, tarea_encargada, amenaza, aislamiento_observado, violencia, conducta_maestro, bronca, acoso, enganche_afectivo, fotos_intimas, explotacion_sexual, trata, otro | Multi-etiqueta |
 | `etapa` | contacto, oferta, tarea, enganche, amenaza, no_aplica | Solo si hay señal de reclutamiento |
 | `es_reclutamiento` | sí, probable, no | Inferido, aunque la palabra no aparezca |
 | `medio` | presencial, juego_en_linea, tiktok, instagram, whatsapp, telegram, otro_digital, indeterminado | |
 | `lugar` | id de celda (ver §8) o `en_linea` o `indeterminado` | Nunca coordenadas |
 | `franja` | matutino, vespertino, noche, fin_de_semana, indeterminado | |
-| `actor` | extraño, adulto_conocido, companero, maestro, grupo_nombrado, indeterminado | |
+| `actor` | extraño, adulto_conocido, companero, maestro, grupo_nombrado, pareja, indeterminado | |
+| `dirigido_a` | chavas, chavos, ambos, indeterminado | A quién va dirigida la oferta o la agresión, según lo que cuenta de otras personas. Nunca se infiere de quien escribe |
 | `actor_nombre` | texto o null | Se guarda, **nunca sale al tablero** |
-| `oferta` | `{tipo, monto, prueba_de_confianza}` o null | tipo: llevar_paquete, avisar, grabar, vender, chamba_indefinida, regalos, otro |
+| `oferta` | `{tipo, monto, prueba_de_confianza}` o null | tipo: llevar_paquete, avisar, grabar, vender, chamba_indefinida, regalos, relacion, modelaje, fiestas, fotos, otro |
 | `gravedad` | verde, amarillo, rojo | Interno. Ante duda, hacia arriba |
 | `riesgo_inmediato` | bool | Dispara el bloque fijo y el aviso a CONALEP |
 | `seriedad` | serio, probable_broma, prueba, incoherente | Nunca se muestra al estudiante |
@@ -168,7 +173,7 @@ Los estudiantes escriben "jale", "punto", "el de la moto", "los del video", no "
 
 Sobre las fichas y los embeddings, con nivel de confianza en cada resultado:
 
-- **Parecidos**: embedding por mensaje (pgvector); "otros N contaron algo parecido" = mensajes serios del mismo plantel en los últimos 30 días con similitud por encima de un umbral. Es lo que ve el estudiante.
+- **Parecidos**: embedding por mensaje (pgvector); "N personas más contaron algo parecido" = mensajes serios del mismo plantel en los últimos 30 días con similitud por encima de un umbral. Es lo que ve el estudiante.
 - **Mismo hecho vs. hecho distinto**: mensajes muy similares, misma celda, misma franja, ventana de 72 h → un hecho con varios testigos. Un hecho con 3+ testigos independientes es una señal fuerte.
 - **Reclutamiento sin la palabra**: oferta + tarea de prueba, o oferta + insistencia, o regalos + secreto → `es_reclutamiento: probable` aunque nadie lo diga.
 - **Actor recurrente**: el mismo descriptor de actor ("el de la moto") en varios mensajes en semanas distintas → actor persistente en la celda.
@@ -196,7 +201,7 @@ Medio · Tipo de oferta y tarea · Monto típico · Franja · Etapa predominante
 Señal de escalamiento · Confianza (reportes, coincidentes, descartados)
 ```
 
-Sin texto libre, sin nombres, sin códigos. Si hay grupo nombrado: "grupo identificado por los reportantes", sin el nombre.
+Sin texto libre, sin nombres. Si hay grupo nombrado: "grupo identificado por los reportantes", sin el nombre.
 
 ---
 
@@ -237,7 +242,6 @@ mensajes (
   id uuid, plantel_id, celda_id null,
   fecha date, franja text,
   texto_limpio text, captura_url null,
-  codigo_seguimiento_hash text null,   -- hash del código, no el código
   embedding vector(1024),
   creado_en_lote date                  -- fecha de lote, no timestamp
 )
@@ -268,7 +272,6 @@ Reglas de retención: texto limpio se conserva 12 meses y se borra; fichas y agr
 - Fecha y franja, nunca hora exacta. Los mensajes no rojos se liberan a la base en **lotes con retraso aleatorio de 2 a 12 horas**, para romper la correlación entre "cuándo se escribió" y "quién estaba dónde". Los rojos entran de inmediato.
 - Capturas: el navegador elimina metadatos antes de subir.
 - El texto original no se persiste. La limpieza ocurre en memoria.
-- Código de seguimiento: aleatorio, se guarda solo su hash, no se recupera.
 - Lugar: elegido por el usuario entre celdas gruesas. Jamás GPS.
 - Agregados: mínimo 5 registros por celda y por fila antes de mostrar.
 - Datos en servidor controlado por StartupLab, cifrados en reposo. Cada acceso al tablero queda registrado.
@@ -327,7 +330,7 @@ CLAUDE.md
 - Hora se guarda como fecha + franja. Nunca timestamp exacto en tablas de mensajes.
 - El texto original no se persiste; solo la versión limpia.
 - Ninguna consulta agregada devuelve celdas o filas con menos de 5 registros.
-- El tablero nunca expone texto libre, códigos ni actor_nombre.
+- El tablero nunca expone texto libre ni actor_nombre.
 - Ante duda en gravedad, el modelo clasifica hacia arriba.
 - Taxonomía, léxico, celdas y textos fijos viven en /config y no se editan en código.
 - El chat no da consejos, no pide nombres, no promete acción. Los únicos textos hacia el estudiante son los de /config/textos.json más las repreguntas de campos faltantes.
@@ -345,13 +348,13 @@ Migraciones, esquema de la ficha, prompt de limpieza, prompt de extracción, emb
 `generar-datos.ts`: pide al modelo 300 mensajes como los escribiría un estudiante de CONALEP de la ZMVM. Distribución objetivo: 45 % testigo de algo raro, 25 % afectado directo, 10 % ya involucrado, 20 % bromas/pruebas/incoherentes. Al menos 30 con señal de reclutamiento en distintas etapas, 8 rojos, 3 con riesgo inmediato. Repartidos en 6 celdas, 8 semanas, con dos celdas donde el embudo escala y un actor recurrente. Con jerga real ("jale", "lana", "el de la moto", "los del video", "punto"). Criterio de listo: al correr el pipeline sobre los 300, el radar tiene todas las filas con número y se dispara al menos una alerta de cada regla.
 
 **Fase 3: página del estudiante (semana 2)**
-Radar, chat con repreguntas, cierre con parecidos, código de seguimiento, salida rápida, limpieza de capturas. Criterio de listo: un mensaje de prueba recorre todo el flujo en menos de 30 segundos en un celular.
+Radar, chat con repreguntas, cierre con parecidos, salida rápida, limpieza de capturas. Criterio de listo: un mensaje de prueba recorre todo el flujo en menos de 30 segundos en un celular.
 
 **Fase 4: tablero (semana 3)**
 Seis vistas, cola del léxico, registro de accesos, alertas por correo. Criterio de listo: con los datos sintéticos, el mapa muestra celdas, el embudo muestra escalamiento en las dos celdas diseñadas para eso, y aparece la ficha de patrón del actor recurrente.
 
 **Fase 5: demo (antes del 9 de noviembre)**
-Guion de 10 minutos: un estudiante escanea, cuenta, recibe "otros 6"; el radar se actualiza; en el tablero aparece la celda; se muestra una ficha de patrón. Todo con datos sintéticos, declarado así.
+Guion de 10 minutos: una estudiante escanea, cuenta, recibe "6 personas más"; el radar se actualiza; en el tablero aparece la celda; se muestra una ficha de patrón. Todo con datos sintéticos, declarado así.
 
 ---
 
@@ -378,53 +381,150 @@ Guion de 10 minutos: un estudiante escanea, cuenta, recibe "otros 6"; el radar s
 
 ---
 
-## Anexo A. `config/taxonomia.json` (borrador inicial)
+## Anexo A. `config/taxonomia.json` (borrador v0.2)
 
 ```json
 {
-  "version": "0.1",
-  "quien_habla": ["afectado", "testigo", "involucrado", "indeterminado"],
-  "hechos": ["oferta", "contacto", "tarea_encargada", "amenaza", "aislamiento_observado",
-             "violencia", "conducta_maestro", "bronca", "acoso", "otro"],
-  "etapa": ["contacto", "oferta", "tarea", "enganche", "amenaza", "no_aplica"],
-  "es_reclutamiento": ["si", "probable", "no"],
-  "medio": ["presencial", "juego_en_linea", "tiktok", "instagram", "whatsapp",
-            "telegram", "otro_digital", "indeterminado"],
-  "franja": ["matutino", "vespertino", "noche", "fin_de_semana", "indeterminado"],
-  "actor": ["extrano", "adulto_conocido", "companero", "maestro", "grupo_nombrado", "indeterminado"],
-  "oferta_tipo": ["llevar_paquete", "avisar", "grabar", "vender", "chamba_indefinida", "regalos", "otro"],
-  "gravedad": ["verde", "amarillo", "rojo"],
-  "seriedad": ["serio", "probable_broma", "prueba", "incoherente"],
-  "fila_radar": ["dinero_chamba", "molestan_amenazan", "broncas", "maestro", "otras"],
+  "_nota": "v0.2, borrador de StartupLab sobre la v0.1 de la especificación. Agrega vías de reclutamiento y violencia que afectan más a chavas (relación o 'novio', fotos, 'trabajo de modelo', trata) y el campo dirigido_a. La embajada valida.",
+  "version": "0.2",
+  "quien_habla": [
+    "afectado",
+    "testigo",
+    "involucrado",
+    "indeterminado"
+  ],
+  "hechos": [
+    "oferta",
+    "contacto",
+    "tarea_encargada",
+    "amenaza",
+    "aislamiento_observado",
+    "violencia",
+    "conducta_maestro",
+    "bronca",
+    "acoso",
+    "enganche_afectivo",
+    "fotos_intimas",
+    "explotacion_sexual",
+    "trata",
+    "otro"
+  ],
+  "etapa": [
+    "contacto",
+    "oferta",
+    "tarea",
+    "enganche",
+    "amenaza",
+    "no_aplica"
+  ],
+  "es_reclutamiento": [
+    "si",
+    "probable",
+    "no"
+  ],
+  "medio": [
+    "presencial",
+    "juego_en_linea",
+    "tiktok",
+    "instagram",
+    "whatsapp",
+    "telegram",
+    "otro_digital",
+    "indeterminado"
+  ],
+  "franja": [
+    "matutino",
+    "vespertino",
+    "noche",
+    "fin_de_semana",
+    "indeterminado"
+  ],
+  "actor": [
+    "extrano",
+    "adulto_conocido",
+    "companero",
+    "maestro",
+    "grupo_nombrado",
+    "pareja",
+    "indeterminado"
+  ],
+  "dirigido_a": [
+    "chavas",
+    "chavos",
+    "ambos",
+    "indeterminado"
+  ],
+  "_dirigido_a": "A quién va dirigida la oferta o la agresión, según lo que cuenta sobre otras personas. Nunca se infiere de quien escribe.",
+  "oferta_tipo": [
+    "llevar_paquete",
+    "avisar",
+    "grabar",
+    "vender",
+    "chamba_indefinida",
+    "regalos",
+    "relacion",
+    "modelaje",
+    "fiestas",
+    "fotos",
+    "otro"
+  ],
+  "gravedad": [
+    "verde",
+    "amarillo",
+    "rojo"
+  ],
+  "seriedad": [
+    "serio",
+    "probable_broma",
+    "prueba",
+    "incoherente"
+  ],
+  "fila_radar": [
+    "dinero_chamba",
+    "molestan_amenazan",
+    "broncas",
+    "maestro",
+    "otras"
+  ],
   "criterios_gravedad": {
-    "rojo": "oferta ya aceptada, tarea ya realizada, amenaza directa, cita concreta en tiempo y lugar, traslado o retención, ausencia abrupta con indicios, adulto del plantel dando dinero o regalos en privado a un estudiante",
-    "amarillo": "oferta concreta no aceptada, contacto reiterado, aislamiento con secretismo, dinero u objetos sin explicación, invitación a conocer a un grupo, exposición sostenida a contenido de idealización",
+    "rojo": "oferta ya aceptada, tarea ya realizada, amenaza directa, cita concreta en tiempo y lugar, traslado o retención, ausencia abrupta con indicios, adulto del plantel dando dinero o regalos en privado a una o un estudiante, trata o traslado para trabajar lejos, explotación sexual, amenaza de difundir fotos íntimas",
+    "amarillo": "oferta concreta no aceptada, contacto reiterado, aislamiento con secretismo, dinero u objetos sin explicación, invitación a conocer a un grupo, exposición sostenida a contenido de idealización, relación con un adulto mucho mayor que regala cosas y pide secreto, pedido de fotos, invitaciones a fiestas con adultos del grupo",
     "verde": "vulnerabilidad sin señal de contacto, información de patrón sin persona en riesgo, cambio de grupo social sin control"
   },
   "regla": "Ante duda entre dos niveles, asignar el superior."
 }
 ```
 
-## Anexo B. `config/textos.json` (borrador inicial)
+## Anexo B. `config/textos.json` (borrador)
 
 ```json
 {
+  "_nota": "Primer borrador. Los textos finales los escriben los estudiantes. Todo lo que ve el estudiante sale de aquí, salvo las repreguntas. Sin masculino genérico: se escribe para chavas y chavos por igual (compas, personas, alguien).",
   "bienvenida": "¿Qué viste, qué te pasó o qué te preocupa? Cuéntalo como quieras. Nadie sabrá que fuiste tú.",
   "radar_titulo": "Esta semana en tu plantel",
+  "radar_titulo_mes": "Este mes en tu plantel",
   "radar_conteo": "{n} compas contaron algo aquí.",
+  "radar_nota": "Si algo tiene menos de 5, sale como —. Así nadie queda expuesto.",
+  "periodo_semana": "Esta semana",
+  "periodo_mes": "Este mes",
   "filas": {
     "dinero_chamba": "Alguien ofreciendo dinero o \"chamba\"",
-    "molestan_amenazan": "Alguien que molesta, insiste o amenaza",
+    "molestan_amenazan": "Alguien que acosa, molesta o amenaza",
     "broncas": "Broncas entre compas",
-    "maestro": "Algo raro con un maestro",
+    "maestro": "Algo raro con un maestro o maestra",
     "otras": "Otras cosas"
   },
+  "boton_contar": "Contar algo",
+  "boton_ver_radar": "Ver el radar",
+  "boton_contar_otra": "Contar otra cosa",
+  "input_placeholder": "Escribe aquí…",
   "limpieza_aviso": "Quitamos datos que te identifican. Así queda tu mensaje.",
-  "cierre_parecidos": "Recibido. Otros {n} contaron algo parecido cerca de tu plantel este mes.",
-  "cierre_primero": "Eres el primero en contar algo así aquí. Si otros lo cuentan, lo vas a ver en el radar.",
-  "cierre_no_suma": "Recibido. Por ahora no se suma a nada; esto es lo que otros han contado cerca de ti.",
-  "codigo_oferta": "Si quieres volver a ver cómo va esto, guarda este código. Si lo pierdes, nadie lo puede recuperar.",
-  "rojo_inmediato": "Si crees que estás en peligro ahora: no vayas solo a ningún lado. Emergencias: 911. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
+  "captura_limpia": "Captura lista. Le quitamos la ubicación y los datos del cel.",
+  "cierre_parecidos": "Recibido. {n} personas más contaron algo parecido cerca de tu plantel este mes.",
+  "cierre_primero": "Recibido. Nadie había contado algo así aquí. Si alguien más lo cuenta, lo vas a ver en el radar.",
+  "cierre_no_suma": "Recibido. Por ahora no se suma a nada; esto es lo que han contado cerca de ti.",
+  "rojo_inmediato": "Si estás en peligro ahora, llama al 911. Si puedes, métete a la escuela o a un lugar con gente. No vayas a ningún lado sin compañía. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
+  "rojo_autolesion": "Si estás pensando en hacerte daño, habla ahora con alguien. Emergencias: 911. Línea de apoyo: [por confirmar con especialistas].",
   "salida_rapida": "Salir"
 }
 ```

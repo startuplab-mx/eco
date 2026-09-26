@@ -22,8 +22,7 @@ Abre `http://localhost:3000/demo` para el guion de 10 minutos, con la vista del 
 | Ruta | Quién la ve | Qué muestra |
 |---|---|---|
 | `/` | Estudiante | Radar: cinco filas y el conteo de la semana o del mes |
-| `/contar` | Estudiante | Chat de máximo dos repreguntas, cierre con "otros N contaron algo parecido" y código opcional |
-| `/codigo` | Estudiante | Consulta con el código de seis caracteres |
+| `/contar` | Estudiante | Chat de máximo dos repreguntas y cierre con cuántas personas más contaron algo parecido |
 | `/salir` | Estudiante | Página neutra (apuntes de física) para la salida rápida |
 | `/tablero/entrar` | Embajada | Entrada al tablero |
 | `/tablero` | Embajada | Resumen |
@@ -36,27 +35,30 @@ Abre `http://localhost:3000/demo` para el guion de 10 minutos, con la vista del 
 | `/tablero/accesos` | Embajada | Registro de accesos para CONALEP |
 | `/demo` | Quien presenta | Guion del demo |
 
-El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta solo lo que falta, con las reglas de [`docs/repreguntas.md`](docs/repreguntas.md). Para el demo, `/contar?e=normal|linea|rojo|broma|primero` precarga un texto de ejemplo:
+El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta solo lo que falta, con las reglas de [`docs/repreguntas.md`](docs/repreguntas.md). Para el demo, `/contar?e=normal|linea|chava|rojo|broma|primero` precarga un texto de ejemplo:
 
-- `normal`: "afuera" no alcanza para la celda; pregunta dónde y cuándo, cierra con "otros 6".
+- `normal`: "afuera" no alcanza para la celda; pregunta dónde y cuándo, cierra con "6 personas más contaron algo parecido".
 - `linea`: venta de droga en línea. Pregunta la app; nunca dónde ni a qué hora.
+- `chava`: un señor mayor recoge a una amiga, le regala cosas y le pide fotos. Pregunta cuándo.
 - `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo: llamar al 911 y meterse a la escuela o a un lugar con gente.
 - `broma`: no se suma a nada y muestra el radar.
-- `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "eres el primero".
+- `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "nadie había contado algo así aquí".
 
 `npm test` corre la batería de casos del chat. `npm run simular -- "mensaje" "respuesta"` muestra qué haría el chat con cualquier mensaje.
 
 ## Qué respeta el mockup
 
 - En el radar y en las gráficas y tablas del tablero, ningún conteo menor a 5 aparece: sale "—" o "< 5". Las dos excepciones están en los pendientes 1 y 2.
-- El tablero no tiene texto libre, mensajes, códigos, nombres ni horas exactas.
+- El tablero no tiene texto libre, mensajes, nombres ni horas exactas.
+- No hay código de seguimiento: nada liga a quien escribe con lo que contó.
+- Sin masculino genérico hacia quien escribe ("personas", "alguien", "compas"). El chat y el tablero reconocen también las vías de enganche que afectan más a chavas: relación o "novio" mayor, regalos, fotos, "trabajo de modelo", trata.
 - Todos los textos que ve el estudiante salen de `config/textos.json`, salvo las repreguntas.
 - La salida rápida reemplaza la entrada del historial: "atrás" no regresa.
 
 ## Estructura
 
 ```
-app/(estudiante)/     radar, chat y código (siempre en oscuro, sin nada institucional)
+app/(estudiante)/     radar y chat (siempre en oscuro, sin nada institucional)
 app/salir/            página neutra
 app/tablero/          tablero de la embajada (claro y oscuro)
 app/demo/             guion para presentar
@@ -73,8 +75,7 @@ La especificación (§12) ordena la construcción en cinco fases: pipeline en te
 ## Pendientes que salieron al armar el mockup
 
 1. **Mínimo de 5 contra reglas de 3.** Las reglas de Coincidencia y Medio nuevo se disparan con 3 reportes, y la ficha de patrón trae conteos de coincidentes y descartados que pueden ser menores a 5. Hay que decidir cómo se muestran sin romper la regla del mínimo.
-2. **"Otros N" con N menor a 5.** La especificación no pone mínimo al conteo de parecidos que ve el estudiante. El escenario rojo del demo dice "otros 3". Confirmar si se deja así.
+2. **"N personas más" con N menor a 5.** La especificación no pone mínimo al conteo de parecidos que ve el estudiante. El escenario rojo del demo dice "3 personas más". Confirmar si se deja así.
 3. **El radar no se actualiza al momento.** Los mensajes que no son rojos entran en lotes con 2 a 12 horas de retraso, así que en el demo el radar no cambia en cuanto alguien cuenta algo. El guion de la especificación dice que sí; hay que ajustar el guion o explicarlo.
 4. **Línea anónima.** El bloque rojo dice "[línea anónima, por confirmar]". El 089 de denuncia anónima es el candidato obvio; falta confirmarlo con la Fiscalía.
 5. **Autolesión.** La especificación no la cubre. El chat ya la separa del peligro y muestra otro bloque fijo, pero la línea de apoyo está "por confirmar" y el texto lo tienen que validar especialistas. La Línea de la Vida es la candidata.
-6. **Código de seguimiento.** Aporta poco (casi lo mismo que el radar) y un código guardado en el celular puede delatar a quien contó algo. Propuesta: quitarlo del piloto.

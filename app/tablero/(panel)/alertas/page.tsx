@@ -10,7 +10,7 @@ export default function PaginaAlertas() {
       />
       <Alertas />
       <Resguardo>
-        Las fichas no traen texto libre, nombres ni códigos. Si los reportantes nombran a un grupo, la ficha solo dice que lo
+        Las fichas no traen texto libre ni nombres. Si los reportantes nombran a un grupo, la ficha solo dice que lo
         nombraron. En el piloto, cada alerta nueva también llega por correo.
       </Resguardo>
     </>

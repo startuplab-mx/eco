@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowUp, Check, Copy, ImageIcon, LifeBuoy, Paperclip, ShieldAlert } from "lucide-react";
+import { ArrowUp, ImageIcon, LifeBuoy, Paperclip, ShieldAlert } from "lucide-react";
 import textos from "@/config/textos.json";
 import Radar from "@/components/estudiante/Radar";
-import { CODIGO_DEMO } from "@/lib/mock/estudiante";
 import { iniciar, limpiar, responder, type Cierre, type Estado } from "@/lib/mock/conversacion";
 
 type Item =
@@ -15,8 +14,7 @@ type Item =
   | { tipo: "adjunto" }
   | { tipo: "rojo" }
   | { tipo: "autolesion" }
-  | { tipo: "radar" }
-  | { tipo: "codigo" };
+  | { tipo: "radar" };
 
 const ESPERA = 900;
 
@@ -50,13 +48,13 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
       agregar({ tipo: "bot", texto: textos.cierre_no_suma }, { tipo: "radar" });
       return;
     }
-    // Autolesión: solo el bloque fijo. Sin conteo de parecidos ni código.
+    // Autolesión: solo el bloque fijo, sin conteo de parecidos.
     if (c.tipo === "autolesion") {
       agregar({ tipo: "autolesion" });
       return;
     }
     const cierre = c.tipo === "primero" ? textos.cierre_primero : textos.cierre_parecidos.replace("{n}", String(c.n));
-    agregar({ tipo: "bot", texto: cierre }, ...(c.rojo ? [{ tipo: "rojo" } as Item] : []), { tipo: "codigo" });
+    agregar({ tipo: "bot", texto: cierre }, ...(c.rojo ? [{ tipo: "rojo" } as Item] : []));
   }
 
   function enviar(valor: string) {
@@ -227,29 +225,5 @@ function Burbuja({ item }: { item: Item }) {
           <Radar compacto />
         </div>
       );
-    case "codigo":
-      return <TarjetaCodigo />;
   }
-}
-
-function TarjetaCodigo() {
-  const [copiado, setCopiado] = useState(false);
-  return (
-    <div className="entra space-y-3 rounded-2xl bg-e-card p-4">
-      <p className="text-sm leading-snug text-e-muted">{textos.codigo_oferta}</p>
-      <div className="flex items-center justify-between gap-3 rounded-xl bg-e-bg px-4 py-3">
-        <span className="font-mono text-2xl font-semibold tracking-[0.3em]">{CODIGO_DEMO}</span>
-        <button
-          onClick={() => {
-            navigator.clipboard?.writeText(CODIGO_DEMO).catch(() => {});
-            setCopiado(true);
-          }}
-          className="flex items-center gap-1.5 rounded-full bg-e-card-2 px-3 py-1.5 text-sm font-semibold"
-        >
-          {copiado ? <Check className="size-4" /> : <Copy className="size-4" />}
-          {copiado ? textos.codigo_copiado : textos.codigo_copiar}
-        </button>
-      </div>
-    </div>
-  );
 }

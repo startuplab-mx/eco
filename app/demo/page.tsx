@@ -13,19 +13,24 @@ type Paso = {
 
 const GUION: Paso[] = [
   {
-    titulo: "Un compa manda el link al chat del salón",
+    titulo: "Alguien manda el link al chat del salón",
     texto: "Se abre sin cuenta, sin teléfono y sin instalar nada. Lo primero que ve es el radar: cuántos contaron algo esta semana.",
     telefono: "/",
   },
   {
     titulo: "Cuenta algo como quiera",
-    texto: "El chat pregunta solo lo que falta, máximo dos cosas. Aquí \"afuera\" no alcanza para ubicar la celda: pregunta dónde y cuándo, y cierra con \"otros 6 contaron algo parecido\".",
+    texto: "El chat pregunta solo lo que falta, máximo dos cosas. Aquí \"afuera\" no alcanza para ubicar la celda: pregunta dónde y cuándo, y cierra con \"6 personas más contaron algo parecido\".",
     telefono: "/contar?e=normal",
   },
   {
     titulo: "Si pasa en línea",
     texto: "No pregunta dónde ni a qué hora: en línea no hay lugar ni franja. Pregunta en qué app o juego, si no lo dijo.",
     telefono: "/contar?e=linea",
+  },
+  {
+    titulo: "Cuando el enganche llega por una relación",
+    texto: "A chavas el reclutamiento suele llegar distinto: alguien mayor que las recoge, regalos, fotos, \"trabajo de modelo\". El chat lo recibe igual y el tablero lo separa en \"a quién va dirigida\".",
+    telefono: "/contar?e=chava",
   },
   {
     titulo: "Si hay riesgo inmediato",
@@ -41,11 +46,6 @@ const GUION: Paso[] = [
     titulo: "Si se identifica sin querer",
     texto: "El sistema quita lo que dice quién es (\"soy de su mismo grupo\") antes de guardar y se lo avisa en una línea. Como fue por mensajes, pregunta la app.",
     telefono: "/contar?e=primero",
-  },
-  {
-    titulo: "Vuelve con su código",
-    texto: "Ve que lo suyo se juntó con otros. No hay forma de recuperar el código ni de ligarlo a nadie.",
-    telefono: "/codigo",
   },
   {
     titulo: "Salida rápida",
@@ -64,7 +64,7 @@ const GUION: Paso[] = [
   },
   {
     titulo: "La ficha de patrón",
-    texto: "Se genera sola cuando se cumple una regla. Es lo único que sale del sistema: sin texto libre, nombres ni códigos.",
+    texto: "Se genera sola cuando se cumple una regla. Es lo único que sale del sistema: sin texto libre ni nombres.",
     tablero: "/tablero/alertas",
   },
 ];
@@ -190,10 +190,6 @@ export default function Demo() {
                   ,{" "}
                   <Link className="underline" href="/contar">
                     contar
-                  </Link>
-                  ,{" "}
-                  <Link className="underline" href="/codigo">
-                    código
                   </Link>
                   ,{" "}
                   <Link className="underline" href="/salir">

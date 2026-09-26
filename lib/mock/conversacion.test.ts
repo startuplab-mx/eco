@@ -148,6 +148,48 @@ const CASOS: Record<string, Caso> = {
     cierre: "primero",
   },
 
+  // Vías que afectan más a chavas: relación, regalos, fotos, "trabajo de modelo", trata.
+  "señor mayor que la recoge y le pide fotos": {
+    turnos: ["a mi amiga un señor mayor la recoge en la entrada, le regala cosas y le pide fotos", "Pasa seguido"],
+    preguntas: ["cuando"],
+  },
+  "trabajo de modelo por insta": {
+    turnos: ["a las chavas de primero les ofrecen trabajo de modelo por insta", "Mandar fotos"],
+    preguntas: ["oferta"],
+  },
+  "novio de la maña": {
+    turnos: ["mi amiga anda con uno de la maña y le regala celulares para que no diga nada", "En la colonia", "Pasa seguido"],
+    preguntas: ["lugar", "cuando"],
+  },
+  "la invitan a fiestas": {
+    turnos: ["unos weyes mayores invitan a las de primero a fiestas en la colonia", "Fin de semana"],
+    preguntas: ["cuando"],
+  },
+  "trata: trabajar a otro estado": {
+    turnos: ["a mi prima le ofrecieron llevarla a trabajar a otro estado y ya no contesta"],
+    preguntas: [],
+    clase: "rojo",
+  },
+  "trata: se la llevaron": { turnos: ["se llevaron a una chava de quinto en un carro"], preguntas: [], clase: "rojo" },
+  "amenaza con subir fotos": { turnos: ["un wey amenaza con subir los packs de mi amiga"], preguntas: [], clase: "rojo" },
+  "la obligan a prostituirse": { turnos: ["a mi vecina la obligan a prostituirse"], preguntas: [], clase: "rojo" },
+  "me venden vapes no es trata": {
+    turnos: ["en la entrada me venden vapes todos los dias"],
+    preguntas: [],
+    clase: "serio",
+  },
+  "estoy sola y me ven raro": {
+    turnos: ["estoy sola en la parada y un señor no me deja de ver"],
+    preguntas: [],
+    clase: "serio",
+  },
+  "cansada de vivir": { turnos: ["ya estoy cansada de vivir"], preguntas: [], clase: "autolesion" },
+  "maestra que acosa": {
+    turnos: ["la maestra de ingles le toca la pierna a un compa", "Pasa seguido"],
+    preguntas: ["cuando"],
+    cierre: "primero",
+  },
+
   // Riesgo inmediato: no pregunta nada.
   "cita con amenaza": {
     turnos: ["me dijeron que el viernes a la salida me esperan en la parada para llevar algo y que si no voy ya saben dónde vivo"],
@@ -219,6 +261,8 @@ const LIMPIEZA: [string, string][] = [
   ["Me llamo Juan y un wey me ofreció lana", "un wey me ofreció lana"],
   ["soy la de 3B, en la parada venden", "en la parada venden"],
   ["voy en tercer semestre y me ofrecieron un jale", "y me ofrecieron un jale"],
+  ["me dicen la güera y en la parada me quieren pegar", "en la parada me quieren pegar"],
+  ["soy la nueva del 5C y un señor me pide fotos", "un señor me pide fotos"],
 ];
 const SIN_CAMBIO = [
   "hola prueba jaja",

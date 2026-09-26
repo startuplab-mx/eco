@@ -1,21 +1,108 @@
 {
-  "version": "0.1",
-  "quien_habla": ["afectado", "testigo", "involucrado", "indeterminado"],
-  "hechos": ["oferta", "contacto", "tarea_encargada", "amenaza", "aislamiento_observado",
-             "violencia", "conducta_maestro", "bronca", "acoso", "otro"],
-  "etapa": ["contacto", "oferta", "tarea", "enganche", "amenaza", "no_aplica"],
-  "es_reclutamiento": ["si", "probable", "no"],
-  "medio": ["presencial", "juego_en_linea", "tiktok", "instagram", "whatsapp",
-            "telegram", "otro_digital", "indeterminado"],
-  "franja": ["matutino", "vespertino", "noche", "fin_de_semana", "indeterminado"],
-  "actor": ["extrano", "adulto_conocido", "companero", "maestro", "grupo_nombrado", "indeterminado"],
-  "oferta_tipo": ["llevar_paquete", "avisar", "grabar", "vender", "chamba_indefinida", "regalos", "otro"],
-  "gravedad": ["verde", "amarillo", "rojo"],
-  "seriedad": ["serio", "probable_broma", "prueba", "incoherente"],
-  "fila_radar": ["dinero_chamba", "molestan_amenazan", "broncas", "maestro", "otras"],
+  "_nota": "v0.2, borrador de StartupLab sobre la v0.1 de la especificación. Agrega vías de reclutamiento y violencia que afectan más a chavas (relación o 'novio', fotos, 'trabajo de modelo', trata) y el campo dirigido_a. La embajada valida.",
+  "version": "0.2",
+  "quien_habla": [
+    "afectado",
+    "testigo",
+    "involucrado",
+    "indeterminado"
+  ],
+  "hechos": [
+    "oferta",
+    "contacto",
+    "tarea_encargada",
+    "amenaza",
+    "aislamiento_observado",
+    "violencia",
+    "conducta_maestro",
+    "bronca",
+    "acoso",
+    "enganche_afectivo",
+    "fotos_intimas",
+    "explotacion_sexual",
+    "trata",
+    "otro"
+  ],
+  "etapa": [
+    "contacto",
+    "oferta",
+    "tarea",
+    "enganche",
+    "amenaza",
+    "no_aplica"
+  ],
+  "es_reclutamiento": [
+    "si",
+    "probable",
+    "no"
+  ],
+  "medio": [
+    "presencial",
+    "juego_en_linea",
+    "tiktok",
+    "instagram",
+    "whatsapp",
+    "telegram",
+    "otro_digital",
+    "indeterminado"
+  ],
+  "franja": [
+    "matutino",
+    "vespertino",
+    "noche",
+    "fin_de_semana",
+    "indeterminado"
+  ],
+  "actor": [
+    "extrano",
+    "adulto_conocido",
+    "companero",
+    "maestro",
+    "grupo_nombrado",
+    "pareja",
+    "indeterminado"
+  ],
+  "dirigido_a": [
+    "chavas",
+    "chavos",
+    "ambos",
+    "indeterminado"
+  ],
+  "_dirigido_a": "A quién va dirigida la oferta o la agresión, según lo que cuenta sobre otras personas. Nunca se infiere de quien escribe.",
+  "oferta_tipo": [
+    "llevar_paquete",
+    "avisar",
+    "grabar",
+    "vender",
+    "chamba_indefinida",
+    "regalos",
+    "relacion",
+    "modelaje",
+    "fiestas",
+    "fotos",
+    "otro"
+  ],
+  "gravedad": [
+    "verde",
+    "amarillo",
+    "rojo"
+  ],
+  "seriedad": [
+    "serio",
+    "probable_broma",
+    "prueba",
+    "incoherente"
+  ],
+  "fila_radar": [
+    "dinero_chamba",
+    "molestan_amenazan",
+    "broncas",
+    "maestro",
+    "otras"
+  ],
   "criterios_gravedad": {
-    "rojo": "oferta ya aceptada, tarea ya realizada, amenaza directa, cita concreta en tiempo y lugar, traslado o retención, ausencia abrupta con indicios, adulto del plantel dando dinero o regalos en privado a un estudiante",
-    "amarillo": "oferta concreta no aceptada, contacto reiterado, aislamiento con secretismo, dinero u objetos sin explicación, invitación a conocer a un grupo, exposición sostenida a contenido de idealización",
+    "rojo": "oferta ya aceptada, tarea ya realizada, amenaza directa, cita concreta en tiempo y lugar, traslado o retención, ausencia abrupta con indicios, adulto del plantel dando dinero o regalos en privado a una o un estudiante, trata o traslado para trabajar lejos, explotación sexual, amenaza de difundir fotos íntimas",
+    "amarillo": "oferta concreta no aceptada, contacto reiterado, aislamiento con secretismo, dinero u objetos sin explicación, invitación a conocer a un grupo, exposición sostenida a contenido de idealización, relación con un adulto mucho mayor que regala cosas y pide secreto, pedido de fotos, invitaciones a fiestas con adultos del grupo",
     "verde": "vulnerabilidad sin señal de contacto, información de patrón sin persona en riesgo, cambio de grupo social sin control"
   },
   "regla": "Ante duda entre dos niveles, asignar el superior."

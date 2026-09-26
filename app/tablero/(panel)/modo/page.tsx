@@ -1,7 +1,7 @@
 import EmbudoZonas from "@/components/tablero/EmbudoZonas";
 import { BarrasH } from "@/components/tablero/graficas";
 import { Cuenta, Encabezado, Resguardo, Tabla, Tarjeta } from "@/components/tablero/ui";
-import { MINIMO, ofertas, porFranja, pruebas } from "@/lib/mock/tablero";
+import { dirigidaA, MINIMO, ofertaPorDestino, ofertas, porFranja, pruebas } from "@/lib/mock/tablero";
 
 export default function ModoOperar() {
   return (
@@ -24,6 +24,20 @@ export default function ModoOperar() {
         </Tarjeta>
         <Tarjeta titulo="Qué se pide como prueba" subtitulo="Tarea de prueba reportada · últimas 8 semanas">
           <BarrasH datos={pruebas.map((p) => ({ nombre: p.tarea, n: p.n }))} anchoEtiqueta="w-52" />
+        </Tarjeta>
+        <Tarjeta titulo="A quién va dirigida" subtitulo="Según lo que cuentan de otras personas · últimas 8 semanas">
+          <BarrasH datos={dirigidaA.map((d) => ({ nombre: d.a, n: d.n }))} anchoEtiqueta="w-28" />
+          <div className="mt-5 border-t border-t-border pt-4">
+            <p className="mb-2 text-sm text-t-muted">Oferta más reportada</p>
+            <Tabla
+              columnas={["Dirigida", "Oferta", "Reportes"]}
+              filas={ofertaPorDestino.map((o) => [o.a, o.oferta, <Cuenta key="n" n={o.n} />])}
+            />
+          </div>
+          <p className="mt-4 text-xs text-t-muted">
+            A chavas el enganche llega más por una relación, regalos y fotos; a chavos, por avisar y llevar paquetes. El
+            sistema nunca registra si quien escribe es chava o chavo.
+          </p>
         </Tarjeta>
         <Tarjeta titulo="Cuándo pasa" subtitulo="Franja del día · últimas 8 semanas">
           <BarrasH datos={porFranja.map((f) => ({ nombre: f.franja, n: f.n }))} resaltar={1} anchoEtiqueta="w-32" />
