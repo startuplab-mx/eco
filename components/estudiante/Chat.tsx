@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUp, ImageIcon, LifeBuoy, Paperclip, ShieldAlert } from "lucide-react";
 import textos from "@/config/textos.json";
 import Radar from "@/components/estudiante/Radar";
+import { totalRadar } from "@/lib/mock/estudiante";
 import { iniciar, limpiar, responder, type Cierre, type Estado } from "@/lib/mock/conversacion";
 
 type Item =
@@ -53,7 +54,10 @@ export default function Chat({ inicial = "" }: { inicial?: string }) {
       agregar({ tipo: "autolesion" });
       return;
     }
-    const cierre = c.tipo === "primero" ? textos.cierre_primero : textos.cierre_parecidos.replace("{n}", String(c.n));
+    const cierre =
+      c.tipo === "sin_parecidos"
+        ? textos.cierre_sin_parecidos.replace("{n}", String(totalRadar("mes")))
+        : textos.cierre_parecidos.replace("{n}", String(c.n));
     agregar({ tipo: "bot", texto: cierre }, ...(c.rojo ? [{ tipo: "rojo" } as Item] : []));
   }
 

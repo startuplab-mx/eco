@@ -14,7 +14,7 @@ type Paso = {
 const GUION: Paso[] = [
   {
     titulo: "Alguien manda el link al chat del salón",
-    texto: "Se abre sin cuenta, sin teléfono y sin instalar nada. Lo primero que ve es el radar: cuántos contaron algo esta semana.",
+    texto: "Se abre sin cuenta, sin teléfono y sin instalar nada. Lo primero que ve es el radar: cuántas personas contaron algo esta semana.",
     telefono: "/",
   },
   {
@@ -45,7 +45,7 @@ const GUION: Paso[] = [
   {
     titulo: "Si se identifica sin querer",
     texto: "El sistema quita lo que dice quién es (\"soy de su mismo grupo\") antes de guardar y se lo avisa en una línea. Como fue por mensajes, pregunta la app.",
-    telefono: "/contar?e=primero",
+    telefono: "/contar?e=maestro",
   },
   {
     titulo: "Salida rápida",

@@ -35,14 +35,14 @@ Abre `http://localhost:3000/demo` para el guion de 10 minutos, con la vista del 
 | `/tablero/accesos` | Embajada | Registro de accesos para CONALEP |
 | `/demo` | Quien presenta | Guion del demo |
 
-El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta solo lo que falta, con las reglas de [`docs/repreguntas.md`](docs/repreguntas.md). Para el demo, `/contar?e=normal|linea|chava|rojo|broma|primero` precarga un texto de ejemplo:
+El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta solo lo que falta, con las reglas de [`docs/repreguntas.md`](docs/repreguntas.md). Para el demo, `/contar?e=normal|linea|chava|rojo|broma|maestro` precarga un texto de ejemplo:
 
 - `normal`: "afuera" no alcanza para la celda; pregunta dónde y cuándo, cierra con "6 personas más contaron algo parecido".
 - `linea`: venta de droga en línea. Pregunta la app; nunca dónde ni a qué hora.
 - `chava`: un señor mayor recoge a una amiga, le regala cosas y le pide fotos. Pregunta cuándo.
 - `rojo`: amenaza con cita concreta. No repregunta; cierra con el bloque fijo: llamar al 911 y meterse a la escuela o a un lugar con gente.
 - `broma`: no se suma a nada y muestra el radar.
-- `primero`: quita "soy de su mismo grupo" antes de guardar, pregunta por qué app y cierra con "nadie había contado algo así aquí".
+- `maestro`: quita "soy de su mismo grupo" antes de guardar y pregunta por qué app. Como no hay reportes parecidos, cierra con el total del plantel: "No eres la única persona que está contando lo que pasa".
 
 `npm test` corre la batería de casos del chat. `npm run simular -- "mensaje" "respuesta"` muestra qué haría el chat con cualquier mensaje.
 
@@ -51,7 +51,7 @@ El chat reacciona a lo que se escribe: detecta qué trae el mensaje y pregunta s
 - En el radar y en las gráficas y tablas del tablero, ningún conteo menor a 5 aparece: sale "—" o "< 5". Las dos excepciones están en los pendientes 1 y 2.
 - El tablero no tiene texto libre, mensajes, nombres ni horas exactas.
 - No hay código de seguimiento: nada liga a quien escribe con lo que contó.
-- Sin masculino genérico hacia quien escribe ("personas", "alguien", "compas"). El chat y el tablero reconocen también las vías de enganche que afectan más a chavas: relación o "novio" mayor, regalos, fotos, "trabajo de modelo", trata.
+- Sin masculino genérico hacia quien escribe, tampoco "compas": "personas", "alguien", "estudiantes". Nunca se le dice a alguien que es la primera persona en contar algo. El chat y el tablero reconocen también las vías de enganche que afectan más a chavas: relación o "novio" mayor, regalos, fotos, "trabajo de modelo", trata.
 - Todos los textos que ve el estudiante salen de `config/textos.json`, salvo las repreguntas.
 - La salida rápida reemplaza la entrada del historial: "atrás" no regresa.
 

@@ -23,7 +23,7 @@ export const semanas = [
 export const filasMes = [
   { id: "dinero_chamba", nombre: "Dinero o \"chamba\"", n: 22 },
   { id: "molestan_amenazan", nombre: "Acosa, molesta o amenaza", n: 20 },
-  { id: "broncas", nombre: "Broncas entre compas", n: 18 },
+  { id: "broncas", nombre: "Broncas o peleas entre estudiantes", n: 18 },
   { id: "maestro", nombre: "Algo raro con un maestro o maestra", n: 9 },
   { id: "otras", nombre: "Otras cosas", n: 20 },
 ];
@@ -165,7 +165,7 @@ export const pruebas = [
   { tarea: "Llevar algo de un lugar a otro", n: 6 },
   { tarea: "Mandar fotos", n: 6 },
   { tarea: "Guardar algo", n: 5 },
-  { tarea: "Traer a otro compa", n: 3 },
+  { tarea: "Llevar a alguien más", n: 3 },
   { tarea: "Grabar o tomar fotos", n: 2 },
 ];
 

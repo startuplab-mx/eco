@@ -36,6 +36,6 @@ export const ejemplos = {
   chava: "a mi amiga un señor mayor la recoge en la entrada, le regala cosas y le pide fotos",
   rojo: "me dijeron que el viernes a la salida me esperan en la parada para llevar algo y que si no voy ya saben dónde vivo",
   broma: "hola prueba jaja",
-  primero: "un profe le manda mensajes en la noche a una compa y le regala cosas, soy de su mismo grupo",
+  maestro: "un profe le manda mensajes en la noche a una compa y le regala cosas, soy de su mismo grupo",
 };
 export type Escenario = keyof typeof ejemplos;

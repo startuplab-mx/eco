@@ -2,7 +2,7 @@
 
 > Documento de especificación para construir el prototipo con Claude Code. Nombre del producto por definir (los estudiantes lo bautizan). En este documento se le llama **el Radar**.
 >
-> Estado: versión 1.1, 25 de septiembre de 2026. Cambios sobre la versión 1, decididos al revisar el mockup: sin código de seguimiento (§4.3); textos sin masculino genérico hacia quien escribe; taxonomía v0.2 con las vías de enganche que afectan más a chavas (§5, Anexo A); bloque de peligro con 911 y buscar un lugar con gente, y bloque aparte para autolesión (§4.3). Detalle en `docs/revision-chat.md`.
+> Estado: versión 1.1, 25 de septiembre de 2026. Cambios sobre la versión 1, decididos al revisar el mockup: sin código de seguimiento (§4.3); textos sin masculino genérico hacia quien escribe (tampoco "compas") y sin decirle a nadie que es la primera persona en contar algo; taxonomía v0.2 con las vías de enganche que afectan más a chavas (§5, Anexo A); bloque de peligro con 911 y buscar un lugar con gente, y bloque aparte para autolesión (§4.3). Detalle en `docs/revision-chat.md`.
 >
 > Versión 1, 25 de septiembre de 2026. Cliente: Embajada de Estados Unidos en México (Sección de Diplomacia Pública / equipo antirreclutamiento). Desarrolla: StartupLab MX. Beneficiario: CONALEP, piloto en un plantel de la Zona Metropolitana del Valle de México.
 
@@ -72,11 +72,11 @@ Lo primero que aparece, antes de pedir nada:
 
 ```
 Esta semana en tu plantel
-23 compas contaron algo aquí.
+23 personas contaron algo aquí.
 
 · Alguien ofreciendo dinero o "chamba"      6
 · Alguien que acosa, molesta o amenaza      5
-· Broncas entre compas                      4
+· Broncas o peleas entre estudiantes        4
 · Algo raro con un maestro o maestra        3
 · Otras cosas                               5
 
@@ -112,12 +112,12 @@ Reglas del chat:
 - Se puede adjuntar una captura de pantalla; el navegador le quita metadatos (EXIF, ubicación, modelo) antes de enviar.
 - Al cerrar, siempre devuelve el conteo de parecidos:
   - Si hay parecidos: "N personas más contaron algo parecido cerca de tu plantel este mes."
-  - Si no hay: "Nadie había contado algo así aquí. Si alguien más lo cuenta, lo vas a ver en el radar."
+  - Si no hay: nunca se le dice que es la primera persona. Se le da el total real de su plantel: "No eres la única persona que está contando lo que pasa: este mes N personas contaron algo en tu plantel."
   - Si el mensaje se marcó como prueba o broma: "Recibido. Por ahora no se suma a nada; esto es lo que otros han contado cerca de ti." y muestra el radar.
 - **Excepción rojo con riesgo inmediato** (cita en tiempo y lugar, amenaza directa, traslado, desaparición, extorsión, violencia sexual, trata): el cierre incluye un bloque fijo, aprobado, no generado: llama al 911; si puedes, métete a la escuela o a un lugar con gente; no vayas a ningún lado sin compañía; línea anónima. Nada más.
 - **Autolesión** ("me quiero matar", "me corté"): bloque fijo distinto, con el 911 y una línea de apoyo que deben validar especialistas. Sin conteo de parecidos.
 - **Sin código de seguimiento** (cambio de la v1.1). Aportaba poco más que el radar, y un código guardado en el celular puede delatar a quien contó algo.
-- Lenguaje sin masculino genérico hacia quien escribe: "personas", "alguien", "compas".
+- Lenguaje sin masculino genérico hacia quien escribe: "personas", "alguien", "estudiantes" (tampoco "compas").
 
 ### 4.4 Lo que la página no hace
 
@@ -499,18 +499,18 @@ Guion de 10 minutos: una estudiante escanea, cuenta, recibe "6 personas más"; e
 
 ```json
 {
-  "_nota": "Primer borrador. Los textos finales los escriben los estudiantes. Todo lo que ve el estudiante sale de aquí, salvo las repreguntas. Sin masculino genérico: se escribe para chavas y chavos por igual (compas, personas, alguien).",
+  "_nota": "Primer borrador. Los textos finales los escriben los estudiantes. Todo lo que ve el estudiante sale de aquí, salvo las repreguntas. Sin masculino genérico (tampoco \"compas\"): personas, alguien, estudiantes. Nunca se le dice a alguien que es la primera persona en contar algo: el mensaje siempre es que no está sola ni solo.",
   "bienvenida": "¿Qué viste, qué te pasó o qué te preocupa? Cuéntalo como quieras. Nadie sabrá que fuiste tú.",
   "radar_titulo": "Esta semana en tu plantel",
   "radar_titulo_mes": "Este mes en tu plantel",
-  "radar_conteo": "{n} compas contaron algo aquí.",
+  "radar_conteo": "{n} personas contaron algo aquí.",
   "radar_nota": "Si algo tiene menos de 5, sale como —. Así nadie queda expuesto.",
   "periodo_semana": "Esta semana",
   "periodo_mes": "Este mes",
   "filas": {
     "dinero_chamba": "Alguien ofreciendo dinero o \"chamba\"",
     "molestan_amenazan": "Alguien que acosa, molesta o amenaza",
-    "broncas": "Broncas entre compas",
+    "broncas": "Broncas o peleas entre estudiantes",
     "maestro": "Algo raro con un maestro o maestra",
     "otras": "Otras cosas"
   },
@@ -521,7 +521,7 @@ Guion de 10 minutos: una estudiante escanea, cuenta, recibe "6 personas más"; e
   "limpieza_aviso": "Quitamos datos que te identifican. Así queda tu mensaje.",
   "captura_limpia": "Captura lista. Le quitamos la ubicación y los datos del cel.",
   "cierre_parecidos": "Recibido. {n} personas más contaron algo parecido cerca de tu plantel este mes.",
-  "cierre_primero": "Recibido. Nadie había contado algo así aquí. Si alguien más lo cuenta, lo vas a ver en el radar.",
+  "cierre_sin_parecidos": "Recibido. No eres la única persona que está contando lo que pasa: este mes {n} personas contaron algo en tu plantel.",
   "cierre_no_suma": "Recibido. Por ahora no se suma a nada; esto es lo que han contado cerca de ti.",
   "rojo_inmediato": "Si estás en peligro ahora, llama al 911. Si puedes, métete a la escuela o a un lugar con gente. No vayas a ningún lado sin compañía. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
   "rojo_autolesion": "Si estás pensando en hacerte daño, habla ahora con alguien. Emergencias: 911. Línea de apoyo: [por confirmar con especialistas].",

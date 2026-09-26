@@ -21,7 +21,7 @@ export type Ficha = {
 
 export type Pregunta = { campo: Campo; texto: string; opciones: string[] };
 
-export type Cierre = { tipo: "parecidos" | "primero" | "no_suma" | "autolesion"; n: number; rojo: boolean };
+export type Cierre = { tipo: "parecidos" | "sin_parecidos" | "no_suma" | "autolesion"; n: number; rojo: boolean };
 
 export type Estado = {
   ficha: Ficha;
@@ -429,7 +429,8 @@ function cerrarCon(f: Ficha, clase: Clase): Cierre {
   if (clase === "broma") return { tipo: "no_suma", n: 0, rojo: false };
   if (clase === "autolesion") return { tipo: "autolesion", n: 0, rojo: false };
   if (clase === "rojo") return { tipo: "parecidos", n: 3, rojo: true };
-  if (f.maestro) return { tipo: "primero", n: 0, rojo: false };
+  // Sin parecidos no se le dice que es la primera persona: se le da el total del plantel.
+  if (f.maestro) return { tipo: "sin_parecidos", n: 0, rojo: false };
   return { tipo: "parecidos", n: 6, rojo: false };
 }
 

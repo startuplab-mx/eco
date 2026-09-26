@@ -15,7 +15,7 @@ type Caso = {
   turnos: string[];
   preguntas: Campo[];
   clase?: Clase;
-  cierre?: "parecidos" | "primero" | "no_suma";
+  cierre?: "parecidos" | "sin_parecidos" | "no_suma";
 };
 
 const CASOS: Record<string, Caso> = {
@@ -130,22 +130,22 @@ const CASOS: Record<string, Caso> = {
   "maestro en el laboratorio": {
     turnos: ["el profe de química le toca la pierna a una compa en el laboratorio", "En la mañana"],
     preguntas: ["cuando"],
-    cierre: "primero",
+    cierre: "sin_parecidos",
   },
   "maestro por mensajes, sin app": {
     turnos: ["un profe le manda mensajes en la noche a una compa y le regala cosas, soy de su mismo grupo", "WhatsApp"],
     preguntas: ["medio"],
-    cierre: "primero",
+    cierre: "sin_parecidos",
   },
   "maestro por whats con todo dicho": {
     turnos: ["el profe le pide fotos a una compa por whats"],
     preguntas: [],
-    cierre: "primero",
+    cierre: "sin_parecidos",
   },
   "maestro que trata mal": {
     turnos: ["un maestro nos insulta a todos", "Pasa seguido"],
     preguntas: ["cuando"],
-    cierre: "primero",
+    cierre: "sin_parecidos",
   },
 
   // Vías que afectan más a chavas: relación, regalos, fotos, "trabajo de modelo", trata.
@@ -187,7 +187,7 @@ const CASOS: Record<string, Caso> = {
   "maestra que acosa": {
     turnos: ["la maestra de ingles le toca la pierna a un compa", "Pasa seguido"],
     preguntas: ["cuando"],
-    cierre: "primero",
+    cierre: "sin_parecidos",
   },
 
   // Riesgo inmediato: no pregunta nada.
