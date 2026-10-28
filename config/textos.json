@@ -1,0 +1,29 @@
+{
+  "_nota": "Primer borrador. Los textos finales los escriben los estudiantes. Todo lo que ve el estudiante sale de aquí, salvo las repreguntas. Sin masculino genérico (tampoco \"compas\"): personas, alguien, estudiantes. Nunca se le dice a alguien que es la primera persona en contar algo: el mensaje siempre es que no está sola ni solo.",
+  "bienvenida": "¿Qué viste, qué te pasó o qué te preocupa? Cuéntalo como quieras. Nadie sabrá que fuiste tú.",
+  "radar_titulo": "Esta semana en tu plantel",
+  "radar_titulo_mes": "Este mes en tu plantel",
+  "radar_conteo": "{n} personas contaron algo aquí.",
+  "radar_nota": "Si algo tiene menos de 5, sale como —. Así nadie queda expuesto.",
+  "periodo_semana": "Esta semana",
+  "periodo_mes": "Este mes",
+  "filas": {
+    "dinero_chamba": "Alguien ofreciendo dinero o \"chamba\"",
+    "molestan_amenazan": "Alguien que acosa, molesta o amenaza",
+    "broncas": "Broncas o peleas entre estudiantes",
+    "maestro": "Algo raro con un maestro o maestra",
+    "otras": "Otras cosas"
+  },
+  "boton_contar": "Contar algo",
+  "boton_ver_radar": "Ver el radar",
+  "boton_contar_otra": "Contar otra cosa",
+  "input_placeholder": "Escribe aquí…",
+  "limpieza_aviso": "Quitamos datos que te identifican. Así queda tu mensaje.",
+  "captura_limpia": "Captura lista. Le quitamos la ubicación y los datos del cel.",
+  "cierre_parecidos": "Recibido. {n} personas más contaron algo parecido cerca de tu plantel este mes.",
+  "cierre_sin_parecidos": "Recibido. No eres la única persona que está contando lo que pasa: este mes {n} personas contaron algo en tu plantel.",
+  "cierre_no_suma": "Recibido. Por ahora no se suma a nada; esto es lo que han contado cerca de ti.",
+  "rojo_inmediato": "Si estás en peligro ahora, llama al 911. Si puedes, métete a la escuela o a un lugar con gente. No vayas a ningún lado sin compañía. Para contar algo sin dar tu nombre: [línea anónima, por confirmar].",
+  "rojo_autolesion": "Si estás pensando en hacerte daño, habla ahora con alguien. Emergencias: 911. Línea de apoyo: [por confirmar con especialistas].",
+  "salida_rapida": "Salir"
+}
