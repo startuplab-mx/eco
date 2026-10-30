@@ -236,7 +236,9 @@ async function probarDesvios(soloPaso: string | null) {
 }
 
 async function probarRiesgo() {
-  return Promise.all(FRASES_RIESGO.map(async ({ frase, esperado }) => {
+  // De 4 en 4, para no topar con el límite de solicitudes simultáneas de la cuenta.
+  const resultados = [];
+  for (let i = 0; i < FRASES_RIESGO.length; i += 4) resultados.push(...(await Promise.all(FRASES_RIESGO.slice(i, i + 4).map(async ({ frase, esperado }) => {
     try {
       const r = await interpretar({
         codigo: "pruebaxxxx", pregunta: "¿Te cuesta dormir porque te quedas pensando en cosas que pasan?", tipo: "opcion",
@@ -247,7 +249,8 @@ async function probarRiesgo() {
     } catch (e) {
       return { frase, esperado, modelo: null, lista: hayAlarma(frase, g.alarma, g.alarmaRevisar), error: String((e as Error).message).slice(0, 200), ok: false };
     }
-  }));
+  }))));
+  return resultados;
 }
 
 export async function GET(req: Request) {
