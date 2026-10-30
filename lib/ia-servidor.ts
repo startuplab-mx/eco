@@ -81,6 +81,8 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
     max_tokens: maxTokens,
     system: sistema,
     messages: [{ role: "user" as const, content: contenido }],
+    // Respuesta directa: sin razonamiento interno que consuma tiempo y tokens.
+    thinking: { type: "disabled" as const },
   };
   let msg: Anthropic.Message;
   try {
@@ -91,12 +93,14 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
   } catch (e) {
     // Si el modelo no acepta formato estructurado, se pide JSON en texto.
     if (e instanceof Anthropic.BadRequestError) {
-      msg = await getCliente().messages.create({ ...base, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.` });
+      registrarFalla("formato", e);
+      const { thinking: _sinThinking, ...simple } = base;
+      msg = await getCliente().messages.create({ ...simple, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.` });
     } else throw e;
   }
   const texto = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
   const json = texto.match(/\{[\s\S]*\}/);
-  if (!json) return null;
+  if (!json) throw new Error(`sin JSON (stop_reason=${msg.stop_reason}, bloques=${msg.content.map((b) => b.type).join("+")})`);
   try {
     return JSON.parse(json[0]);
   } catch {
@@ -111,7 +115,7 @@ export async function interpretar(p: PedidoInterpretar): Promise<RespuestaInterp
     opciones: p.opciones,
     texto_del_joven: p.texto,
   });
-  const r = await pedirJSON(MODELO_RAPIDO, SISTEMA_INTERPRETAR, contenido, ESQUEMA_INTERPRETAR, 200);
+  const r = await pedirJSON(MODELO_RAPIDO, SISTEMA_INTERPRETAR, contenido, ESQUEMA_INTERPRETAR, 600);
   if (!r) return null;
   const validos = new Set(p.opciones.map((o) => o.id));
   let opciones = Array.isArray(r.opciones) ? r.opciones.filter((x): x is string => typeof x === "string" && validos.has(x)) : [];
@@ -129,7 +133,7 @@ export async function redactar(p: PedidoRedactar): Promise<RespuestaRedactar | n
     base: p.base.join(" "),
     siguiente_pregunta: p.siguiente,
   });
-  const r = await pedirJSON(MODELO_ESCRITURA, SISTEMA_REDACTAR, contenido, ESQUEMA_REDACTAR, 160);
+  const r = await pedirJSON(MODELO_ESCRITURA, SISTEMA_REDACTAR, contenido, ESQUEMA_REDACTAR, 400);
   if (!r) return null;
   const crudo = typeof r.puente === "string" ? r.puente.trim() : null;
   if (crudo === "") return { puente: p.base.length ? null : "" };
