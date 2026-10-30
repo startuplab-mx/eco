@@ -59,6 +59,7 @@ export function validarPuente(texto: unknown): string | null {
   const frases = t.split(/[.!¡]+/).filter((f) => f.trim().length > 0);
   if (frases.length > 2) return null;
   if (frases.some((f) => f.trim().split(/\s+/).length > 22)) return null;
+  if (t.split(/\s+/).length > 32) return null;
   return t;
 }
 

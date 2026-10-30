@@ -67,7 +67,8 @@ export async function turno(
 
   // 2. Reescribir reacciones y validaciones (nunca en crisis, nunca preguntas ni textos fijos).
   const inicio = salida.findIndex((s) => s.tipo === "eco" && s.reescribible);
-  const huboTextoLibre = !!texto && !comando && res.respondido;
+  // Sin reacción del guion, sólo se escribe puente después de una respuesta abierta (no en datos ni escalas).
+  const huboTextoLibre = !!texto && !comando && res.respondido && esp?.paso.tipo === "abierta";
   if (ia && !res.estado.rojo && res.respondido && (inicio >= 0 || huboTextoLibre)) {
     let fin = inicio;
     while (fin >= 0 && fin < salida.length && salida[fin].tipo === "eco" && (salida[fin] as { reescribible?: boolean }).reescribible) fin++;
