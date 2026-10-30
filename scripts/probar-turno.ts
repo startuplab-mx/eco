@@ -114,6 +114,62 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "me quiero morir" }, iaCiega, []);
   ok(r.estado.rojo, "la lista de alarma gana aunque el modelo no vea riesgo (escala)");
 
+  // ---------- Escalera de desvíos ----------
+  const D = g.desvios;
+  const iaDesvio: ServicioIA = {
+    interpretar: async (p) => {
+      const t = p.texto;
+      const tipo = /no quiero contestar/.test(t) ? "no_quiere" : /me voy|aburrid/.test(t) ? "se_quiere_ir"
+        : /ubicar|quién va a leer/.test(t) ? "privacidad" : /salgo de un grupo/.test(t) ? "pide_orientacion"
+        : /clásico|tarea/.test(t) ? "fuera_de_tema" : /pendejo/.test(t) ? "groseria" : /depende/.test(t) ? "responde" : "sin_sentido";
+      return { tipo, riesgo: false, opciones: [], repregunta: tipo === "responde" ? "¿Más bien a veces o seguido?" : null, otro: null };
+    },
+    redactar: async () => ({ puente: "PUENTE" }),
+  };
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "asdfgh" }, null, []);
+  ok(D.redirigir.includes(textos(r.salida)[0]) && r.estado.esperando?.paso.id === "v2_alerta", "1er desvío (sin modelo): redirige y espera");
+  r = await turno(g, inst, r.estado, { texto: "jajajaja" }, null, []);
+  ok(textos(r.salida)[0] === D.saltarInsiste[0] && r.estado.respuestas["v2_alerta"]?.valor === "omitida" && r.estado.esperando?.paso.id === "v2_dormir", "2º desvío en la misma pregunta: la deja pasar");
+  r = await turno(g, inst, r.estado, { texto: "¿quién ganó el clásico?" }, iaDesvio, []);
+  ok(textos(r.salida)[0] === D.otroDia && r.estado.esperando?.paso.id === "_otrodia", "3er desvío en la sesión: ofrece otro día");
+  const oferta = r.estado;
+  r = await turno(g, inst, oferta, { opcion: "seguir" }, iaDesvio, []);
+  ok(r.estado.esperando?.paso.id === "v2_dormir" && r.estado.desvios === 0, "«Seguir» retoma la pregunta y reinicia la cuenta");
+  r = await turno(g, inst, oferta, { opcion: "otrodia" }, iaDesvio, []);
+  ok(r.estado.terminada && textos(r.salida)[0].startsWith("Va, lo dejamos para otro día") && r.salida.some((x) => x.tipo === "directorio"), "«Otro día» despide con directorio");
+
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "no quiero contestar eso" }, iaDesvio, []);
+  ok(D.saltarNoQuiere.includes(textos(r.salida)[0]) && r.estado.respuestas["v2_alerta"]?.valor === "omitida" && r.estado.desvios === 0, "«no quiero contestar»: salta sin contar desvío");
+  r = await turno(g, inst, e, { texto: "esto está aburrido, ya me voy" }, iaDesvio, []);
+  ok(textos(r.salida)[0] === D.seQuiereIr && r.estado.esperando?.paso.id === "_otrodia", "«ya me voy»: ofrece seguir u otro día");
+  r = await turno(g, inst, e, { texto: "¿me pueden ubicar?" }, iaDesvio, []);
+  ok(textos(r.salida)[0] === D.privacidad[0] && textos(r.salida).includes(e.esperando!.pregunta!) && r.estado.desvios === 0, "privacidad: responde y vuelve a preguntar");
+  r = await turno(g, inst, e, { texto: "¿cómo me salgo de un grupo?" }, iaDesvio, []);
+  ok(r.salida.some((x) => x.tipo === "directorio") && r.estado.esperando?.paso.id === "v2_alerta", "orientación: directorio y vuelve a preguntar");
+  r = await turno(g, inst, e, { texto: "eres un bot bien pendejo" }, iaDesvio, []);
+  ok(D.groseria.includes(textos(r.salida)[0]), "grosería al bot: respuesta sin regaño");
+  r = await turno(g, inst, e, { texto: "pues depende" }, iaDesvio, []);
+  ok(textos(r.salida)[0].startsWith("¿Más bien") && r.estado.esperando?.paso.id === "v2_alerta", "respuesta ambigua: repregunta una vez");
+  r = await turno(g, inst, r.estado, { texto: "pues depende" }, iaDesvio, []);
+  ok(r.estado.respuestas["v2_alerta"]?.valor === "omitida" && r.estado.desviosTotal === 0, "ambigua dos veces: la deja pasar sin contar desvío");
+
+  e = hasta("en_cuerpo");
+  r = await turno(g, inst, e, { texto: "chinga tu madre" }, null, []);
+  ok(!r.estado.respuestas["en_cuerpo"] && D.groseria.includes(textos(r.salida)[0]), "grosería ya no se registra como «otro»");
+
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "me quiero morir de risa" }, null, []);
+  ok(!r.estado.rojo, "«me quiero morir de risa» no activa la crisis");
+  r = await turno(g, inst, e, { texto: "me quiero morir" }, null, []);
+  ok(r.estado.rojo, "«me quiero morir» sí activa la crisis");
+
+  let c = arrancar(g, inst, crearEstado()).estado;
+  r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
+  r = await turno(g, inst, r.estado, { texto: "jajaja" }, null, []);
+  ok(r.estado.esperando?.paso.id === "bi_consentimiento" && !r.estado.respuestas["bi_consentimiento"], "el consentimiento nunca se salta");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

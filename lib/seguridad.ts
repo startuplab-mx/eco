@@ -11,10 +11,31 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
-/** true si el texto contiene alguna frase de alarma. */
+/** Expresiones coloquiales que no son riesgo: "me quiero morir de risa", "me muero de hambre". */
+const COLOQUIALES =
+  /\b(morir|muero|muriendo|morirme|matar|mato)( me)? de (la )?(risa|hambre|sueno|aburrimiento|pena|verguenza|envidia|calor|frio|ganas|amor|cansancio|nervios|emocion|flojera)\b/g;
+
+/** true si el texto contiene alguna frase de alarma (sin contar las expresiones coloquiales). */
 export function hayAlarma(texto: string, alarma: string[]): boolean {
-  const t = normalizar(texto);
+  const t = normalizar(texto).replace(COLOQUIALES, " ");
   return alarma.some((frase) => t.includes(normalizar(frase)));
+}
+
+/** Sin modelo: letras al azar, sólo risas, sólo emojis o signos. */
+export function pareceSinSentido(texto: string): boolean {
+  const t = normalizar(texto);
+  const letras = t.replace(/[^a-zñ]/g, "");
+  if (letras.length === 0) return true;
+  if (/^(ja|je|ji|jo|ha|he|lol|xd|js|jsj|wa)+[jahs]*$/.test(letras)) return true;
+  if (/(.)\1{3,}/.test(letras) && new Set(letras).size <= 2) return true;
+  if (/asdf|qwer|zxcv|hjkl|dfgh|wert/.test(letras)) return true;
+  return t.split(/\s+/).every((p) => p.length >= 4 && !/[aeiou]/.test(p));
+}
+
+/** Sin modelo: insulto dirigido a Eco ("eres un bot pendejo", "chinga tu madre"). */
+export function esGroseriaDirigida(texto: string): boolean {
+  const t = normalizar(texto);
+  return /(chinga tu|tu madre|vete a la|eres (un|una)?\s*\w*\s*(pendej|idiota|estupid|tont|mierda|culer|put)|bot (pendej|idiota|estupid|culer|put|de mierda))/.test(t);
 }
 
 // Palabras que suelen ir en mayúscula y no son nombres de personas.

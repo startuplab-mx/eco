@@ -52,6 +52,10 @@ export async function turno(
     });
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
+    else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !estado.confirmacion) {
+      // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
+      final = { texto, desvio: r.tipo };
+    }
     else if (estado.confirmacion) {
       // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
       final = r.opciones[0] ? { opcion: r.opciones[0] } : entrada;
@@ -72,8 +76,13 @@ export async function turno(
         // La lista de alarma siempre gana: si las reglas activaron el protocolo rojo, se respeta.
         if (local.estado.rojo) return { estado: local.estado, salida: local.salida, uso };
         if (!entendido(local)) {
-          // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
-          return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
+          // Ni el modelo ni las reglas lo entendieron: se repregunta una vez; a la segunda se deja pasar.
+          const clave = `?${esp.paso.id}`;
+          if ((estado.desviosPaso[clave] ?? 0) >= 1) final = { desvio: "insiste" };
+          else {
+            const e2 = { ...estado, desviosPaso: { ...estado.desviosPaso, [clave]: 1 } };
+            return { estado: e2, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
+          }
         }
       }
     }
@@ -85,8 +94,8 @@ export async function turno(
   // 2. Reescribir reacciones y validaciones (nunca en crisis, nunca preguntas ni textos fijos).
   const inicio = salida.findIndex((s) => s.tipo === "eco" && s.reescribible);
   // Sin reacción del guion, sólo se escribe puente después de una respuesta abierta (no en datos ni escalas).
-  const huboTextoLibre = !!texto && !comando && res.respondido && esp?.paso.tipo === "abierta";
-  if (ia && !res.estado.rojo && res.respondido && (inicio >= 0 || huboTextoLibre)) {
+  const huboTextoLibre = !!texto && !comando && res.respondido && !res.desvio && esp?.paso.tipo === "abierta";
+  if (ia && !res.estado.rojo && !res.desvio && !final.desvio && res.respondido && (inicio >= 0 || huboTextoLibre)) {
     let fin = inicio;
     while (fin >= 0 && fin < salida.length && salida[fin].tipo === "eco" && (salida[fin] as { reescribible?: boolean }).reescribible) fin++;
     const base = inicio >= 0 ? salida.slice(inicio, fin).map((s) => ("texto" in s ? s.texto : "")) : [];

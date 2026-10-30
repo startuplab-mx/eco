@@ -97,3 +97,29 @@ presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiabl
   modelo, Eco repite sus palabras entre comillas. Una emoción "otro" sigue la ruta de "No sé" (módulo D y apoyo).
 - **Sin espejo** en ofrecimientos y compuertas: "¿Quieres hacer un ejercicio?", "¿quieres que respiremos?",
   "Este tema puede ser difícil; puedes saltarlo", "¿Quieres saber cómo?" y similares.
+
+## Respuestas desviadas (30 de octubre de 2026)
+
+El modelo clasifica cada respuesta escrita; sin modelo, unas reglas básicas detectan letras al azar, risas,
+emojis e insultos directos. Los textos son fijos y están en `desvios` del guion, para revisión del equipo psicológico.
+
+| Tipo | Ejemplo | Qué hace Eco | ¿Cuenta como desvío? |
+|---|---|---|---|
+| Sin sentido | "asdfg", "jajaja", "🤡" | 1ª vez en la pregunta: redirige. 2ª vez: "Va, la dejamos pasar." | Sí |
+| Grosería al bot | "eres un bot pendejo" | "Se vale estar de malas…" / igual que arriba | Sí |
+| Fuera de tema / trolleo | "¿quién ganó?", "vendo droga" | Redirige / igual que arriba | Sí |
+| No quiere contestar | "no quiero contestar eso" | "Va, la saltamos." | No |
+| Se quiere ir | "esto está aburrido, ya me voy" | "¿Seguimos un poco más o lo dejamos para otro día?" | No |
+| Privacidad | "¿me pueden ubicar?" | Explica el anonimato y vuelve a preguntar | No |
+| Pide orientación | "¿cómo me salgo de un grupo?" | "Eso es importante y merece hablarlo con una persona…" + directorio, y vuelve a preguntar | No |
+| Ambigua dos veces | "pues depende" | Repregunta una vez; a la segunda la deja pasar | No |
+
+- **Tercer desvío en la sesión:** "Parece que hoy no es buen momento, y está bien. ¿Seguimos o lo dejamos para otro día?"
+  [Seguir] [Otro día]. "Otro día" despide con el directorio. "Seguir" reinicia la cuenta.
+- **El consentimiento nunca se salta:** un desvío ahí sólo redirige; "no quiero" equivale a "Ahora no".
+- **No hay botón "Saltar".** "Puedes saltar cualquiera" cambia a "Si alguna no quieres contestarla, sólo dímelo."
+- **"Otro"** sólo se registra si es una respuesta real; las groserías y la basura ya no.
+- **Lista de alarma:** "morir de risa / de hambre / de sueño / de aburrimiento" y similares no activan la crisis.
+- **Riesgo:** contar que vende o hace algo ilegal no es crisis por sí solo (va como fuera de tema); sí lo es si dice
+  que lo obligan o lo amenazan.
+- **Calidad de datos:** el resumen registra `desvios`, `omitidas` y `revisarCalidad` (3 o más desvíos).

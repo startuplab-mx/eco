@@ -10,7 +10,16 @@ export interface PedidoInterpretar {
   texto: string;
 }
 
+export type TipoRespuesta =
+  | "responde" | "sin_sentido" | "groseria" | "fuera_de_tema"
+  | "no_quiere" | "se_quiere_ir" | "privacidad" | "pide_orientacion";
+export const TIPOS_RESPUESTA: TipoRespuesta[] = [
+  "responde", "sin_sentido", "groseria", "fuera_de_tema", "no_quiere", "se_quiere_ir", "privacidad", "pide_orientacion",
+];
+
 export interface RespuestaInterpretar {
+  /** Qué clase de respuesta es (para la escalera de desvíos). */
+  tipo?: TipoRespuesta;
   /** Señal de riesgo que activa el protocolo rojo. */
   riesgo: boolean;
   /** Opciones que corresponden a lo escrito (vacío si no queda claro). */

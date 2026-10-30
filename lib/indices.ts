@@ -81,6 +81,11 @@ export interface ResumenSesion {
   completa: boolean;
   /** Último bloque al que llegó: sirve para ver dónde abandonan. */
   ultimoBloque: string | null;
+  /** Respuestas desviadas (sin sentido, groserías, fuera de tema) y preguntas saltadas. */
+  desvios: number;
+  omitidas: number;
+  /** Sesión a revisar antes de incluirla en el análisis (3 o más desvíos). */
+  revisarCalidad: boolean;
 }
 
 export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesion {
@@ -128,5 +133,8 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     comoTermina: str("ci_ahora"),
     completa: estado.completa,
     ultimoBloque: estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
+    desvios: estado.desviosTotal,
+    omitidas: estado.omitidas.length,
+    revisarCalidad: estado.desviosTotal >= 3,
   };
 }

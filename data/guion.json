@@ -380,7 +380,8 @@
               "label": "Ahora no",
               "salir": true
             }
-          ]
+          ],
+          "noSaltar": true
         },
         {
           "id": "bi_dudas",
@@ -396,7 +397,7 @@
             "Tus respuestas se guardan como números y temas, no como tu texto completo.",
             "Lo que escribes lo lee un sistema de inteligencia artificial para entenderte mejor, sin datos que digan quién eres.",
             "Un equipo de psicólogos las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
-            "Puedes saltar cualquier pregunta. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
+            "Si alguna pregunta no quieres contestarla, sólo dímelo. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
           ]
         },
         {
@@ -420,7 +421,8 @@
               "label": "Ahora no",
               "salir": true
             }
-          ]
+          ],
+          "noSaltar": true
         }
       ]
     },
@@ -1043,7 +1045,7 @@
         {
           "id": "en_puente",
           "tipo": "mensaje",
-          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas que tienen que ver con eso, para entender mejor lo que vives. Puedes saltar cualquiera."
+          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas que tienen que ver con eso, para entender mejor lo que vives. Si alguna no quieres contestarla, sólo dímelo."
         }
       ]
     },
@@ -2593,6 +2595,55 @@
           "texto": "Puedes volver cuando quieras."
         }
       ]
+    },
+    "otrodia": {
+      "id": "otrodia",
+      "nombre": "Salida: otro día",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "od_gracias",
+          "tipo": "mensaje",
+          "texto": "Va, lo dejamos para otro día. Gracias por pasar por aquí."
+        },
+        {
+          "id": "od_directorio",
+          "tipo": "directorio"
+        },
+        {
+          "id": "od_adios",
+          "tipo": "mensaje",
+          "texto": "Puedes volver cuando quieras."
+        }
+      ]
     }
+  },
+  "desvios": {
+    "redirigir": [
+      "Aquí platicamos de cómo estás tú. ¿Me ayudas con esta?",
+      "Va, regresemos a la pregunta. ¿Cuál se parece más a lo que vives?",
+      "Te leo. Para seguir, ¿me ayudas con esta pregunta?"
+    ],
+    "groseria": [
+      "Se vale estar de malas. Si quieres seguimos: escribe o elige una opción.",
+      "Va, sin bronca. ¿Le seguimos con esta pregunta?"
+    ],
+    "saltarNoQuiere": [
+      "Va, la saltamos.",
+      "Sin problema, pasamos a otra."
+    ],
+    "saltarInsiste": [
+      "Va, la dejamos pasar."
+    ],
+    "otroDia": "Parece que hoy no es buen momento, y está bien. ¿Seguimos o lo dejamos para otro día?",
+    "seQuiereIr": "Va. ¿Seguimos un poco más o lo dejamos para otro día?",
+    "privacidad": [
+      "Aquí no hay nombres: cada plática tiene un código al azar.",
+      "Eco no te pide ubicación ni teléfono, y lo que escribes no se guarda completo.",
+      "Un equipo de psicólogos ve las respuestas de muchos jóvenes juntas, sin saber quién eres."
+    ],
+    "orientacion": [
+      "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
+    ]
   }
 }

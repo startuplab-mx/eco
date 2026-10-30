@@ -6,7 +6,7 @@
 import type {
   Bloque, Condicion, EjercicioId, Espera, Estado, Guion, Instancia, Opcion, Paso, Respuesta, Salida,
 } from "./tipos";
-import { filtrarIdentificadores, hayAlarma, normalizar } from "./seguridad";
+import { esGroseriaDirigida, filtrarIdentificadores, hayAlarma, normalizar, pareceSinSentido } from "./seguridad";
 import { calcularNivel } from "./indices";
 
 export interface Entrada {
@@ -24,6 +24,8 @@ export interface Entrada {
   confirmado?: boolean;
   /** Frase breve (del modelo) para una respuesta que no está en las opciones. */
   otro?: string;
+  /** Respuesta desviada (la clasifica el modelo; sin modelo, reglas básicas). */
+  desvio?: "sin_sentido" | "groseria" | "fuera_de_tema" | "no_quiere" | "se_quiere_ir" | "privacidad" | "pide_orientacion" | "insiste";
 }
 
 export interface Resultado {
@@ -31,12 +33,18 @@ export interface Resultado {
   salida: Salida[];
   /** true si la entrada quedó registrada como respuesta del paso que se esperaba. */
   respondido?: boolean;
+  /** true si la entrada se trató como desvío (no se escribe puente). */
+  desvio?: boolean;
 }
 
 const PAUSA: Paso = { id: "_pausa", tipo: "opcion" };
 const OPC_PAUSA: Opcion[] = [
   { id: "seguir", label: "Seguir" },
   { id: "terminar", label: "Terminar" },
+];
+const OPC_OTRODIA: Opcion[] = [
+  { id: "seguir", label: "Seguir" },
+  { id: "otrodia", label: "Otro día" },
 ];
 const OPC_SALIR: Opcion[] = [
   { id: "si", label: "Sí, terminar" },
@@ -239,6 +247,10 @@ export function crearEstado(rand: () => number = Math.random, fecha: Date = new 
     completa: false,
     terminada: false,
     preguntaCierre: Math.floor(rand() * nPreguntasCierre),
+    desvios: 0,
+    desviosTotal: 0,
+    desviosPaso: {},
+    omitidas: [],
   };
 }
 
@@ -381,6 +393,74 @@ function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
   return contiene.length === 1 ? contiene[0] : undefined;
 }
 
+function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
+  estado.pausa = "otrodia";
+  estado.esperandoPrevio = estado.esperando!;
+  estado.esperando = { paso: { id: "_otrodia", tipo: "opcion", texto }, opciones: OPC_OTRODIA, multiple: false, textoLibre: true, pregunta: texto };
+  salida.push({ tipo: "eco", texto });
+}
+
+/** Escalera de desvíos: redirige una vez, salta en la segunda, ofrece "otro día" en la tercera de la sesión. */
+function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNullable<Entrada["desvio"]>, salida: Salida[]): Resultado {
+  const p = estado.esperando!.paso;
+  const D = g.desvios;
+  const variante = (xs: string[]) => xs[(estado.desviosTotal + (estado.desviosPaso[p.id] ?? 0)) % xs.length];
+  const saltar = (texto: string): Resultado => {
+    estado.respuestas[p.id] = { valor: "omitida" };
+    estado.omitidas.push(p.id);
+    estado.esperando = null;
+    salida.push({ tipo: "eco", texto });
+    estado.indice++;
+    avanzar(g, inst, estado, salida);
+    return { estado, salida, desvio: true };
+  };
+  const repreguntar = () => {
+    emitirTextos(g, inst, estado, p, salida);
+    if (p.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, p.ejercicio ?? "respiracion") });
+  };
+
+  switch (tipo) {
+    case "no_quiere":
+      if (p.noSaltar) { irA(estado, ["salida"]); avanzar(g, inst, estado, salida); return { estado, salida, desvio: true }; }
+      return saltar(variante(D.saltarNoQuiere));
+    case "insiste":
+      // Respondió en serio pero dos veces no quedó claro: se deja pasar sin contarlo como desvío.
+      return saltar(variante(D.saltarInsiste));
+    case "se_quiere_ir":
+      ofrecerOtroDia(estado, D.seQuiereIr, salida);
+      return { estado, salida, desvio: true };
+    case "privacidad":
+      D.privacidad.forEach((texto) => salida.push({ tipo: "eco", texto }));
+      repreguntar();
+      return { estado, salida, desvio: true };
+    case "pide_orientacion":
+      D.orientacion.forEach((texto) => salida.push({ tipo: "eco", texto }));
+      salida.push({ tipo: "directorio", excluir: ["denuncia"] });
+      repreguntar();
+      return { estado, salida, desvio: true };
+    default: {
+      estado.desvios++;
+      estado.desviosTotal++;
+      const enPaso = (estado.desviosPaso[p.id] = (estado.desviosPaso[p.id] ?? 0) + 1);
+      if (estado.desvios >= 3) {
+        ofrecerOtroDia(estado, D.otroDia, salida);
+        return { estado, salida, desvio: true };
+      }
+      if (enPaso >= 2 && !p.noSaltar) return saltar(variante(D.saltarInsiste));
+      salida.push({ tipo: "eco", texto: variante(tipo === "groseria" ? D.groseria : D.redirigir) });
+      return { estado, salida, desvio: true };
+    }
+  }
+}
+
+/** Sin modelo: ¿el texto es un desvío evidente? */
+function desvioPorReglas(texto: string | undefined): Entrada["desvio"] | undefined {
+  if (!texto) return undefined;
+  if (esGroseriaDirigida(texto)) return "groseria";
+  if (pareceSinSentido(texto)) return "sin_sentido";
+  return undefined;
+}
+
 export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entrada: Entrada): Resultado {
   const estado = structuredClone(estadoPrevio);
   const salida: Salida[] = [];
@@ -400,7 +480,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     if (!op) { salida.push({ tipo: "eco", texto: "¿Seguimos o terminamos?" }); return { estado, salida }; }
     const modo = estado.pausa;
     estado.pausa = null;
-    const continuar = (modo === "pausa" && op === "seguir") || (modo === "salir" && op === "no");
+    const continuar = ((modo === "pausa" || modo === "otrodia") && op === "seguir") || (modo === "salir" && op === "no");
+    if (modo === "otrodia" && continuar) estado.desvios = 0;
     if (continuar) {
       const previo = estado.esperandoPrevio!;
       estado.esperando = previo;
@@ -411,7 +492,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       return { estado, salida };
     }
     delete estado.esperandoPrevio;
-    irA(estado, modo === "pausa" ? ["cierre"] : ["salida"]);
+    irA(estado, modo === "pausa" ? ["cierre"] : modo === "otrodia" ? ["otrodia"] : ["salida"]);
     avanzar(g, inst, estado, salida);
     return { estado, salida };
   }
@@ -442,7 +523,10 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     return responder(g, inst, estado, entrada);
   }
 
-  // 4. Respuesta al paso actual.
+  // 4. Desvío clasificado por el modelo.
+  if (entrada.desvio && estado.esperando.paso.id.charAt(0) !== "_") return manejarDesvio(g, inst, estado, entrada.desvio, salida);
+
+  // 5. Respuesta al paso actual.
   const { paso: p, opciones } = estado.esperando;
   let respuesta: Respuesta | undefined;
   let elegida: Opcion | undefined;
@@ -456,6 +540,10 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       texto.split(/,|\by\b|\n/).forEach((x) => { const o = casarTexto(opciones, x); if (o) ids.add(o.id); });
     }
     // Lo escrito no corresponde a ninguna opción: se registra como "otro" con sus palabras.
+    if (texto && !ids.size && !entrada.otro) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
+    }
     if (texto && !ids.size && p.aceptaOtro) {
       ids.add(idOtro(opciones));
       estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
@@ -481,6 +569,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       elegida = opciones.find((o) => o.id === entrada.opcion);
       if (elegida) respuesta = { valor: elegida.id };
     } else if (texto) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
       const filtro = filtrarIdentificadores(texto);
       if (filtro.encontrado && !estado.avisoIdentificador) {
         estado.avisoIdentificador = true;
@@ -499,6 +589,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const rango = n === null ? undefined : p.rangos?.find((r) => n >= r.min && n <= r.max);
       // Sólo se guarda el rango; el número exacto no sale de aquí.
       if (rango) respuesta = { valor: rango.id };
+      else if (desvioPorReglas(texto)) return manejarDesvio(g, inst, estado, desvioPorReglas(texto)!, salida);
       else {
         salida.push({ tipo: "eco", texto: "¿Me lo escribes con número? Por ejemplo: 15." });
         return { estado, salida };
@@ -512,6 +603,10 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
       }
+    }
+    if (!elegida && texto && !entrada.otro) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
     }
     if (elegida) respuesta = { valor: elegida.id, num: elegida.valor };
     else if (texto && p.aceptaOtro) {
