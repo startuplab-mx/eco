@@ -84,20 +84,23 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
     // Respuesta directa: sin razonamiento interno que consuma tiempo y tokens.
     thinking: { type: "disabled" as const },
   };
-  let msg: Anthropic.Message;
-  try {
-    msg = await getCliente().messages.create({
-      ...base,
-      output_config: { format: { type: "json_schema", schema: esquema as Record<string, unknown> } },
-    });
-  } catch (e) {
-    // Si el modelo no acepta formato estructurado, se pide JSON en texto.
-    if (e instanceof Anthropic.BadRequestError) {
+  // Intentos de más a menos estricto: formato JSON + sin razonamiento → sólo sin razonamiento → mínimo.
+  const intentos = [
+    { ...base, output_config: { format: { type: "json_schema" as const, schema: esquema as Record<string, unknown> } } },
+    { ...base, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.` },
+    { model: modelo, max_tokens: 2000, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.`, messages: base.messages },
+  ];
+  let msg: Anthropic.Message | null = null;
+  for (const params of intentos) {
+    try {
+      msg = await getCliente().messages.create(params);
+      break;
+    } catch (e) {
+      if (!(e instanceof Anthropic.BadRequestError)) throw e;
       registrarFalla("formato", e);
-      const { thinking: _sinThinking, ...simple } = base;
-      msg = await getCliente().messages.create({ ...simple, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.` });
-    } else throw e;
+    }
   }
+  if (!msg) throw new Error("ningún formato de llamada fue aceptado");
   const texto = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
   const json = texto.match(/\{[\s\S]*\}/);
   if (!json) throw new Error(`sin JSON (stop_reason=${msg.stop_reason}, bloques=${msg.content.map((b) => b.type).join("+")})`);
