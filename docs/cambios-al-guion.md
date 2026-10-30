@@ -1,0 +1,59 @@
+# Cambios al guion frente al documento «Chatbot psicoemocional Eco»
+
+Para revisión del equipo psicológico. Todo lo que no aparece aquí está tal cual en el documento.
+
+## Ítems agregados (aprobados el 29 de octubre de 2026)
+
+| Dónde | Ítem | Escala |
+|---|---|---|
+| Fase 2 | ¿Cómo te identificas? | Mujer / Hombre / Otro / Prefiero no decir |
+| Fase 2 | ¿Con quién vives? | Múltiple |
+| V1 | ¿Qué tan seguido te sientes inseguro/a en la escuela o en el camino? | E5 |
+| V1 | ¿Te has enterado de que le pasó algo grave a alguien que conoces? No necesito saber qué. | Sí / No / Prefiero no decir |
+| V2 | ¿Te cuesta relajarte, como si siempre tuvieras que estar alerta? | E5 |
+| V2 | ¿Te cuesta dormir porque te quedas pensando en cosas que pasan? | E5 |
+| V3 | ¿Te has sentido triste o sin ganas de hacer cosas? | E5 |
+| V3 | ¿Sientes que no importa lo que hagas, las cosas no van a mejorar? | E5 |
+| V4 | ¿Te enojas tan fuerte que sientes que podrías explotar? | E5 |
+| V5 | ¿Cargas con sentimientos de culpa que no puedes platicar con nadie? | E5 |
+| V6 | "Tener poder o dinero rápido vale el riesgo" | Acuerdo 1–5 |
+| V7 | Si quisieras decir que no, ¿sientes que podrías? (sólo si presión ≥ A veces) | Sí / No / No sé |
+| V8 | ¿Qué tan importante es para ti terminar la escuela? | Acuerdo 1–5 |
+| V9 | ¿Tienes amigos con quienes te sientes seguro/a? | Sí / No |
+
+Con sus validaciones correspondientes (desesperanza, enojo, culpa, alguien conocido, libertad).
+
+## Textos nuevos que no estaban en el documento
+
+Revisar redacción:
+
+- **"Tengo dudas" (Fase 1):** "Te explico. Aquí no hay nombres: cada plática tiene un código al azar. /
+  Tus respuestas se guardan como números y temas, no como tu texto completo. / Un equipo de psicólogos
+  las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela. / Puedes saltar cualquier
+  pregunta. Si escribes "pausa" o "salir", paramos cuando quieras."
+- **Tranquilo/contento:** la validación dice "me gustaría saber qué te ayuda a sentirte así"; se agregó la
+  pregunta abierta "¿Qué te ayuda a sentirte así?".
+- **Paso 9:** "¿Quieres hacer un ejercicio cortito antes de seguir?" (el documento lo marca opcional sin texto).
+- **Módulo E, "Quiero saber cómo":** "Puedes buscar a [orientador] en [lugar], [horario]. / También la Línea
+  de la Vida, 800 911 2000, te orienta gratis y sin pedir tu nombre."
+- **Cierre en amarillo:** "Gracias por todo lo que me contaste. Lo que sientes merece atención. / Si quieres
+  que alguien te escuche en persona, puedes buscar a [orientador]…" y oferta de ejercicio.
+- **Pausa:** "Aquí espero. Cuando quieras, seguimos." · **Salir:** "¿Quieres terminar la plática?"
+- **Respuesta no entendida:** "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?"
+
+## Decisiones de flujo
+
+- **Varias emociones:** el documento pide priorizar la de mayor intensidad, pero hay un solo termómetro.
+  Se prioriza por este orden: miedo, preocupación, tristeza, vacío, enojo, soledad, vergüenza, cansancio,
+  confusión, no sé, tranquilidad, alegría. Las rutas de las demás emociones se suman después.
+- **Módulos:** se abren los de la ruta (máximo 4). Si son menos de 3, se completan con I, D, H, A, B en ese orden.
+- **Grupo "Cambiemos de tema":** no se dice si es lo primero después de la entrada emocional.
+- **Termómetro final:** se pregunta siempre que hubo termómetro inicial.
+- **Crisis (rojo):** tras el mensaje de crisis, la plática termina con el directorio (sin 089). No se retoma el cuestionario.
+- **"Terminar"** en la transición o en la pausa lleva al cierre (Fase 8). **"Salir"** lleva a una despedida corta con directorio.
+- **Rojo en el registro:** sólo se marca que hubo una sesión roja esa semana en esa escuela.
+
+## Protocolo amarillo
+
+Se activa con cualquiera de: termómetro inicial 9–10 · desesperanza ≥ Seguido · malestar global > 60/100 ·
+presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiable no activa amarillo.

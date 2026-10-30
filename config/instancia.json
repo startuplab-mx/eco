@@ -1,0 +1,20 @@
+{
+  "escuela": "piloto-01",
+  "orientador": {
+    "nombre": "[PENDIENTE: nombre del psicólogo u orientador]",
+    "lugar": "[PENDIENTE: lugar]",
+    "horario": "[PENDIENTE: horario]"
+  },
+  "directorio": [
+    { "id": "orientacion", "label": "Hablar con orientación escolar",
+      "detalle": "Busca a {orientador} en {lugar}, {horario}." },
+    { "id": "linea_vida", "label": "Línea de la Vida 800 911 2000, 24 h", "numero": "8009112000",
+      "detalle": "Si te sientes mal y quieres hablar con alguien, es gratis y no te piden tu nombre." },
+    { "id": "emergencias", "label": "Emergencias 911", "numero": "911",
+      "detalle": "Si estás en peligro ahora mismo." },
+    { "id": "denuncia", "label": "Denuncia anónima 089", "numero": "089",
+      "detalle": "Para reportar de forma anónima algo que no está pasando en este momento. No pide datos personales." },
+    { "id": "respiracion", "label": "Ejercicio de respiración de 1 minuto",
+      "detalle": "" }
+  ]
+}
