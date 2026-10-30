@@ -351,7 +351,14 @@
     "me estan amenazando",
     "me tienen amenazad",
     "me quiero suicidar",
-    "me voy a matar"
+    "me voy a matar",
+    "si no le entro",
+    "si no le entras",
+    "me va a ir mal si no",
+    "me quieren reclutar",
+    "me quieren enganchar",
+    "no me dejan salirme",
+    "no me dejan decir que no"
   ],
   "bloques": {
     "bienvenida": {
@@ -2668,6 +2675,10 @@
     "me forzaron",
     "me lastimaron",
     "no quiero seguir aqui",
-    "me hago dano"
+    "me hago dano",
+    "me quieren meter a trabajar",
+    "me quieren meter con ellos",
+    "me estan buscando",
+    "me andan buscando"
   ]
 }

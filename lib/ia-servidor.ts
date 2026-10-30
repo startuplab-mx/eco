@@ -98,12 +98,14 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
     messages: [{ role: "user" as const, content: contenido }],
     // Respuesta directa: sin razonamiento interno que consuma tiempo y tokens.
     thinking: { type: "disabled" as const },
+    // Entender y revisar riesgo debe dar lo mismo cada vez; escribir puentes admite algo de variación.
+    temperature: modelo === MODELO_RAPIDO ? 0 : 0.7,
   };
   // Intentos de más a menos estricto: formato JSON + sin razonamiento → sólo sin razonamiento → mínimo.
   const intentos = [
     { ...base, output_config: { format: { type: "json_schema" as const, schema: esquema as Record<string, unknown> } } },
     { ...base, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.` },
-    { model: modelo, max_tokens: 2000, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.`, messages: base.messages },
+    { model: modelo, max_tokens: 2000, temperature: base.temperature, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.`, messages: base.messages },
   ];
   let msg: Anthropic.Message | null = null;
   for (const params of intentos) {
