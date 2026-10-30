@@ -18,6 +18,8 @@ export interface Entrada {
   texto?: string;
   /** El clasificador de riesgo detectó una señal: activa el protocolo rojo. */
   alarma?: boolean;
+  /** El modelo ya interpretó el texto: no aplicar las reglas de palabras sobre él. */
+  sinReglas?: boolean;
 }
 
 export interface Resultado {
@@ -383,9 +385,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     respuesta = { valor: "listo" };
   } else if (p.tipo === "multiple") {
     const ids = new Set(entrada.opciones ?? []);
-    if (texto) {
+    if (texto && !entrada.sinReglas) {
       porSinonimos(opciones, texto).forEach((id) => ids.add(id));
       texto.split(/,|\by\b|\n/).forEach((x) => { const o = casarTexto(opciones, x); if (o) ids.add(o.id); });
+    }
+    if (texto) {
       if (p.textoPrimero) {
         // Sus propias palabras son dato (reconocimiento emocional): se guardan ya filtradas.
         estado.textos[p.id] = filtrarIdentificadores(texto).texto;

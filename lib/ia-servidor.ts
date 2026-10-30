@@ -8,14 +8,16 @@ import {
 
 export const MODELO_RAPIDO = process.env.ECO_MODELO_RAPIDO || "claude-haiku-5-5";
 export const MODELO_ESCRITURA = process.env.ECO_MODELO_ESCRITURA || "claude-sonnet-5-5";
-const TIEMPO_MAXIMO_MS = 3800;
+// Entender lo que escribió el joven puede esperar más (decide riesgo); el puente no.
+const TIEMPO_INTERPRETAR_MS = 8000;
+const TIEMPO_REDACTAR_MS = 5000;
 
 let cliente: Anthropic | null = null;
 export function iaDisponible(): boolean {
   return !!process.env.ANTHROPIC_API_KEY;
 }
 function getCliente(): Anthropic {
-  cliente ??= new Anthropic({ timeout: TIEMPO_MAXIMO_MS, maxRetries: 0, openTelemetry: false });
+  cliente ??= new Anthropic({ timeout: TIEMPO_INTERPRETAR_MS, maxRetries: 0, openTelemetry: false });
   return cliente;
 }
 
@@ -75,7 +77,7 @@ export function registrarFalla(donde: string, e: unknown) {
   console.error(`[eco:${donde}] ${err?.name ?? "Error"} ${err?.status ?? ""} ${String(err?.message ?? "").slice(0, 300)}`);
 }
 
-async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number): Promise<Record<string, unknown> | null> {
+async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number, tiempoMs: number): Promise<Record<string, unknown> | null> {
   const base = {
     model: modelo,
     max_tokens: maxTokens,
@@ -93,7 +95,7 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
   let msg: Anthropic.Message | null = null;
   for (const params of intentos) {
     try {
-      msg = await getCliente().messages.create(params);
+      msg = await getCliente().messages.create(params, { timeout: tiempoMs });
       break;
     } catch (e) {
       if (!(e instanceof Anthropic.BadRequestError)) throw e;
@@ -118,7 +120,7 @@ export async function interpretar(p: PedidoInterpretar): Promise<RespuestaInterp
     opciones: p.opciones,
     texto_del_joven: p.texto,
   });
-  const r = await pedirJSON(MODELO_RAPIDO, SISTEMA_INTERPRETAR, contenido, ESQUEMA_INTERPRETAR, 600);
+  const r = await pedirJSON(MODELO_RAPIDO, SISTEMA_INTERPRETAR, contenido, ESQUEMA_INTERPRETAR, 600, TIEMPO_INTERPRETAR_MS);
   if (!r) return null;
   const validos = new Set(p.opciones.map((o) => o.id));
   let opciones = Array.isArray(r.opciones) ? r.opciones.filter((x): x is string => typeof x === "string" && validos.has(x)) : [];
@@ -136,7 +138,7 @@ export async function redactar(p: PedidoRedactar): Promise<RespuestaRedactar | n
     base: p.base.join(" "),
     siguiente_pregunta: p.siguiente,
   });
-  const r = await pedirJSON(MODELO_ESCRITURA, SISTEMA_REDACTAR, contenido, ESQUEMA_REDACTAR, 400);
+  const r = await pedirJSON(MODELO_ESCRITURA, SISTEMA_REDACTAR, contenido, ESQUEMA_REDACTAR, 400, TIEMPO_REDACTAR_MS);
   if (!r) return null;
   const crudo = typeof r.puente === "string" ? r.puente.trim() : null;
   if (crudo === "") return { puente: p.base.length ? null : "" };

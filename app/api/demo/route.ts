@@ -59,6 +59,21 @@ const PERSONAS: Record<string, { nombre: string; plan: Plan; defecto: number }> 
       tr_seguir: { opcion: "seguir" }, ci_ahora: { opcion: "igual" },
     },
   },
+  "4": {
+    nombre: "17 años, escribe todo con palabras propias, nada coincide con los botones",
+    defecto: 1,
+    plan: {
+      bi_consentimiento: { texto: "va" }, da_edad: { texto: "17" }, da_genero: { texto: "no binario" },
+      da_vive: { texto: "con mi jefa y mi carnal" },
+      en_emociones: { texto: "me siento raro, como desconectado de todo" },
+      en_termometro: { texto: "pues como a la mitad" }, en_cuerpo: { texto: "me duele la panza" },
+      en_tiempo: { texto: "ya tiene rato, como desde el año pasado" }, en_voz: { texto: "que nadie me ve" },
+      en_ambito: { texto: "en la escuela, con los de mi salón" }, en_regular: { texto: "nel, así estoy bien" },
+      v2_miedo: { texto: "no mucho la verdad" }, v2_alerta: { texto: "sí, todo el tiempo ando al tiro" },
+      v2_dormir: { texto: "de vez en cuando" }, v3_triste: { texto: "ni idea" },
+      ma_parte: { texto: "nada, siento que no encajo" }, ma_maestro: { texto: "la de inglés más o menos" },
+    },
+  },
   "3": {
     nombre: "16 años, cansancio; una frase de riesgo que no está en la lista de palabras",
     defecto: 2,

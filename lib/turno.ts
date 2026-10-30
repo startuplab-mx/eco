@@ -45,19 +45,18 @@ export async function turno(
       opciones: esp.opciones.map((o) => ({ id: o.id, label: o.label })),
       texto: filtrarIdentificadores(texto).texto,
     });
-    if (!r) uso.respaldos++;
+    if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
     else if (esp.paso.tipo === "multiple") {
-      // Se conserva el texto (sus propias palabras) y se suman las opciones que entendió el modelo.
-      final = { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones] };
+      // Lo que entendió el modelo manda; el texto se conserva (sus propias palabras).
+      final = r.opciones.length
+        ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
+        : { texto, opciones: entrada.opciones };
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
-      // Primero se intenta con las reglas; si no alcanzan, se usa lo que entendió el modelo.
-      const local = responder(g, inst, estado, entrada);
-      if (!local.respondido) {
-        if (r.opciones[0]) final = { opcion: r.opciones[0] };
-        else {
-          return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
-        }
+      if (r.opciones[0]) final = { opcion: r.opciones[0] };
+      else if (!responder(g, inst, estado, entrada).respondido) {
+        // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
+        return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
       }
     }
   }
@@ -99,9 +98,16 @@ export async function turno(
   return { estado: res.estado, salida, uso };
 }
 
+/** Últimas fallas de la IA en este navegador (para el panel de prueba). Nunca incluye texto del joven. */
+export const fallasIA: string[] = [];
+function anotarFalla(ruta: string, motivo: string) {
+  fallasIA.push(`${ruta.replace("/api/", "")}: ${motivo}`);
+  if (fallasIA.length > 8) fallasIA.shift();
+}
+
 /** Implementación para el navegador: llama a las rutas del servidor con tiempo límite. */
-export function iaPorHTTP(tiempoMs = 4500): ServicioIA {
-  async function post<T>(ruta: string, cuerpo: unknown): Promise<T | null> {
+export function iaPorHTTP(): ServicioIA {
+  async function post<T>(ruta: string, cuerpo: unknown, tiempoMs: number): Promise<T | null> {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), tiempoMs);
     try {
@@ -111,15 +117,21 @@ export function iaPorHTTP(tiempoMs = 4500): ServicioIA {
         body: JSON.stringify(cuerpo),
         signal: ctrl.signal,
       });
-      return r.ok ? ((await r.json()) as T) : null;
-    } catch {
+      if (!r.ok) {
+        const e = (await r.json().catch(() => ({}))) as { error?: string };
+        anotarFalla(ruta, `${r.status} ${e.error ?? ""}`);
+        return null;
+      }
+      return (await r.json()) as T;
+    } catch (e) {
+      anotarFalla(ruta, (e as Error).name === "AbortError" ? `tardó más de ${tiempoMs / 1000} s` : "sin conexión");
       return null;
     } finally {
       clearTimeout(t);
     }
   }
   return {
-    interpretar: (p) => post("/api/interpretar", p),
-    redactar: (p) => post("/api/redactar", p),
+    interpretar: (p) => post("/api/interpretar", p, 9000),
+    redactar: (p) => post("/api/redactar", p, 6000),
   };
 }
