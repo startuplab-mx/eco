@@ -167,7 +167,7 @@ const DESVIOS = [
   "¿cómo me salgo de un grupo?",
 ];
 
-async function probarDesvios() {
+async function probarDesvios(soloPaso: string | null) {
   const { responder: resp } = await import("@/lib/motor");
   const ia: ServicioIA = servidorIA();
   // Lleva una sesión hasta un paso dado contestando con botones.
@@ -184,12 +184,11 @@ async function probarDesvios() {
     }
     return estado;
   };
-  const pasos = ["v2_alerta", "en_cuerpo", "md_fuerza"];
+  const pasos = soloPaso ? [soloPaso] : ["v2_alerta", "en_cuerpo", "md_fuerza"];
   const salida: Record<string, { texto: string; eco: string[]; registro: unknown; rojo: boolean }[]> = {};
   for (const paso of pasos) {
     const base = paso === "md_fuerza" ? null : hasta(paso);
-    salida[paso] = [];
-    for (const texto of DESVIOS) {
+    salida[paso] = await Promise.all(DESVIOS.map(async (texto) => {
       let e = base;
       if (!e) {
         // md_fuerza está en el módulo D: se llega por la ruta de "No sé".
@@ -207,13 +206,13 @@ async function probarDesvios() {
         e = estado;
       }
       const r = await turno(g, inst, e, { texto }, ia, [{ quien: "eco", texto: e.esperando?.pregunta ?? "" }, { quien: "joven", texto }]);
-      salida[paso].push({
+      return {
         texto,
         eco: r.salida.filter((s) => "texto" in s).map((s) => (s as { texto: string }).texto).slice(0, 3),
         registro: r.estado.respuestas[paso]?.valor ?? (r.estado.confirmacion ? "en confirmación" : "sin registrar"),
         rojo: r.estado.rojo,
-      });
-    }
+      };
+    }));
   }
   return salida;
 }
@@ -237,7 +236,7 @@ async function probarRiesgo() {
 export async function GET(req: Request) {
   if (process.env.VERCEL_ENV === "production") return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
-  if (p === "desvios") return Response.json(await probarDesvios());
+  if (p === "desvios") return Response.json(await probarDesvios(new URL(req.url).searchParams.get("paso")));
   if (p === "riesgo") {
     const r = await probarRiesgo();
     return Response.json({ modelo: MODELO_RAPIDO, aciertos: r.filter((x) => x.ok).length, total: r.length, resultados: r });
