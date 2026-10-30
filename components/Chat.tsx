@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import guionJson from "@/data/guion.json";
 import instanciaJson from "@/config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "@/lib/tipos";
-import { arrancar, crearEstado, registrarRecurso, responder, type Entrada } from "@/lib/motor";
+import { arrancar, crearEstado, registrarRecurso, type Entrada } from "@/lib/motor";
+import { turno, iaPorHTTP, type Mensaje } from "@/lib/turno";
+import type { ServicioIA } from "@/lib/ia-tipos";
 import { resumen } from "@/lib/indices";
 import Ejercicio from "./Ejercicio";
 import Directorio from "./Directorio";
@@ -35,6 +37,9 @@ export default function Chat() {
   const [texto, setTexto] = useState("");
   const [debug, setDebug] = useState(false);
   const [verResumen, setVerResumen] = useState(false);
+  const [pensando, setPensando] = useState(false);
+  const [ia, setIa] = useState<ServicioIA | null>(null);
+  const [uso, setUso] = useState({ llamadas: 0, respaldos: 0, puentes: 0 });
   const llave = useRef(0);
 
   const iniciar = useCallback(() => {
@@ -47,7 +52,15 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    setDebug(new URLSearchParams(window.location.search).has("debug"));
+    const params = new URLSearchParams(window.location.search);
+    setDebug(params.has("debug"));
+    // ?ia=0 apaga la IA para comparar con el guion fijo.
+    if (params.get("ia") !== "0") {
+      fetch("/api/estado")
+        .then((r) => r.json())
+        .then((d: { ia?: boolean }) => { if (d.ia) setIa(iaPorHTTP()); })
+        .catch(() => {});
+    }
     iniciar();
   }, [iniciar]);
 
@@ -71,16 +84,30 @@ export default function Chat() {
     return () => cancelAnimationFrame(id);
   }, [items, cola.length, estado?.esperando]);
 
-  const escribiendo = cola.length > 0;
+  const escribiendo = cola.length > 0 || pensando;
 
-  function enviar(entrada: Entrada, etiqueta: string) {
-    if (!estado) return;
+  async function enviar(entrada: Entrada, etiqueta: string) {
+    if (!estado || pensando) return;
     setItems((xs) => [...xs, { key: llave.current++, s: { tipo: "usuario", texto: etiqueta } }]);
-    const r = responder(guion, instancia, estado, entrada);
-    setEstado(r.estado);
-    setCola((c) => [...c, ...r.salida]);
     setSeleccion([]);
     setTexto("");
+    setPensando(true);
+    const historial: Mensaje[] = [...items.map((i) => i.s), { tipo: "usuario" as const, texto: etiqueta }]
+      .filter((s): s is { tipo: "eco" | "usuario"; texto: string } => s.tipo === "eco" || s.tipo === "usuario")
+      .slice(-6)
+      .map((s) => ({ quien: s.tipo === "eco" ? "eco" : "joven", texto: s.texto }));
+    try {
+      const r = await turno(guion, instancia, estado, entrada, ia, historial);
+      setEstado(r.estado);
+      setCola((c) => [...c, ...r.salida]);
+      setUso((u) => ({
+        llamadas: u.llamadas + r.uso.llamadas,
+        respaldos: u.respaldos + r.uso.respaldos,
+        puentes: u.puentes + r.uso.puentes,
+      }));
+    } finally {
+      setPensando(false);
+    }
   }
 
   const esp = estado?.esperando;
@@ -209,6 +236,9 @@ export default function Chat() {
           {verResumen && (
             <div className="debug">
               <div className="debug-titulo">Resumen que se guardaría (sólo en modo prueba)</div>
+              <div className="debug-ia">
+                IA: {ia ? "activa" : "apagada"} · llamadas {uso.llamadas} · frases escritas por IA {uso.puentes} · respaldos al guion {uso.respaldos}
+              </div>
               <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
             </div>
           )}

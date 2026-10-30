@@ -1,0 +1,75 @@
+// Pruebas de la orquestación del turno con una IA simulada (sin llamar al modelo).
+// Uso: npx tsx scripts/probar-turno.ts
+import guionJson from "../data/guion.json";
+import instJson from "../config/instancia.json";
+import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
+import type { ServicioIA } from "../lib/ia-tipos";
+import { arrancar, crearEstado, responder } from "../lib/motor";
+import { turno } from "../lib/turno";
+
+const g = guionJson as unknown as Guion;
+const inst = instJson as Instancia;
+let fallas = 0;
+const ok = (cond: boolean, nombre: string) => { console.log(`${cond ? "✓" : "✗"} ${nombre}`); if (!cond) fallas++; };
+const textos = (s: Salida[]) => s.filter((x) => "texto" in x).map((x) => (x as { texto: string }).texto);
+
+function hasta(paso: string): Estado {
+  let { estado } = arrancar(g, inst, crearEstado());
+  const plan: Record<string, object> = {
+    bi_consentimiento: { opcion: "si" }, da_edad: { opcion: "15-16" }, da_genero: { opcion: "nd" }, da_vive: { opciones: ["nd"] },
+    en_emociones: { opciones: ["miedo"] }, en_termometro: { opcion: "t3" }, en_cuerpo: { opciones: ["pecho"] },
+    en_tiempo: { opcion: "semana" }, en_voz: { opcion: "prefiero" }, en_ambito: { opcion: "colonia" }, en_regular: { opcion: "no" },
+  };
+  while (estado.esperando && estado.esperando.paso.id !== paso) {
+    const p = estado.esperando.paso;
+    ({ estado } = responder(g, inst, estado, (plan[p.id] ?? { opcion: estado.esperando.opciones[0].id }) as never));
+  }
+  return estado;
+}
+
+const iaBuena: ServicioIA = {
+  interpretar: async (p) => ({ riesgo: /caso a nada/.test(p.texto), opciones: /depende.*casi siempre/.test(p.texto) ? ["casi_siempre"] : [], repregunta: "¿Dirías que es más bien A veces o Seguido?" }),
+  redactar: async (p) => ({ puente: p.base.length ? "PUENTE con base" : "PUENTE libre" }),
+};
+const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () => null };
+
+(async () => {
+  // Validación tras la emoción: se reescribe, la pregunta siguiente queda literal.
+  let e = hasta("en_ambito");
+  let r = await turno(g, inst, e, { opcion: "colonia" }, iaBuena, []);
+  ok(textos(r.salida)[0] === "PUENTE con base", "la validación de la emoción se reescribe");
+  ok(textos(r.salida).some((t) => t.startsWith("¿Quieres hacer un ejercicio")), "la pregunta siguiente queda literal");
+
+  // Escala con botón y sin reacción: no se llama a la IA.
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { opcion: "a_veces" }, iaBuena, []);
+  ok(r.uso.llamadas === 0, "botón sin reacción no llama a la IA");
+
+  // Escala con texto ambiguo que el modelo entiende.
+  r = await turno(g, inst, e, { texto: "pues depende del día pero casi siempre" }, iaBuena, []);
+  ok(r.estado.respuestas["v2_alerta"]?.valor === "casi_siempre", "el modelo entiende 'depende… casi siempre'");
+
+  // Escala con texto que nadie entiende: repregunta del modelo, sin avanzar.
+  r = await turno(g, inst, e, { texto: "mmm no sé qué decirte" }, iaBuena, []);
+  ok(textos(r.salida)[0].startsWith("¿Dirías") && r.estado.esperando?.paso.id === "v2_alerta", "repregunta sin avanzar");
+
+  // Riesgo que la lista de palabras no detecta.
+  r = await turno(g, inst, e, { texto: "ya no le veo caso a nada" }, iaBuena, []);
+  ok(r.estado.rojo && r.salida.some((s) => s.tipo === "eco-crisis"), "el clasificador activa el protocolo rojo");
+  ok(!textos(r.salida).includes("PUENTE libre"), "en crisis no se reescribe nada");
+
+  // IA caída: todo sale del guion.
+  e = hasta("en_ambito");
+  r = await turno(g, inst, e, { opcion: "colonia" }, iaCaida, []);
+  ok(textos(r.salida)[0] === g.validaciones.miedo, "si la IA falla, se usa la validación del guion");
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "a veces" }, iaCaida, []);
+  ok(r.estado.respuestas["v2_alerta"]?.valor === "a_veces", "si la IA falla, las reglas siguen entendiendo");
+
+  // Lista de alarma sigue funcionando sin IA.
+  r = await turno(g, inst, e, { texto: "me quiero morir" }, null, []);
+  ok(r.estado.rojo, "la lista de alarma funciona sin IA");
+
+  console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
+  process.exit(fallas ? 1 : 0);
+})();

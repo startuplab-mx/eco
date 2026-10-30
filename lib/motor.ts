@@ -16,11 +16,15 @@ export interface Entrada {
   opciones?: string[];
   /** texto escrito por el joven. */
   texto?: string;
+  /** El clasificador de riesgo detectó una señal: activa el protocolo rojo. */
+  alarma?: boolean;
 }
 
 export interface Resultado {
   estado: Estado;
   salida: Salida[];
+  /** true si la entrada quedó registrada como respuesta del paso que se esperaba. */
+  respondido?: boolean;
 }
 
 const PAUSA: Paso = { id: "_pausa", tipo: "opcion" };
@@ -192,7 +196,7 @@ function emitirTextos(g: Guion, inst: Instancia, estado: Estado, p: Paso, salida
   for (const t of textos) {
     const texto = resolverTexto(g, inst, estado, t);
     if (!texto) continue;
-    salida.push(p.estilo === "crisis" ? { tipo: "eco-crisis", texto } : { tipo: "eco", texto });
+    salida.push(p.estilo === "crisis" ? { tipo: "eco-crisis", texto } : { tipo: "eco", texto, reescribible: p.reescribible });
   }
 }
 
@@ -245,7 +249,8 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
       continue;
     }
     if (p.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, p.ejercicio ?? "respiracion") });
-    estado.esperando = esperar(g, p);
+    const textos = p.texto ? (Array.isArray(p.texto) ? p.texto : [p.texto]) : [];
+    estado.esperando = { ...esperar(g, p), pregunta: textos.map((x) => resolverTexto(g, inst, estado, x)).join(" ") };
     return;
   }
   throw new Error("El motor no avanzó: revisa el guion");
@@ -331,8 +336,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
 
   const texto = entrada.texto?.trim();
 
-  // 1. Riesgo primero, en cualquier texto escrito.
-  if (texto && hayAlarma(texto, g.alarma)) {
+  // 1. Riesgo primero, en cualquier texto escrito (lista de palabras o clasificador).
+  if (entrada.alarma || (texto && hayAlarma(texto, g.alarma))) {
     activarRojo(g, inst, estado, salida);
     return { estado, salida };
   }
@@ -447,7 +452,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     const ok = !r.si || ("paso" in r.si || "todos" in r.si || "alguno" in r.si || "no" in r.si || "cuenta" in r.si || "emocionPrincipal" in r.si || "amarillo" in r.si || "unaEmocion" in r.si
       ? evaluar(g, estado, r.si as Condicion)
       : cumpleSobre(respuesta, r.si));
-    if (ok) salida.push({ tipo: "eco", texto: resolverTexto(g, inst, estado, r.texto) });
+    if (ok) salida.push({ tipo: "eco", texto: resolverTexto(g, inst, estado, r.texto), reescribible: true });
   }
 
   if (elegida?.salir) { irA(estado, ["salida"]); }
@@ -456,7 +461,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   else estado.indice++;
 
   avanzar(g, inst, estado, salida);
-  return { estado, salida };
+  return { estado, salida, respondido: true };
 }
 
 export function registrarRecurso(estado: Estado, id: string): Estado {
