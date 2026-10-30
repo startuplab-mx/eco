@@ -165,6 +165,14 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "me quiero morir" }, null, []);
   ok(r.estado.rojo, "«me quiero morir» sí activa la crisis");
 
+  e = hasta("en_cuerpo");
+  const iaSinOtro: ServicioIA = { interpretar: async () => ({ tipo: "responde", riesgo: false, opciones: [], repregunta: "¿En qué parte del cuerpo lo notas más?", otro: null }), redactar: async () => null };
+  r = await turno(g, inst, e, { texto: "estoy bien encabronado con todo" }, iaSinOtro, []);
+  ok(!r.estado.respuestas["en_cuerpo"] && textos(r.salida)[0] === "¿En qué parte del cuerpo lo notas más?", "con modelo, lo que no es respuesta no se guarda como «otro»");
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "asdfgh" }, null, []);
+  ok(textos(r.salida)[0] === D.redirigir[0], "la primera redirección usa la variante principal");
+
   let c = arrancar(g, inst, crearEstado()).estado;
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   r = await turno(g, inst, r.estado, { texto: "jajaja" }, null, []);

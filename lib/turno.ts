@@ -19,12 +19,6 @@ export interface ResultadoTurno {
   uso: { llamadas: number; respaldos: number; puentes: number };
 }
 
-/** La entrada se entendió: quedó registrada o quedó en confirmación del espejo. */
-function entendido(r: { respondido?: boolean; estado: Estado }): boolean {
-  return !!r.respondido || !!r.estado.confirmacion;
-}
-
-const NO_ENTENDI = "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?";
 
 export async function turno(
   g: Guion,
@@ -40,7 +34,8 @@ export async function turno(
   const comando = texto && ["pausa", "salir"].includes(normalizar(texto));
   let final: Entrada = entrada;
 
-  // 1. Texto escrito: revisar riesgo y entender a qué opción corresponde.
+  // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.
+  let repregunta: string | null = null;
   if (ia && esp && texto && !comando && !estado.pausa && esp.paso.tipo !== "ejercicio") {
     uso.llamadas++;
     const r = await ia.interpretar({
@@ -50,45 +45,48 @@ export async function turno(
       opciones: esp.opciones.map((o) => ({ id: o.id, label: o.label })),
       texto: filtrarIdentificadores(texto).texto,
     });
+    const aceptaOtro = !!esp.paso.aceptaOtro && !!r?.otro;
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
-    else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !estado.confirmacion) {
-      // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
-      final = { texto, desvio: r.tipo };
-    }
     else if (estado.confirmacion) {
       // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
       final = r.opciones[0] ? { opcion: r.opciones[0] } : entrada;
-    }
-    else if (esp.paso.tipo === "multiple") {
+    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro) {
+      // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
+      final = { texto, desvio: r.tipo };
+    } else if (esp.paso.tipo === "multiple") {
       // Lo que entendió el modelo manda; el texto se conserva (sus propias palabras).
       final = r.opciones.length
         ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
-        : r.otro && esp.paso.aceptaOtro
-          ? { texto, opciones: entrada.opciones, sinReglas: true, otro: r.otro }
-          : { texto, opciones: entrada.opciones };
+        : aceptaOtro
+          ? { texto, opciones: entrada.opciones, sinReglas: true, otro: r.otro! }
+          : { texto, opciones: entrada.opciones, sinOtro: true };
+      repregunta = r.repregunta;
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
-      // Se conserva el texto para que Eco haga el espejo de lo que entendió.
-      if (r.opciones[0]) final = { opcion: r.opciones[0], texto };
-      else if (r.otro && esp.paso.aceptaOtro) final = { texto, otro: r.otro };
-      else {
-        const local = responder(g, inst, estado, entrada);
-        // La lista de alarma siempre gana: si las reglas activaron el protocolo rojo, se respeta.
-        if (local.estado.rojo) return { estado: local.estado, salida: local.salida, uso };
-        if (!entendido(local)) {
-          // Ni el modelo ni las reglas lo entendieron: se repregunta una vez; a la segunda se deja pasar.
-          const clave = `?${esp.paso.id}`;
-          if ((estado.desviosPaso[clave] ?? 0) >= 1) final = { desvio: "insiste" };
-          else {
-            const e2 = { ...estado, desviosPaso: { ...estado.desviosPaso, [clave]: 1 } };
-            return { estado: e2, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
-          }
-        }
-      }
+      // Se conserva el texto para el espejo y para que la lista de alarma lo revise.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : aceptaOtro ? { texto, otro: r.otro! } : { texto, sinOtro: true };
+      repregunta = r.repregunta;
     }
   }
 
-  const res = responder(g, inst, estado, final);
+  let res = responder(g, inst, estado, final);
+
+  // Respuesta escrita que no se entendió: se repregunta una vez; a la segunda se deja pasar.
+  const sinEntender =
+    !!texto && !comando && !!esp && esp.paso.id.charAt(0) !== "_" && !res.respondido && !res.desvio && !res.aviso &&
+    !res.estado.confirmacion && !res.estado.rojo && !res.estado.pausa && res.estado.esperando?.paso.id === esp.paso.id;
+  if (sinEntender) {
+    const clave = `?${esp!.paso.id}`;
+    if ((estado.desviosPaso[clave] ?? 0) >= 1) {
+      res = responder(g, inst, estado, { desvio: "insiste" });
+    } else {
+      res = {
+        ...res,
+        estado: { ...res.estado, desviosPaso: { ...res.estado.desviosPaso, [clave]: 1 } },
+        salida: repregunta ? [{ tipo: "eco", texto: repregunta }] : res.salida,
+      };
+    }
+  }
   let salida = res.salida;
 
   // 2. Reescribir reacciones y validaciones (nunca en crisis, nunca preguntas ni textos fijos).

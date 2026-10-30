@@ -24,6 +24,8 @@ export interface Entrada {
   confirmado?: boolean;
   /** Frase breve (del modelo) para una respuesta que no está en las opciones. */
   otro?: string;
+  /** El modelo no reconoció una respuesta válida: no registrar lo escrito como "otro". */
+  sinOtro?: boolean;
   /** Respuesta desviada (la clasifica el modelo; sin modelo, reglas básicas). */
   desvio?: "sin_sentido" | "groseria" | "fuera_de_tema" | "no_quiere" | "se_quiere_ir" | "privacidad" | "pide_orientacion" | "insiste";
 }
@@ -35,6 +37,8 @@ export interface Resultado {
   respondido?: boolean;
   /** true si la entrada se trató como desvío (no se escribe puente). */
   desvio?: boolean;
+  /** true si Eco pidió quitar nombres o lugares (no es una respuesta poco clara). */
+  aviso?: boolean;
 }
 
 const PAUSA: Paso = { id: "_pausa", tipo: "opcion" };
@@ -439,6 +443,7 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
       repreguntar();
       return { estado, salida, desvio: true };
     default: {
+      const texto = variante(tipo === "groseria" ? D.groseria : D.redirigir);
       estado.desvios++;
       estado.desviosTotal++;
       const enPaso = (estado.desviosPaso[p.id] = (estado.desviosPaso[p.id] ?? 0) + 1);
@@ -447,7 +452,7 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
         return { estado, salida, desvio: true };
       }
       if (enPaso >= 2 && !p.noSaltar) return saltar(variante(D.saltarInsiste));
-      salida.push({ tipo: "eco", texto: variante(tipo === "groseria" ? D.groseria : D.redirigir) });
+      salida.push({ tipo: "eco", texto });
       return { estado, salida, desvio: true };
     }
   }
@@ -544,7 +549,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const d = desvioPorReglas(texto);
       if (d) return manejarDesvio(g, inst, estado, d, salida);
     }
-    if (texto && !ids.size && p.aceptaOtro) {
+    if (texto && !ids.size && p.aceptaOtro && !entrada.sinOtro) {
       ids.add(idOtro(opciones));
       estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
     }
@@ -575,7 +580,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       if (filtro.encontrado && !estado.avisoIdentificador) {
         estado.avisoIdentificador = true;
         salida.push({ tipo: "eco", texto: "Gracias por confiar. Para cuidarte, no voy a guardar nombres ni lugares. ¿Me lo cuentas solo desde lo que sientes?" });
-        return { estado, salida };
+        return { estado, salida, aviso: true };
       }
       estado.textos[p.id] = filtro.texto;
       respuesta = { valor: "texto" };
@@ -609,7 +614,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       if (d) return manejarDesvio(g, inst, estado, d, salida);
     }
     if (elegida) respuesta = { valor: elegida.id, num: elegida.valor };
-    else if (texto && p.aceptaOtro) {
+    else if (texto && p.aceptaOtro && !entrada.sinOtro) {
       const idO = idOtro(opciones);
       respuesta = { valor: idO };
       estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
