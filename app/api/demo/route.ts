@@ -122,7 +122,7 @@ async function correr(plan: Plan, defecto: number, ia: ServicioIA | null) {
     const esp = estado.esperando;
     const id = esp.paso.id;
     intentos[id] = (intentos[id] ?? 0) + 1;
-    let entrada: Entrada | undefined = intentos[id] === 1 ? plan[id] : undefined;
+    let entrada: Entrada | undefined = id === "_confirmar" ? { opcion: "si" } : intentos[id] === 1 ? plan[id] : undefined;
     if (!entrada) {
       if (esp.paso.tipo === "abierta") entrada = { opcion: esp.opciones.find((o) => o.id === "prefiero")?.id ?? esp.opciones[0]?.id };
       else if (esp.multiple) entrada = { opciones: [esp.opciones[Math.min(defecto, esp.opciones.length - 1)].id] };
