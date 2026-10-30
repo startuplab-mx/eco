@@ -57,7 +57,8 @@ export async function turno(
       // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
       // El texto se conserva para que la lista de alarma lo revise.
       final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
-    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length) {
+    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length && !(esp.paso.tipo === "numero" && /\d/.test(texto))) {
+      // (Un número en una pregunta de número nunca es desvío: lo lee el motor, aunque esté fuera de rango.)
       // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
       final = { texto, desvio: r.tipo };
     } else if (esp.paso.tipo === "multiple") {

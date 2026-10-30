@@ -542,11 +542,15 @@
               "max": 18
             },
             {
-              "id": "mayor_18",
+              "id": "adulto",
               "min": 19,
               "max": 120
             }
-          ]
+          ],
+          "avisoRango": {
+            "menor_12": "Eco está pensado para jóvenes de 12 a 18 años, pero si quieres puedes seguir.",
+            "adulto": "Eco está pensado para jóvenes de 12 a 18 años, pero si quieres puedes seguir."
+          }
         },
         {
           "id": "da_genero",
@@ -625,7 +629,7 @@
           "tipo": "multiple",
           "variable": "V20",
           "item": "V20.emocion",
-          "texto": "Antes de cualquier otra cosa, quiero saber cómo estás tú. ¿Cómo te sientes hoy? Escríbelo con tus palabras o elige una o varias.",
+          "texto": "Ahora quiero saber cómo estás tú. ¿Cómo te sientes hoy? Escríbelo con tus palabras o elige una o varias.",
           "opciones": [
             {
               "id": "tranquilo",
@@ -828,7 +832,8 @@
               "label": "Nada, como sin energía"
             }
           ],
-          "aceptaOtro": true
+          "aceptaOtro": true,
+          "repetir": "¿Lo que sientes se parece más a algo pesado, a algo que quema o a algo que aprieta?"
         },
         {
           "id": "en_termometro",
@@ -874,7 +879,7 @@
           "tipo": "multiple",
           "variable": "V22",
           "item": "V22.zona",
-          "texto": "Las emociones también se sienten en el cuerpo. ¿Dónde la notas?",
+          "texto": "Las emociones también se sienten en el cuerpo. ¿En qué parte del cuerpo lo sientes?",
           "opciones": [
             {
               "id": "pecho",
@@ -948,7 +953,7 @@
           "item": "V20.voz",
           "texto": [
             "Si {emocion} pudiera hablar, ¿qué diría?",
-            "Puedes escribirlo, o elegir una frase si se parece."
+            "Escríbelo con tus palabras o elige la frase que más se parezca."
           ],
           "rapidas": [
             {
@@ -1218,7 +1223,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.sueno",
-          "texto": "¿Te cuesta dormir porque te quedas pensando en cosas que pasan?"
+          "texto": "¿Te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor?"
         }
       ]
     },
@@ -1290,7 +1295,7 @@
           "escala": "E5",
           "variable": "V5",
           "item": "V5.lealtad",
-          "texto": "A veces una persona siente que tiene que callar o hacer cosas para proteger a alguien. ¿Te ha pasado?",
+          "texto": "A veces una persona siente que tiene que callar o hacer cosas para proteger a alguien. ¿Qué tan seguido te pasa a ti?",
           "reacciones": [
             {
               "si": {
@@ -1298,7 +1303,8 @@
               },
               "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
             }
-          ]
+          ],
+          "repetir": "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?"
         },
         {
           "id": "v5_culpa",
@@ -1330,7 +1336,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.aceptacion",
-          "texto": "\"Aquí la violencia es algo normal\"."
+          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Aquí la violencia es algo normal\"?"
         },
         {
           "id": "v6_dinero",
@@ -1338,7 +1344,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.atractivo",
-          "texto": "\"Tener poder o dinero rápido vale el riesgo\"."
+          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Tener poder o dinero rápido vale el riesgo\"?"
         }
       ]
     },
@@ -1369,7 +1375,7 @@
             "paso": "v7_presion",
             "gte": 2
           },
-          "texto": "Si quisieras decir que no, ¿sientes que podrías?",
+          "texto": "Si alguien te presionara para hacer algo así, ¿sientes que podrías decir que no?",
           "opciones": [
             {
               "id": "si",
@@ -1438,7 +1444,7 @@
               "si"
             ]
           },
-          "texto": "¿Me quieres contar un poquito?",
+          "texto": "¿Me cuentas un poco cómo te imaginas?",
           "rapidas": [
             {
               "id": "prefiero",
@@ -1574,7 +1580,7 @@
               "descanso"
             ]
           },
-          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Seguimos?",
+          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Seguimos con las preguntas?",
           "opciones": [
             {
               "id": "seguir",
@@ -1790,19 +1796,20 @@
         {
           "id": "mc_entrar",
           "tipo": "opcion",
-          "texto": "Este tema puede ser difícil; puedes saltarlo.",
+          "texto": "El siguiente tema es sobre personas que has perdido o que ya no están contigo. Puede ser difícil. ¿Quieres seguir con este tema?",
           "opciones": [
             {
               "id": "si",
-              "label": "Está bien, sigamos"
+              "label": "Sí, sigamos"
             },
             {
               "id": "saltar",
-              "label": "Saltar este tema",
+              "label": "Prefiero saltarlo",
               "fin": true
             }
           ],
-          "sinEspejo": true
+          "sinEspejo": true,
+          "repetir": "¿Quieres seguir con el tema de personas que has perdido o que ya no están contigo?"
         },
         {
           "id": "mc_perdida",
@@ -1902,7 +1909,7 @@
           "escala": "A5",
           "variable": "V13",
           "item": "V13.autovaloracion",
-          "texto": "¿Qué tanto estás de acuerdo con \"Siento que soy una persona valiosa\"?",
+          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Siento que soy una persona valiosa\"?",
           "reacciones": [
             {
               "si": {
@@ -1940,7 +1947,7 @@
               "nada"
             ]
           },
-          "texto": "Va, te ayudo. ¿Alguno de estos?",
+          "texto": "Va, te ayudo. ¿Se parece a alguna de estas? Puedes elegir varias.",
           "opciones": [
             {
               "id": "amigo",
@@ -1970,7 +1977,7 @@
           "escala": "A5",
           "variable": "V18",
           "item": "V18.recuperacion",
-          "texto": "\"Cuando me pasa algo difícil, logro salir adelante\"."
+          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Cuando me pasa algo difícil, logro salir adelante\"?"
         },
         {
           "id": "md_fuerza",
@@ -2035,11 +2042,11 @@
             },
             "min": 2
           },
-          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho con esto.",
+          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho con esto. ¿Quieres saber dónde buscar ese apoyo?",
           "opciones": [
             {
               "id": "como",
-              "label": "Quiero saber cómo"
+              "label": "Sí, quiero saber"
             },
             {
               "id": "no",
@@ -2097,7 +2104,7 @@
             "paso": "mf_consumo",
             "gte": 2
           },
-          "texto": "¿Y eso te ayuda a…?",
+          "texto": "¿Para qué te ayuda eso? Puedes elegir varias.",
           "opciones": [
             {
               "id": "relajarme",
@@ -2120,7 +2127,8 @@
               "label": "Otro"
             }
           ],
-          "aceptaOtro": true
+          "aceptaOtro": true,
+          "repetir": "Cuando usas algo así, ¿para qué te ayuda?"
         },
         {
           "id": "mf_gracias",
@@ -2151,7 +2159,7 @@
             "paso": "mg_contenido",
             "gte": 1
           },
-          "texto": "Cuando ves eso, ¿cómo te sientes? Puedes elegir varias.",
+          "texto": "Cuando ves ese tipo de contenido, ¿cómo te sientes? Puedes elegir varias.",
           "opciones": [
             {
               "id": "emocionado",
@@ -2294,7 +2302,8 @@
               "id": "nose",
               "label": "No sé"
             }
-          ]
+          ],
+          "repetir": "¿Qué tan posible crees que es llegar a ser eso?"
         },
         {
           "id": "mh_paso",
@@ -2313,7 +2322,8 @@
               "id": "prefiero",
               "label": "Prefiero no escribir"
             }
-          ]
+          ],
+          "repetir": "¿Qué sería un primer pasito para llegar ahí?"
         }
       ]
     },
@@ -2455,7 +2465,8 @@
             "paso": "en_termometro",
             "respondido": true
           },
-          "texto": "Antes de despedirnos, vuelve a pensar en la emoción del inicio. Del 1 al 10, ¿qué tan fuerte está ahora?"
+          "texto": "Antes de despedirnos, vuelve a pensar en la emoción del inicio. Del 1 al 10, ¿qué tan fuerte está ahora?",
+          "repetir": "Del 1 al 10, ¿qué tan fuerte está ahora la emoción con la que llegaste?"
         },
         {
           "id": "ci_ahora",
@@ -2691,13 +2702,12 @@
   },
   "desvios": {
     "redirigir": [
-      "Aquí platicamos de cómo estás tú. ¿Me ayudas con esta?",
-      "Va, regresemos a la pregunta. ¿Cuál se parece más a lo que vives?",
-      "Te leo. Para seguir, ¿me ayudas con esta pregunta?"
+      "No te entendí. Te repito la pregunta:",
+      "Perdón, no te entendí. ¿Me respondes esto?"
     ],
     "groseria": [
-      "Se vale estar de malas. Si quieres seguimos: escribe o elige una opción.",
-      "Va, sin bronca. ¿Le seguimos con esta pregunta?"
+      "Se vale estar de malas. Cuando quieras, seguimos con esto:",
+      "Va, sin bronca. Te repito la pregunta:"
     ],
     "saltarNoQuiere": [
       "Va, la saltamos.",
@@ -2715,6 +2725,10 @@
     ],
     "orientacion": [
       "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
+    ],
+    "fueraDeTema": [
+      "Aquí platicamos de cómo estás tú. Te repito la pregunta:",
+      "Eso no lo puedo responder aquí. Sigamos con esto:"
     ]
   },
   "alarmaRevisar": [

@@ -299,6 +299,26 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
     ok(r.estado.respuestas["bi_consentimiento"]?.valor === v, `consentimiento «${t}» → ${v}`);
   }
 
+  // Redacción: la redirección siempre repite la pregunta completa, en su propia burbuja.
+  const iaFuera: ServicioIA = { interpretar: async () => ({ tipo: "fuera_de_tema", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  e = hasta("da_edad");
+  r = await turno(g, inst, e, { texto: "51" }, iaFuera, []);
+  ok(r.estado.respuestas["da_edad"]?.valor === "adulto" && textos(r.salida)[0].startsWith("Eco está pensado para jóvenes de 12 a 18") && r.estado.esperando?.paso.id === "da_genero", "«51»: se registra como adulto, se avisa y sigue");
+  ok(resumen(g, inst, r.estado).edad === "adulto", "el resumen cuenta la sesión con edad «adulto»");
+  r = await turno(g, inst, e, { texto: "tengo 9" }, iaFuera, []);
+  ok(r.estado.respuestas["da_edad"]?.valor === "menor_12", "«tengo 9» → menor de 12");
+  r = await turno(g, inst, e, { texto: "y tú qué" }, iaFuera, []);
+  ok(textos(r.salida).length === 2 && textos(r.salida)[0] === g.desvios.fueraDeTema![0] && textos(r.salida)[1] === "¿Cuántos años tienes?", "fuera de tema: «Aquí platicamos…» y la pregunta");
+  const iaPriv: ServicioIA = { interpretar: async () => ({ tipo: "privacidad", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  r = await turno(g, inst, e, { texto: "¿quién lee esto?" }, iaPriv, []);
+  ok(textos(r.salida).at(-1) === "¿Cuántos años tienes?", "tras explicar la privacidad, repite la pregunta");
+  e = hasta("v5_lealtad");
+  r = await turno(g, inst, e, { texto: "asdf" }, null, []);
+  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
+  c = arrancar(g, inst, crearEstado()).estado;
+  r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
+  ok(textos(r.salida)[1] === "¿Quieres seguir?", "en el consentimiento también se repite la pregunta");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

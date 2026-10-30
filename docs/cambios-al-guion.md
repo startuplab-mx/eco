@@ -123,3 +123,13 @@ emojis e insultos directos. Los textos son fijos y están en `desvios` del guion
 - **Riesgo:** contar que vende o hace algo ilegal no es crisis por sí solo (va como fuera de tema); sí lo es si dice
   que lo obligan o lo amenazan.
 - **Calidad de datos:** el resumen registra `desvios`, `omitidas` y `revisarCalidad` (3 o más desvíos).
+
+## Revisión de redacción (30 oct 2026)
+
+- Redirecciones: ya no terminan en "¿me ayudas con esta?". Ahora dicen "No te entendí" (sin sentido) o "Aquí platicamos de cómo estás tú" (fuera de tema), más "Te repito la pregunta:" y la pregunta va completa en su propia burbuja.
+- Edad: un número siempre se lee como edad, aunque el modelo lo crea fuera de tema. Menores de 12 y mayores de 18 reciben un aviso y pueden seguir; la sesión sí cuenta, con edad `menor_12` o `adulto`.
+- Tema de pérdidas (mc_entrar): se conserva la opción "Prefiero saltarlo" del guion original.
+- Preguntas que no eran pregunta ahora sí lo son: v6_normal, v6_dinero, md_salir y md_valiosa ("¿Qué tanto estás de acuerdo con esta frase…?"); mc_entrar dice de qué trata el tema y pregunta si sigue; me_psicologo pregunta "¿Quieres saber dónde buscar ese apoyo?".
+- Concordancia y claridad: en_cuerpo ("¿En qué parte del cuerpo lo sientes?"), en_voz ("elige la frase que más se parezca"), v5_lealtad (escala de frecuencia: "¿Qué tan seguido te pasa a ti?"), v7_libertad (dice a qué se puede decir que no), v2_dormir, mf_motivo, mg_sientes, md_bien_ayuda, v8_cinco_txt, tr_descanso.
+- en_emociones: "Ahora quiero saber cómo estás tú" (ya no "Antes de cualquier otra cosa", porque va después de edad y género).
+- Campo `repetir`: versión completa de la pregunta para los pasos que dependen de la oración anterior.

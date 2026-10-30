@@ -226,7 +226,7 @@ async function probarDesvios(soloPaso: string | null) {
       const r = await turno(g, inst, e, { texto }, ia, [{ quien: "eco", texto: e.esperando?.pregunta ?? "" }, { quien: "joven", texto }]);
       return {
         texto,
-        eco: r.salida.filter((s) => "texto" in s).map((s) => (s as { texto: string }).texto).slice(0, 3),
+        eco: r.salida.filter((s) => "texto" in s).map((s) => (s as { texto: string }).texto).slice(0, 6),
         registro: r.estado.respuestas[paso]?.valor ?? (r.estado.confirmacion ? "en confirmación" : "sin registrar"),
         rojo: r.estado.rojo,
       };

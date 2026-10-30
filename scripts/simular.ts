@@ -36,7 +36,7 @@ for (let i = 0; i < N; i++) {
   }
   for (const s of vistos) if ("texto" in s && /\{\w+\}/.test(s.texto)) throw new Error(`Marcador sin resolver: ${s.texto}`);
   const res = resumen(g, inst, estado as Estado);
-  if (!["12-14", "15-16", "17-18", "menor_12", "mayor_18", "nd", null].includes(res.edad)) throw new Error(`Edad mal guardada: ${res.edad}`);
+  if (!["12-14", "15-16", "17-18", "menor_12", "adulto", "nd", null].includes(res.edad)) throw new Error(`Edad mal guardada: ${res.edad}`);
   if (JSON.stringify(res).match(/Juan|Hidalgo|futbol/)) throw new Error("Texto libre se filtró al resumen");
   conteo[res.nivel]++;
   if (res.completa) { conteo.completas++; conteo.turnos.push(turnos); }
