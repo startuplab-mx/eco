@@ -67,9 +67,14 @@ export async function turno(
       // Se conserva el texto para que Eco haga el espejo de lo que entendió.
       if (r.opciones[0]) final = { opcion: r.opciones[0], texto };
       else if (r.otro && esp.paso.aceptaOtro) final = { texto, otro: r.otro };
-      else if (!entendido(responder(g, inst, estado, entrada))) {
-        // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
-        return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
+      else {
+        const local = responder(g, inst, estado, entrada);
+        // La lista de alarma siempre gana: si las reglas activaron el protocolo rojo, se respeta.
+        if (local.estado.rojo) return { estado: local.estado, salida: local.salida, uso };
+        if (!entendido(local)) {
+          // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
+          return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
+        }
       }
     }
   }

@@ -108,6 +108,12 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "nel, así estoy bien" }, null, []);
   ok(!textos(r.salida).some((t) => t.startsWith("Va,")), "sin espejo en el ofrecimiento del ejercicio");
 
+  // La lista de alarma no se pierde aunque el modelo diga "no es riesgo, no entendí".
+  const iaCiega: ServicioIA = { interpretar: async () => ({ riesgo: false, opciones: [], repregunta: "¿Seguido o a veces?", otro: null }), redactar: async () => null };
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "me quiero morir" }, iaCiega, []);
+  ok(r.estado.rojo, "la lista de alarma gana aunque el modelo no vea riesgo (escala)");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();
