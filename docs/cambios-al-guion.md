@@ -57,3 +57,16 @@ Revisar redacción:
 
 Se activa con cualquiera de: termómetro inicial 9–10 · desesperanza ≥ Seguido · malestar global > 60/100 ·
 presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiable no activa amarillo.
+
+## Ajustes de la revisión del 30 de octubre de 2026
+
+- **Lenguaje neutro en todo el guion.** Las emociones se nombran como sustantivo ("Con enojo", "En calma",
+  "Con soledad"); se quitaron todas las formas "/a" y los masculinos genéricos ("uno carga", "amigos",
+  "un psicólogo", "un niño más chico").
+- **Se quitó "¿Cómo llegaste hoy?"**: se leía como medio de transporte y duplicaba la pregunta de emociones.
+  La Fase 2 arranca con la edad.
+- **"¿Cómo te sientes hoy?" y las preguntas abiertas van con texto primero** y opciones chicas abajo. Si el
+  joven escribe su emoción, se reconoce por sinónimos ("coraje", "agüitado", "nervios"…); si no se reconoce,
+  Eco le pide que elija. Que la haya nombrado con sus palabras se registra (V20). Las escalas siguen con botones.
+- **Consumo (V15)** pasa a la escala estándar Nunca…Casi siempre (más "Prefiero no decir"), para que tenga índice.
+- **Clima familiar (V12):** en el índice, la tensión se invierte (mayor = mejor clima).

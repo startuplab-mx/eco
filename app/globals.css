@@ -176,7 +176,31 @@ button:disabled { cursor: default; opacity: 0.5; }
 }
 .borrar { align-self: stretch; background: var(--usuario); }
 
-.escribir { display: flex; gap: 8px; }
+.escribir { display: flex; gap: 8px; align-items: flex-end; }
+.escribir textarea {
+  flex: 1;
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 18px;
+  border: 1.5px solid var(--acento);
+  background: #fff;
+  min-width: 0;
+  resize: none;
+}
+.escribir textarea:focus { outline: 2px solid var(--acento-claro); }
+.escribir.grande button { height: 46px; }
+.escribir.discreta input { font-size: 15px; padding: 7px 12px; }
+.escribir.discreta button { font-size: 15px; padding: 0 12px; height: 36px; }
+.etiquetas-titulo { font-size: 13px; color: var(--suave); margin: 0 0 6px 2px; }
+.etiqueta {
+  background: var(--acento-claro);
+  border: 1px solid transparent;
+  color: var(--acento);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 14px;
+}
+.etiqueta.marcada { background: var(--acento); color: #fff; }
 .escribir input {
   flex: 1;
   font: inherit;
@@ -195,5 +219,14 @@ button:disabled { cursor: default; opacity: 0.5; }
   padding: 0 16px;
 }
 
-.debug { margin: 12px; font-size: 12px; background: #fff; border: 1px dashed var(--suave); border-radius: 8px; padding: 8px; }
+.debug-boton {
+  position: fixed; top: 76px; right: 10px; z-index: 5;
+  font-size: 12px; background: #fff7d6; border: 1px dashed #b9a24a; border-radius: 8px; padding: 4px 8px;
+}
+.debug {
+  position: fixed; inset: 110px 10px 10px 10px; z-index: 5; overflow: auto;
+  font-size: 12px; background: #fff; border: 1px dashed var(--suave); border-radius: 8px; padding: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.debug-titulo { font-weight: 700; margin-bottom: 6px; }
 .debug pre { white-space: pre-wrap; word-break: break-word; }

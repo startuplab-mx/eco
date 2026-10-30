@@ -34,6 +34,7 @@ export default function Chat() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [texto, setTexto] = useState("");
   const [debug, setDebug] = useState(false);
+  const [verResumen, setVerResumen] = useState(false);
   const llave = useRef(0);
 
   const iniciar = useCallback(() => {
@@ -90,6 +91,18 @@ export default function Chat() {
 
   const esp = estado?.esperando;
   const terminada = estado?.terminada;
+  const textoPrimero = !!esp && !estado?.pausa && (esp.paso.tipo === "abierta" || !!esp.paso.textoPrimero);
+
+  /** Envía texto y/o etiquetas marcadas (abiertas, emociones y selección múltiple). */
+  function enviarPrimero() {
+    if (!esp) return;
+    const t = texto.trim();
+    const marcadas = esp.opciones.filter((o) => seleccion.includes(o.id)).map((o) => o.label);
+    if (!t && !marcadas.length) return;
+    const etiqueta = [t, ...marcadas].filter(Boolean).join(" · ");
+    if (esp.multiple) enviar({ texto: t || undefined, opciones: seleccion }, etiqueta);
+    else enviar({ texto: t }, t);
+  }
 
   return (
     <main className="app">
@@ -137,7 +150,55 @@ export default function Chat() {
       </section>
 
       <footer className="controles">
-        {!escribiendo && esp && (
+        {!escribiendo && esp && (textoPrimero ? (
+          <>
+            {esp.textoLibre && (
+              <form className="escribir grande" onSubmit={(e) => { e.preventDefault(); enviarPrimero(); }}>
+                <textarea
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarPrimero(); }
+                  }}
+                  placeholder={esp.paso.placeholder ?? "Escribe aquí…"}
+                  rows={2}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  maxLength={600}
+                  aria-label="Tu respuesta"
+                />
+                <button type="submit" disabled={!texto.trim() && !seleccion.length}>Enviar</button>
+              </form>
+            )}
+            {esp.opciones.length > 0 && (
+              <div className="etiquetas-bloque">
+                <div className="etiquetas-titulo">{esp.textoLibre ? "O elige:" : "Elige una o varias:"}</div>
+                <div className="opciones">
+                  {esp.opciones.map((o) => {
+                    const marcada = seleccion.includes(o.id);
+                    return (
+                      <button
+                        key={o.id}
+                        className={`etiqueta ${marcada ? "marcada" : ""}`}
+                        onClick={() =>
+                          esp.multiple
+                            ? setSeleccion((s) => (marcada ? s.filter((x) => x !== o.id) : [...s, o.id]))
+                            : enviar({ opcion: o.id }, o.label)
+                        }
+                      >
+                        {o.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {esp.multiple && !esp.textoLibre && (
+              <button className="listo" disabled={!seleccion.length} onClick={enviarPrimero}>Listo</button>
+            )}
+          </>
+        ) : (
           <>
             {esp.opciones.length > 0 && (
               <div className="opciones">
@@ -160,31 +221,14 @@ export default function Chat() {
               </div>
             )}
             {esp.multiple && (
-              <button
-                className="listo"
-                disabled={!seleccion.length}
-                onClick={() =>
-                  enviar(
-                    { opciones: seleccion },
-                    esp.opciones.filter((o) => seleccion.includes(o.id)).map((o) => o.label).join(", "),
-                  )
-                }
-              >
-                Listo
-              </button>
+              <button className="listo" disabled={!seleccion.length} onClick={enviarPrimero}>Listo</button>
             )}
             {esp.textoLibre && (
-              <form
-                className="escribir"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  enviarTexto();
-                }}
-              >
+              <form className="escribir discreta" onSubmit={(e) => { e.preventDefault(); enviarTexto(); }}>
                 <input
                   value={texto}
                   onChange={(e) => setTexto(e.target.value)}
-                  placeholder={esp.paso.tipo === "abierta" ? "Escribe aquí…" : "O escribe tu respuesta…"}
+                  placeholder="O escribe tu respuesta…"
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck={false}
@@ -195,7 +239,7 @@ export default function Chat() {
               </form>
             )}
           </>
-        )}
+        ))}
         {!escribiendo && terminada && (
           <button className="borrar" onClick={iniciar}>
             Cerrar y borrar esta plática
@@ -204,10 +248,17 @@ export default function Chat() {
       </footer>
 
       {debug && estado && (
-        <details className="debug" open>
-          <summary>Resumen que se guardaría (sólo en modo prueba)</summary>
-          <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
-        </details>
+        <>
+          <button className="debug-boton" onClick={() => setVerResumen((v) => !v)}>
+            {verResumen ? "Cerrar resumen" : "Resumen"}
+          </button>
+          {verResumen && (
+            <div className="debug">
+              <div className="debug-titulo">Resumen que se guardaría (sólo en modo prueba)</div>
+              <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
+            </div>
+          )}
+        </>
       )}
     </main>
   );

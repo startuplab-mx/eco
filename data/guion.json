@@ -98,13 +98,13 @@
   "validaciones": {
     "tranquilo": "Qué bueno. Me gustaría saber qué te ayuda a sentirte así.",
     "contento": "Qué bueno. Me gustaría saber qué te ayuda a sentirte así.",
-    "cansado": "Estar cansado/a también es una señal. A veces es el cuerpo, a veces es todo lo que uno carga.",
+    "cansado": "El cansancio también es una señal. A veces es el cuerpo, a veces es todo lo que cargas.",
     "triste": "La tristeza aparece cuando algo nos importa. Gracias por decírmelo.",
     "enojado": "El enojo muchas veces protege algo. Es válido sentirlo.",
     "miedo": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
     "preocupado": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
-    "vacio": "Sentirse vacío/a a veces pasa cuando uno lleva mucho tiempo aguantando. No estás solo/a en eso.",
-    "solo": "Sentirse solo/a duele, aunque haya gente alrededor. Aquí te escucho.",
+    "vacio": "Esa sensación de vacío aparece cuando llevas mucho tiempo aguantando. Le pasa a más gente de la que crees.",
+    "solo": "La soledad duele, aunque haya gente alrededor. Aquí te escucho.",
     "avergonzado": "La vergüenza pesa mucho. Aquí nadie te va a juzgar.",
     "confundido": "No saber también es una respuesta. Vamos despacio.",
     "nose": "No saber también es una respuesta. Vamos despacio."
@@ -266,8 +266,8 @@
     ]
   },
   "preguntasCierre": [
-    "Si pudieras cambiar una cosa de tu colonia para sentirte más tranquilo/a, ¿cuál sería?",
-    "¿Qué le dirías a un niño más chico que está viviendo lo mismo que tú?",
+    "Si pudieras cambiar una cosa de tu colonia para sentir más calma, ¿cuál sería?",
+    "¿Qué le dirías a alguien más chico que está viviendo lo mismo que tú?",
     "¿Qué te gustaría que los adultos entendieran de los jóvenes de aquí?"
   ],
   "alarma": [
@@ -372,38 +372,14 @@
     },
     "datos": {
       "id": "datos",
-      "nombre": "Fase 2 — Rompehielos y datos mínimos",
+      "nombre": "Fase 2 — Datos mínimos",
       "clase": "fijo",
       "pasos": [
-        {
-          "id": "da_llegaste",
-          "tipo": "opcion",
-          "variable": "llegada",
-          "texto": "Para empezar, ¿cómo llegaste hoy?",
-          "opciones": [
-            {
-              "id": "bien",
-              "label": "Bien"
-            },
-            {
-              "id": "mas_menos",
-              "label": "Más o menos"
-            },
-            {
-              "id": "mal",
-              "label": "Mal"
-            },
-            {
-              "id": "enojado",
-              "label": "Enojado/a"
-            }
-          ]
-        },
         {
           "id": "da_edad",
           "tipo": "opcion",
           "variable": "edad",
-          "texto": "¿En qué rango de edad estás?",
+          "texto": "Para empezar, ¿en qué rango de edad estás?",
           "opciones": [
             {
               "id": "12-14",
@@ -463,7 +439,7 @@
             },
             {
               "id": "hermanos",
-              "label": "Hermanos/as"
+              "label": "Hermanas o hermanos"
             },
             {
               "id": "otros_familiares",
@@ -475,7 +451,7 @@
             },
             {
               "id": "solo",
-              "label": "Solo/a"
+              "label": "Nadie más"
             },
             {
               "id": "nd",
@@ -495,57 +471,154 @@
           "tipo": "multiple",
           "variable": "V20",
           "item": "V20.emocion",
-          "texto": "Antes de cualquier otra cosa, quiero saber cómo estás tú. ¿Cómo te sientes hoy? Puedes elegir varias.",
+          "texto": "Antes de cualquier otra cosa, quiero saber cómo estás tú. ¿Cómo te sientes hoy? Escríbelo con tus palabras o elige una o varias.",
           "opciones": [
             {
               "id": "tranquilo",
-              "label": "Tranquilo/a"
+              "label": "En calma",
+              "sinonimos": [
+                "tranquil",
+                "calma",
+                "relaj",
+                "en paz",
+                "seren"
+              ]
             },
             {
               "id": "contento",
-              "label": "Contento/a"
+              "label": "Con alegría",
+              "sinonimos": [
+                "content",
+                "feliz",
+                "alegr",
+                "a gusto",
+                "chido"
+              ]
             },
             {
               "id": "cansado",
-              "label": "Cansado/a"
+              "label": "Con cansancio",
+              "sinonimos": [
+                "cansad",
+                "cansancio",
+                "agotad",
+                "exhaust",
+                "fatiga",
+                "sueno",
+                "sin pila"
+              ]
             },
             {
               "id": "triste",
-              "label": "Triste"
+              "label": "Con tristeza",
+              "sinonimos": [
+                "trist",
+                "aguitad",
+                "bajon",
+                "deprimid",
+                "desanimad",
+                "llor",
+                "chillar"
+              ]
             },
             {
               "id": "enojado",
-              "label": "Enojado/a"
+              "label": "Con enojo",
+              "sinonimos": [
+                "enoj",
+                "coraje",
+                "rabia",
+                "enfad",
+                "molest",
+                "furi",
+                "irritad",
+                "encabron",
+                "emputad",
+                "harto",
+                "harta"
+              ]
             },
             {
               "id": "miedo",
-              "label": "Con miedo"
+              "label": "Con miedo",
+              "sinonimos": [
+                "miedo",
+                "asustad",
+                "susto",
+                "aterrad",
+                "terror",
+                "panico",
+                "sacad de onda"
+              ]
             },
             {
               "id": "preocupado",
-              "label": "Preocupado/a"
+              "label": "Con preocupación",
+              "sinonimos": [
+                "preocup",
+                "nervi",
+                "ansi",
+                "estres",
+                "angusti",
+                "inquiet"
+              ]
             },
             {
               "id": "vacio",
-              "label": "Vacío/a"
+              "label": "Con vacío",
+              "sinonimos": [
+                "vaci",
+                "apagad",
+                "hueco",
+                "como nada"
+              ]
             },
             {
               "id": "solo",
-              "label": "Solo/a"
+              "label": "Con soledad",
+              "sinonimos": [
+                "soledad",
+                "me siento sol",
+                "aislad",
+                "abandonad",
+                "nadie me pela",
+                "nadie me entiende"
+              ]
             },
             {
               "id": "avergonzado",
-              "label": "Avergonzado/a"
+              "label": "Con vergüenza",
+              "sinonimos": [
+                "verguenz",
+                "avergonz",
+                "me da pena",
+                "humillad",
+                "ridicul"
+              ]
             },
             {
               "id": "confundido",
-              "label": "Confundido/a"
+              "label": "Con confusión",
+              "sinonimos": [
+                "confund",
+                "confusi",
+                "no entiendo",
+                "revuelt",
+                "perdid"
+              ]
             },
             {
               "id": "nose",
-              "label": "No sé cómo me siento"
+              "label": "No sé cómo me siento",
+              "sinonimos": [
+                "no se",
+                "ni idea",
+                "no tengo idea"
+              ]
             }
-          ]
+          ],
+          "textoPrimero": true,
+          "placeholder": "Escribe cómo te sientes…"
         },
         {
           "id": "en_sensacion",
@@ -574,7 +647,7 @@
             },
             {
               "id": "apagado",
-              "label": "Nada, como apagado/a"
+              "label": "Nada, como sin energía"
             }
           ]
         },
@@ -752,7 +825,7 @@
             },
             {
               "id": "amigos",
-              "label": "Mis amigos"
+              "label": "Mis amistades"
             },
             {
               "id": "futuro",
@@ -856,13 +929,13 @@
           "escala": "E5",
           "variable": "V1",
           "item": "V1.comunitaria",
-          "texto": "Hay lugares donde pasan cosas que dan miedo y uno se acostumbra a vivir así. ¿Qué tan seguido sientes que en tu colonia pasan cosas que dan miedo?",
+          "texto": "Hay lugares donde pasan cosas que dan miedo y la gente se acostumbra a vivir así. ¿Qué tan seguido sientes que en tu colonia pasan cosas que dan miedo?",
           "reacciones": [
             {
               "si": {
                 "gte": 3
               },
-              "texto": "Gracias por decírmelo. Vivir así cansa, aunque uno ya no lo note."
+              "texto": "Gracias por decírmelo. Vivir así cansa, aunque ya no lo notes."
             }
           ]
         },
@@ -872,7 +945,7 @@
           "escala": "E5",
           "variable": "V1",
           "item": "V1.escolar",
-          "texto": "¿Qué tan seguido te sientes inseguro/a en la escuela o en el camino?"
+          "texto": "¿Qué tan seguido sientes inseguridad en la escuela o en el camino?"
         },
         {
           "id": "v1_enterado",
@@ -973,7 +1046,7 @@
               "si": {
                 "gte": 3
               },
-              "texto": "Cuando uno lleva mucho tiempo así, cuesta ver que algo cambie. Gracias por decírmelo."
+              "texto": "Cuando llevas mucho tiempo así, cuesta ver que algo cambie. Gracias por decírmelo."
             }
           ]
         }
@@ -1015,13 +1088,13 @@
           "escala": "E5",
           "variable": "V5",
           "item": "V5.lealtad",
-          "texto": "A veces uno siente que tiene que callar o hacer cosas para proteger a alguien. ¿Te ha pasado?",
+          "texto": "A veces una persona siente que tiene que callar o hacer cosas para proteger a alguien. ¿Te ha pasado?",
           "reacciones": [
             {
               "si": {
                 "gte": 3
               },
-              "texto": "Eso es mucho peso para cargar solo/a. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
+              "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
             }
           ]
         },
@@ -1213,7 +1286,7 @@
           "tipo": "opcion",
           "variable": "V9",
           "item": "V9.pares",
-          "texto": "¿Tienes amigos con quienes te sientes seguro/a?",
+          "texto": "¿Tienes amistades con quienes sientes seguridad?",
           "opciones": [
             {
               "id": "si",
@@ -1298,7 +1371,7 @@
               "descanso"
             ]
           },
-          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Listo/a?",
+          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Seguimos?",
           "opciones": [
             {
               "id": "seguir",
@@ -1343,7 +1416,7 @@
             },
             {
               "id": "nose",
-              "label": "No estoy seguro/a"
+              "label": "No sé"
             }
           ],
           "reacciones": [
@@ -1395,7 +1468,7 @@
             },
             {
               "id": "seguro",
-              "label": "Sentirme más seguro/a"
+              "label": "Sentir más seguridad"
             },
             {
               "id": "presion",
@@ -1462,9 +1535,10 @@
               "si": {
                 "gte": 3
               },
-              "texto": "Vivir con esa tensión puede ser agotador. Tiene sentido que a veces te sientas cansado/a o con el estómago apretado."
+              "texto": "Vivir con esa tensión puede ser agotador. Tiene sentido que a veces sientas cansancio o el estómago apretado."
             }
-          ]
+          ],
+          "invertido": true
         },
         {
           "id": "mb_hablar",
@@ -1666,7 +1740,7 @@
           "opciones": [
             {
               "id": "amigo",
-              "label": "Soy buen/a amigo/a"
+              "label": "Cuido mis amistades"
             },
             {
               "id": "reir",
@@ -1682,7 +1756,7 @@
             },
             {
               "id": "habilidad",
-              "label": "Soy bueno/a en algo: deporte, música, dibujo…"
+              "label": "Algo se me da bien: deporte, música, dibujo…"
             }
           ]
         },
@@ -1757,7 +1831,7 @@
             },
             "min": 2
           },
-          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No estás loco/a ni débil. Hablar con un psicólogo ayuda mucho con esto.",
+          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho con esto.",
           "opciones": [
             {
               "id": "como",
@@ -1801,32 +1875,8 @@
           "variable": "V15",
           "item": "V15.frecuencia",
           "texto": "Cuando te sientes mal, ¿qué tan seguido usas alcohol, vape u otra sustancia para sentirte mejor?",
-          "opciones": [
-            {
-              "id": "nunca",
-              "label": "Nunca",
-              "valor": 0
-            },
-            {
-              "id": "casi_nunca",
-              "label": "Casi nunca",
-              "valor": 1
-            },
-            {
-              "id": "a_veces",
-              "label": "A veces",
-              "valor": 2
-            },
-            {
-              "id": "seguido",
-              "label": "Seguido",
-              "valor": 3
-            },
-            {
-              "id": "casi_siempre",
-              "label": "Casi siempre",
-              "valor": 4
-            },
+          "escala": "E5",
+          "opcionesExtra": [
             {
               "id": "nd",
               "label": "Prefiero no decir"
@@ -1899,7 +1949,7 @@
           "opciones": [
             {
               "id": "emocionado",
-              "label": "Emocionado/a"
+              "label": "Con emoción"
             },
             {
               "id": "igual",
@@ -1907,7 +1957,7 @@
             },
             {
               "id": "incomodo",
-              "label": "Incómodo/a"
+              "label": "Con incomodidad"
             },
             {
               "id": "miedo",
@@ -1915,7 +1965,7 @@
             },
             {
               "id": "triste",
-              "label": "Triste"
+              "label": "Con tristeza"
             }
           ]
         },
@@ -1952,11 +2002,11 @@
             },
             {
               "id": "amigo",
-              "label": "Un amigo/a"
+              "label": "Una amistad"
             },
             {
               "id": "maestro",
-              "label": "Un maestro/a"
+              "label": "Alguien que me da clase"
             },
             {
               "id": "deportista",
@@ -2077,7 +2127,7 @@
             },
             {
               "id": "amigos",
-              "label": "Amigos"
+              "label": "Amistades"
             },
             {
               "id": "escuela",
@@ -2313,7 +2363,7 @@
         {
           "id": "ci_gracias",
           "tipo": "mensaje",
-          "texto": "Gracias por platicar conmigo. Lo que sientes es válido y no estás solo/a. Si en algún momento necesitas hablar con una persona, aquí tienes opciones:"
+          "texto": "Gracias por platicar conmigo. Lo que sientes es válido y aquí hay quien te escuche. Si en algún momento necesitas hablar con una persona, aquí tienes opciones:"
         },
         {
           "id": "ci_directorio",
@@ -2391,7 +2441,7 @@
         {
           "id": "sa_gracias",
           "tipo": "mensaje",
-          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes es válido y no estás solo/a."
+          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes es válido y aquí hay quien te escuche."
         },
         {
           "id": "sa_directorio",
