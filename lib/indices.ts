@@ -22,7 +22,7 @@ export function indices(g: Guion, estado: Estado): Record<string, number> {
     if (!p.variable || (p.escala !== "E5" && p.escala !== "A5")) continue;
     const n = estado.respuestas[p.id]?.num;
     if (n === undefined) continue;
-    (acum[p.variable] ??= []).push(n);
+    (acum[p.variable] ??= []).push(p.invertido ? 4 - n : n);
   }
   const out: Record<string, number> = {};
   for (const [v, xs] of Object.entries(acum)) {
@@ -59,8 +59,9 @@ export interface ResumenSesion {
   edad: string | null;
   genero: string | null;
   vive: string[];
-  llegada: string | null;
   emociones: string[];
+  /** El joven nombró su emoción con sus palabras (V20, reconocimiento emocional). */
+  emocionEscrita: boolean;
   sensacion: string | null;
   termometroInicial: number | null;
   termometroFinal: number | null;
@@ -78,6 +79,8 @@ export interface ResumenSesion {
   recursos: string[];
   comoTermina: string | null;
   completa: boolean;
+  /** Último bloque al que llegó: sirve para ver dónde abandonan. */
+  ultimoBloque: string | null;
 }
 
 export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesion {
@@ -105,8 +108,8 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     edad: str("da_edad"),
     genero: str("da_genero"),
     vive: arr("da_vive"),
-    llegada: str("da_llegaste"),
     emociones: arr("en_emociones"),
+    emocionEscrita: "en_emociones" in estado.textos,
     sensacion: str("en_sensacion"),
     termometroInicial: ini,
     termometroFinal: fin,
@@ -124,5 +127,6 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     recursos: estado.recursos,
     comoTermina: str("ci_ahora"),
     completa: estado.completa,
+    ultimoBloque: estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
   };
 }

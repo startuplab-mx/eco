@@ -13,6 +13,8 @@ export interface Opcion {
   terminar?: boolean;
   /** Sale de la conversación sin cierre completo. */
   salir?: boolean;
+  /** Raíces de palabras (sin acentos) que se reconocen en texto libre. */
+  sinonimos?: string[];
 }
 
 /** Condición para mostrar un paso o una reacción. */
@@ -32,7 +34,7 @@ export interface Reaccion {
   texto: string;
 }
 
-export type TipoPaso = "mensaje" | "opcion" | "multiple" | "abierta" | "ejercicio" | "directorio";
+export type TipoPaso = "mensaje" | "opcion" | "multiple" | "abierta" | "numero" | "ejercicio" | "directorio";
 
 export type EjercicioId = "respiracion" | "punos" | "mano" | "anclaje";
 
@@ -43,6 +45,15 @@ export interface Paso {
   texto?: string | string[];
   escala?: EscalaId;
   opciones?: Opcion[];
+  /** Opciones que se agregan a una escala (p. ej. "Prefiero no decir"). */
+  opcionesExtra?: Opcion[];
+  /** La caja de texto va primero y las opciones abajo, como etiquetas. */
+  textoPrimero?: boolean;
+  /** En el índice se invierte (4 - valor) para que toda la variable apunte al mismo lado. */
+  invertido?: boolean;
+  placeholder?: string;
+  /** En "numero": rangos en los que se guarda el número (el número exacto no se guarda). */
+  rangos?: { id: string; min: number; max: number }[];
   /** En preguntas abiertas: botones rápidos además del texto libre. */
   rapidas?: Opcion[];
   /** Código de variable (V1…V22) y del ítem, para índices y registro. */

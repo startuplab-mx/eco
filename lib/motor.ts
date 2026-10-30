@@ -64,8 +64,8 @@ export function emocionPrincipal(g: Guion, estado: Estado): string {
 
 function opcionesDe(g: Guion, p: Paso): Opcion[] {
   if (p.tipo === "ejercicio") return [{ id: "listo", label: "Listo" }];
-  if (p.tipo === "abierta") return p.rapidas ?? [];
-  if (p.escala) return g.escalas[p.escala];
+  if (p.tipo === "abierta" || p.tipo === "numero") return p.rapidas ?? [];
+  if (p.escala) return [...g.escalas[p.escala], ...(p.opcionesExtra ?? [])];
   return p.opciones ?? [];
 }
 
@@ -277,6 +277,40 @@ function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]
   avanzar(g, inst, estado, salida);
 }
 
+/** Reconoce opciones por sus sinónimos ("coraje" → con enojo). "nose" sólo si nada más coincide. */
+function porSinonimos(opciones: Opcion[], texto: string): string[] {
+  const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ")} `;
+  const hallados = opciones
+    .filter((o) => o.sinonimos?.some((s) => t.includes(normalizar(s))))
+    .map((o) => o.id);
+  const sinNose = hallados.filter((id) => id !== "nose");
+  return sinNose.length ? sinNose : hallados;
+}
+
+const NUMEROS: Record<string, number> = {
+  uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10,
+  once: 11, doce: 12, trece: 13, catorce: 14, quince: 15, dieciseis: 16, diecisiete: 17, dieciocho: 18,
+  diecinueve: 19, veinte: 20,
+};
+
+/** Primer número en el texto, en cifra o en palabra ("15", "quince"). */
+function leerNumero(texto: string): number | null {
+  const t = normalizar(texto);
+  const cifra = t.match(/\d{1,3}/);
+  if (cifra) return Number(cifra[0]);
+  for (const palabra of t.split(/[^a-zñ]+/)) if (NUMEROS[palabra] !== undefined) return NUMEROS[palabra];
+  return null;
+}
+
+/** Escalas numéricas: "7" en el termómetro → 7–8; "4" en acuerdo → 4. */
+function porNumero(p: Paso, opciones: Opcion[], texto: string): Opcion | undefined {
+  const n = leerNumero(texto);
+  if (n === null) return undefined;
+  if (p.escala === "T10" && n >= 1 && n <= 10) return opciones[Math.min(4, Math.floor((n - 1) / 2))];
+  if (p.escala === "A5" && n >= 1 && n <= 5) return opciones[n - 1];
+  return undefined;
+}
+
 /** Intenta casar texto escrito con una opción (sin modelo de lenguaje). */
 function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
   const t = normalizar(texto).replace(/[^a-z0-9ñ ]/g, "");
@@ -343,11 +377,24 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   if (p.tipo === "ejercicio") {
     respuesta = { valor: "listo" };
   } else if (p.tipo === "multiple") {
-    let ids = entrada.opciones ?? [];
-    if (!ids.length && texto) {
-      ids = texto.split(/,|\by\b|\n/).map((x) => casarTexto(opciones, x)?.id).filter((x): x is string => !!x);
+    const ids = new Set(entrada.opciones ?? []);
+    if (texto) {
+      porSinonimos(opciones, texto).forEach((id) => ids.add(id));
+      texto.split(/,|\by\b|\n/).forEach((x) => { const o = casarTexto(opciones, x); if (o) ids.add(o.id); });
+      if (p.textoPrimero) {
+        // Sus propias palabras son dato (reconocimiento emocional): se guardan ya filtradas.
+        estado.textos[p.id] = filtrarIdentificadores(texto).texto;
+        if (!ids.size) {
+          salida.push({ tipo: "eco", texto: "Gracias por ponerlo con tus palabras. ¿Se parece a alguna de estas? Puedes elegir varias." });
+          estado.esperando = { ...estado.esperando, textoLibre: false };
+          return { estado, salida };
+        }
+      }
     }
-    if (ids.length) respuesta = { valor: ids.filter((id) => opciones.some((o) => o.id === id)) };
+    // "No sé cómo me siento" sólo cuenta si no nombró ninguna otra emoción.
+    if (p.textoPrimero && ids.size > 1) ids.delete("nose");
+    const validos = [...ids].filter((id) => opciones.some((o) => o.id === id));
+    if (validos.length) respuesta = { valor: validos };
   } else if (p.tipo === "abierta") {
     if (entrada.opcion) {
       elegida = opciones.find((o) => o.id === entrada.opcion);
@@ -362,8 +409,29 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       estado.textos[p.id] = filtro.texto;
       respuesta = { valor: "texto" };
     }
+  } else if (p.tipo === "numero") {
+    if (entrada.opcion) {
+      elegida = opciones.find((o) => o.id === entrada.opcion);
+      if (elegida) respuesta = { valor: elegida.id };
+    } else if (texto) {
+      const n = leerNumero(texto);
+      const rango = n === null ? undefined : p.rangos?.find((r) => n >= r.min && n <= r.max);
+      // Sólo se guarda el rango; el número exacto no sale de aquí.
+      if (rango) respuesta = { valor: rango.id };
+      else {
+        salida.push({ tipo: "eco", texto: "¿Me lo escribes con número? Por ejemplo: 15." });
+        return { estado, salida };
+      }
+    }
   } else {
-    elegida = entrada.opcion ? opciones.find((o) => o.id === entrada.opcion) : texto ? casarTexto(opciones, texto) : undefined;
+    if (entrada.opcion) elegida = opciones.find((o) => o.id === entrada.opcion);
+    else if (texto) {
+      elegida = porNumero(p, opciones, texto) ?? casarTexto(opciones, texto);
+      if (!elegida) {
+        const ids = porSinonimos(opciones, texto);
+        if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
+      }
+    }
     if (elegida) respuesta = { valor: elegida.id, num: elegida.valor };
   }
 

@@ -34,6 +34,7 @@ export default function Chat() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [texto, setTexto] = useState("");
   const [debug, setDebug] = useState(false);
+  const [verResumen, setVerResumen] = useState(false);
   const llave = useRef(0);
 
   const iniciar = useCallback(() => {
@@ -82,14 +83,17 @@ export default function Chat() {
     setTexto("");
   }
 
-  function enviarTexto() {
-    const t = texto.trim();
-    if (!t) return;
-    enviar({ texto: t }, t);
-  }
-
   const esp = estado?.esperando;
   const terminada = estado?.terminada;
+  /** Envía lo escrito y/o las etiquetas marcadas. */
+  function enviarActual() {
+    if (!esp) return;
+    const t = texto.trim();
+    const marcadas = esp.opciones.filter((o) => seleccion.includes(o.id)).map((o) => o.label);
+    if (!t && !marcadas.length) return;
+    if (esp.multiple) enviar({ texto: t || undefined, opciones: seleccion }, [t, ...marcadas].filter(Boolean).join(" · "));
+    else enviar({ texto: t }, t);
+  }
 
   return (
     <main className="app">
@@ -139,60 +143,54 @@ export default function Chat() {
       <footer className="controles">
         {!escribiendo && esp && (
           <>
-            {esp.opciones.length > 0 && (
-              <div className="opciones">
-                {esp.opciones.map((o) => {
-                  const marcada = seleccion.includes(o.id);
-                  return (
-                    <button
-                      key={o.id}
-                      className={`opcion ${marcada ? "marcada" : ""}`}
-                      onClick={() =>
-                        esp.multiple
-                          ? setSeleccion((s) => (marcada ? s.filter((x) => x !== o.id) : [...s, o.id]))
-                          : enviar({ opcion: o.id }, o.label)
-                      }
-                    >
-                      {o.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            {esp.multiple && (
-              <button
-                className="listo"
-                disabled={!seleccion.length}
-                onClick={() =>
-                  enviar(
-                    { opciones: seleccion },
-                    esp.opciones.filter((o) => seleccion.includes(o.id)).map((o) => o.label).join(", "),
-                  )
-                }
-              >
-                Listo
-              </button>
-            )}
             {esp.textoLibre && (
-              <form
-                className="escribir"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  enviarTexto();
-                }}
-              >
-                <input
+              <form className="escribir" onSubmit={(e) => { e.preventDefault(); enviarActual(); }}>
+                <textarea
                   value={texto}
                   onChange={(e) => setTexto(e.target.value)}
-                  placeholder={esp.paso.tipo === "abierta" ? "Escribe aquí…" : "O escribe tu respuesta…"}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarActual(); }
+                  }}
+                  placeholder={esp.paso.placeholder ?? (esp.paso.tipo === "abierta" ? "Escribe aquí…" : "Escribe tu respuesta…")}
+                  rows={esp.paso.tipo === "abierta" ? 2 : 1}
+                  inputMode={esp.paso.tipo === "numero" ? "numeric" : "text"}
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck={false}
                   maxLength={600}
                   aria-label="Tu respuesta"
                 />
-                <button type="submit" disabled={!texto.trim()}>Enviar</button>
+                <button type="submit" disabled={!texto.trim() && !seleccion.length}>Enviar</button>
               </form>
+            )}
+            {esp.opciones.length > 0 && (
+              <div className="etiquetas-bloque">
+                {esp.textoLibre && (
+                  <div className="etiquetas-titulo">{esp.multiple ? "O elige una o varias:" : "O elige:"}</div>
+                )}
+                <div className="etiquetas">
+                  {esp.opciones.map((o) => {
+                    const marcada = seleccion.includes(o.id);
+                    return (
+                      <button
+                        key={o.id}
+                        className={`etiqueta ${marcada ? "marcada" : ""}`}
+                        aria-pressed={esp.multiple ? marcada : undefined}
+                        onClick={() =>
+                          esp.multiple
+                            ? setSeleccion((s) => (marcada ? s.filter((x) => x !== o.id) : [...s, o.id]))
+                            : enviar({ opcion: o.id }, o.label)
+                        }
+                      >
+                        {o.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {esp.multiple && !esp.textoLibre && (
+              <button className="listo" disabled={!seleccion.length} onClick={enviarActual}>Enviar</button>
             )}
           </>
         )}
@@ -204,10 +202,17 @@ export default function Chat() {
       </footer>
 
       {debug && estado && (
-        <details className="debug" open>
-          <summary>Resumen que se guardaría (sólo en modo prueba)</summary>
-          <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
-        </details>
+        <>
+          <button className="debug-boton" onClick={() => setVerResumen((v) => !v)}>
+            {verResumen ? "Cerrar resumen" : "Resumen"}
+          </button>
+          {verResumen && (
+            <div className="debug">
+              <div className="debug-titulo">Resumen que se guardaría (sólo en modo prueba)</div>
+              <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
+            </div>
+          )}
+        </>
       )}
     </main>
   );
