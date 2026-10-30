@@ -1,5 +1,5 @@
 {
-  "version": "0.1",
+  "version": "0.2",
   "escalas": {
     "E5": [
       {
@@ -379,6 +379,7 @@
           "texto": [
             "Te explico. Aquí no hay nombres: cada plática tiene un código al azar.",
             "Tus respuestas se guardan como números y temas, no como tu texto completo.",
+            "Lo que escribes lo lee un sistema de inteligencia artificial para entenderte mejor, sin datos que digan quién eres.",
             "Un equipo de psicólogos las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
             "Puedes saltar cualquier pregunta. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
           ]
@@ -910,7 +911,8 @@
         {
           "id": "en_validacion",
           "tipo": "mensaje",
-          "texto": "{validacion}"
+          "texto": "{validacion}",
+          "reescribible": true
         },
         {
           "id": "en_bien",

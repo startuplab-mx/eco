@@ -63,6 +63,8 @@ export interface Paso {
   reacciones?: Reaccion[];
   /** Ejercicio fijo o "@emocion" para elegirlo según la emoción principal. */
   ejercicio?: EjercicioId | "@emocion";
+  /** Mensaje que el modelo puede reescribir conservando su sentido. */
+  reescribible?: boolean;
   /** Burbuja con estilo de crisis. */
   estilo?: "crisis";
   /** En directorio: ids de líneas que no se muestran (p. ej. 089 en crisis). */
@@ -116,7 +118,7 @@ export interface Respuesta {
 export type Nivel = "verde" | "amarillo" | "rojo";
 
 export type Salida =
-  | { tipo: "eco"; texto: string }
+  | { tipo: "eco"; texto: string; /** El modelo puede reescribirla (reacciones y validaciones). */ reescribible?: boolean }
   | { tipo: "eco-crisis"; texto: string }
   | { tipo: "usuario"; texto: string }
   | { tipo: "ejercicio"; ejercicio: EjercicioId }
@@ -124,6 +126,8 @@ export type Salida =
 
 export interface Espera {
   paso: Paso;
+  /** Pregunta tal como la vio el joven (marcadores ya resueltos). */
+  pregunta?: string;
   /** Botones que muestra la pantalla. */
   opciones: Opcion[];
   multiple: boolean;

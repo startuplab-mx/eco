@@ -233,3 +233,5 @@ button:disabled { cursor: default; opacity: 0.5; }
 }
 .debug-titulo { font-weight: 700; margin-bottom: 6px; }
 .debug pre { white-space: pre-wrap; word-break: break-word; }
+
+.debug-ia { margin-bottom: 6px; color: var(--suave); }

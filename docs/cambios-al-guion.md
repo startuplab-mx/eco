@@ -74,3 +74,12 @@ presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiabl
   escribir el número ("15", "quince"); sólo se guarda el rango, nunca la edad exacta.
 - **Pantalla:** todas las preguntas usan la misma forma: caja de texto arriba y opciones abajo como etiquetas
   chicas. Las escalas aceptan respuesta escrita ("casi siempre", "diario", "7" en el termómetro).
+
+## Etapa 2 — conversación con IA (versión 0.2 del guion)
+
+- **"Tengo dudas"** agrega: "Lo que escribes lo lee un sistema de inteligencia artificial para entenderte mejor, sin
+  datos que digan quién eres." Pendiente de revisión del comité de ética.
+- **Qué escribe el modelo:** sólo las reacciones y la validación de la emoción (marcadas como `reescribible`),
+  conservando su sentido. Las preguntas, el consentimiento, los mensajes de crisis y el directorio quedan literales.
+- **Qué entiende el modelo:** respuestas escritas a preguntas con opciones, y señales de riesgo que la lista de
+  palabras no alcanza. Una señal de riesgo activa el mismo protocolo rojo.
