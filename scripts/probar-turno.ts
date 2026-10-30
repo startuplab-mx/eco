@@ -70,6 +70,25 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "me quiero morir" }, null, []);
   ok(r.estado.rojo, "la lista de alarma funciona sin IA");
 
+  // Espejo con confirmación en emociones (sin IA, por reglas).
+  e = hasta("en_emociones");
+  r = await turno(g, inst, e, { texto: "triste. y enojado" }, null, []);
+  ok(textos(r.salida)[0] === "Entiendo que hoy te sientes con tristeza y con enojo. ¿Es así?", "espejo de emociones con confirmación");
+  const conf = r.estado;
+  r = await turno(g, inst, conf, { opcion: "si" }, null, []);
+  ok(JSON.stringify(r.estado.respuestas["en_emociones"]?.valor) === JSON.stringify(["triste", "enojado"]) && r.estado.esperando?.paso.id === "en_termometro", "«Sí» registra y sigue");
+  r = await turno(g, inst, conf, { texto: "sí, así" }, null, []);
+  ok(r.estado.esperando?.paso.id === "en_termometro", "«sí, así» escrito también confirma");
+  r = await turno(g, inst, conf, { opcion: "no" }, null, []);
+  ok(r.estado.esperando?.paso.id === "en_emociones" && !r.estado.respuestas["en_emociones"] && r.estado.esperando.textoLibre === false, "«No exactamente» muestra las etiquetas para elegir");
+
+  // Espejo corto en una escala escrita.
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "pues depende del día pero casi siempre" }, iaBuena, []);
+  ok(textos(r.salida)[0] === "Va, casi siempre.", "espejo corto en escala escrita");
+  r = await turno(g, inst, e, { opcion: "a_veces" }, iaBuena, []);
+  ok(!textos(r.salida).some((t) => t.startsWith("Va,")), "sin espejo cuando se pica la etiqueta");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

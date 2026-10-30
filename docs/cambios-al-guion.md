@@ -83,3 +83,11 @@ presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiabl
   conservando su sentido. Las preguntas, el consentimiento, los mensajes de crisis y el directorio quedan literales.
 - **Qué entiende el modelo:** respuestas escritas a preguntas con opciones, y señales de riesgo que la lista de
   palabras no alcanza. Una señal de riesgo activa el mismo protocolo rojo.
+
+## Espejo (30 de octubre de 2026)
+
+- **Con confirmación** en "¿Cómo te sientes hoy?" y "¿Con qué tiene que ver más lo que sientes?": si el joven escribe,
+  Eco repite lo que entendió en lenguaje neutro y pregunta "¿Es así?" [Sí] [No exactamente]. Con "No exactamente"
+  le muestra las etiquetas para elegir. No se confirma cuando sólo eligió "No sé" o "Prefiero no decir".
+- **Corto, sin preguntar**, en las demás preguntas con opciones: "Va, casi nunca.", "Va, 3 de 5.", "Va, un 7–8.".
+  No se hace en datos personales (edad, género, con quién vive) ni cuando el joven pica la etiqueta.

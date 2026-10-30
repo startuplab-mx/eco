@@ -694,7 +694,28 @@
             }
           ],
           "textoPrimero": true,
-          "placeholder": "Escribe cómo te sientes…"
+          "placeholder": "Escribe cómo te sientes…",
+          "espejo": {
+            "plantilla": "Entiendo que hoy te sientes {opciones}. ¿Es así?",
+            "textos": {
+              "tranquilo": "en calma",
+              "contento": "con alegría",
+              "cansado": "con cansancio",
+              "triste": "con tristeza",
+              "enojado": "con enojo",
+              "miedo": "con miedo",
+              "preocupado": "con preocupación",
+              "vacio": "con vacío",
+              "solo": "con soledad",
+              "avergonzado": "con vergüenza",
+              "confundido": "con confusión",
+              "nose": "sin saber bien cómo"
+            },
+            "sinConfirmar": [
+              "nose"
+            ],
+            "siNo": "Va. Elige las que se parezcan más a cómo te sientes."
+          }
         },
         {
           "id": "en_sensacion",
@@ -915,7 +936,25 @@
               "id": "nd",
               "label": "Prefiero no decir"
             }
-          ]
+          ],
+          "espejo": {
+            "plantilla": "Entiendo que tiene que ver más con {opciones}. ¿Es así?",
+            "textos": {
+              "escuela": "la escuela",
+              "casa": "tu casa",
+              "colonia": "tu colonia",
+              "extrano": "alguien que extrañas",
+              "vi": "algo que viste o escuchaste",
+              "redes": "las redes",
+              "amigos": "tus amistades",
+              "futuro": "tu futuro"
+            },
+            "sinConfirmar": [
+              "nose",
+              "nd"
+            ],
+            "siNo": "Va. Elige la que se parezca más."
+          }
         },
         {
           "id": "en_validacion",

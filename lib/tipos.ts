@@ -49,6 +49,8 @@ export interface Paso {
   opcionesExtra?: Opcion[];
   /** La caja de texto va primero y las opciones abajo, como etiquetas. */
   textoPrimero?: boolean;
+  /** Al responder escribiendo, Eco repite lo que entendió y pregunta si es así. */
+  espejo?: { plantilla: string; textos: Record<string, string>; sinConfirmar?: string[]; siNo: string };
   /** En el índice se invierte (4 - valor) para que toda la variable apunte al mismo lado. */
   invertido?: boolean;
   placeholder?: string;
@@ -147,6 +149,8 @@ export interface Estado {
   /** Lo que se esperaba antes de "pausa" o "salir". */
   esperandoPrevio?: Espera;
   pausa: null | "pausa" | "salir";
+  /** Respuesta escrita que Eco entendió y está confirmando con el joven ("¿Es así?"). */
+  confirmacion?: { entrada: { opcion?: string; opciones?: string[]; texto?: string; sinReglas?: boolean; confirmado?: boolean }; previa: Espera };
   gruposMostrados: string[];
   modulosHechos: string[];
   modulosEnRuta: string[];

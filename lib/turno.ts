@@ -19,6 +19,11 @@ export interface ResultadoTurno {
   uso: { llamadas: number; respaldos: number; puentes: number };
 }
 
+/** La entrada se entendió: quedó registrada o quedó en confirmación del espejo. */
+function entendido(r: { respondido?: boolean; estado: Estado }): boolean {
+  return !!r.respondido || !!r.estado.confirmacion;
+}
+
 const NO_ENTENDI = "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?";
 
 export async function turno(
@@ -47,14 +52,19 @@ export async function turno(
     });
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
+    else if (estado.confirmacion) {
+      // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
+      final = r.opciones[0] ? { opcion: r.opciones[0] } : entrada;
+    }
     else if (esp.paso.tipo === "multiple") {
       // Lo que entendió el modelo manda; el texto se conserva (sus propias palabras).
       final = r.opciones.length
         ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
         : { texto, opciones: entrada.opciones };
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
-      if (r.opciones[0]) final = { opcion: r.opciones[0] };
-      else if (!responder(g, inst, estado, entrada).respondido) {
+      // Se conserva el texto para que Eco haga el espejo de lo que entendió.
+      if (r.opciones[0]) final = { opcion: r.opciones[0], texto };
+      else if (!entendido(responder(g, inst, estado, entrada))) {
         // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
         return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
       }

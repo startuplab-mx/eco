@@ -20,6 +20,8 @@ export interface Entrada {
   alarma?: boolean;
   /** El modelo ya interpretó el texto: no aplicar las reglas de palabras sobre él. */
   sinReglas?: boolean;
+  /** El joven ya confirmó el espejo ("¿Es así?" → Sí). */
+  confirmado?: boolean;
 }
 
 export interface Resultado {
@@ -39,7 +41,39 @@ const OPC_SALIR: Opcion[] = [
   { id: "no", label: "No, sigamos" },
 ];
 
+const OPC_CONFIRMAR: Opcion[] = [
+  { id: "si", label: "Sí" },
+  { id: "no", label: "No exactamente" },
+];
+/** Bloques donde no se hace espejo corto (datos personales, consentimiento, transiciones). */
+const SIN_ESPEJO = ["bienvenida", "datos", "transicion"];
+
 // ---------- utilidades ----------
+
+/** "a", "a y b", "a, b y c". */
+export function listaNatural(xs: string[]): string {
+  if (xs.length <= 1) return xs[0] ?? "";
+  return `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
+}
+
+function minuscula(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
+/** Espejo corto de lo que se entendió de una respuesta escrita: "casi nunca", "3 de 5", "un 7–8". */
+function espejoCorto(p: Paso, elegidas: Opcion[], opciones: Opcion[]): string {
+  if (p.escala === "A5") return elegidas.map((o) => `${opciones.indexOf(o) + 1} de 5`).join(", ");
+  if (p.escala === "T10") return `un ${elegidas[0].label.replace(/ Muy (leve|fuerte)$/, "")}`;
+  return listaNatural(elegidas.map((o) => minuscula(o.label)));
+}
+
+/** Lectura simple de sí/no escrito, para la confirmación del espejo. */
+function siNo(texto: string): "si" | "no" | null {
+  const t = normalizar(texto).replace(/[^a-z ]/g, "").trim();
+  if (/\b(no|nel|nop|tampoco|mas bien)\b/.test(t)) return "no";
+  if (/\b(si|simon|sip|aja|exacto|eso|asi es|correcto|ajam|ok|va|claro)\b/.test(t)) return "si";
+  return null;
+}
 
 function codigoAleatorio(rand: () => number): string {
   let s = "";
@@ -376,7 +410,23 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     }
   }
 
-  // 3. Respuesta al paso actual.
+  // 3. Confirmación del espejo ("Entiendo que hoy te sientes… ¿Es así?").
+  if (estado.confirmacion) {
+    const conf = estado.confirmacion;
+    const op = entrada.opcion ?? (texto ? siNo(texto) : null);
+    estado.confirmacion = undefined;
+    estado.esperando = conf.previa;
+    if (op === "si") return responder(g, inst, estado, conf.entrada);
+    if (op === "no") {
+      estado.esperando = { ...conf.previa, textoLibre: false };
+      salida.push({ tipo: "eco", texto: conf.previa.paso.espejo?.siNo ?? "Va. Elige la que se parezca más." });
+      return { estado, salida };
+    }
+    // Escribió otra cosa: se toma como una nueva respuesta a la misma pregunta.
+    return responder(g, inst, estado, entrada);
+  }
+
+  // 4. Respuesta al paso actual.
   const { paso: p, opciones } = estado.esperando;
   let respuesta: Respuesta | undefined;
   let elegida: Opcion | undefined;
@@ -449,8 +499,38 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     return { estado, salida };
   }
 
+  // Espejo con confirmación: la respuesta escrita se repite y se pregunta "¿Es así?" antes de registrarla.
+  if (p.espejo && texto && !entrada.confirmado) {
+    const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
+    if (ids.some((id) => !p.espejo!.sinConfirmar?.includes(id))) {
+      const pregunta = p.espejo.plantilla.replace("{opciones}", listaNatural(ids.map((id) => p.espejo!.textos[id]).filter(Boolean)));
+      estado.confirmacion = {
+        entrada: Array.isArray(respuesta.valor)
+          ? { opciones: ids, texto, sinReglas: true, confirmado: true }
+          : { opcion: ids[0], texto, confirmado: true },
+        previa: estado.esperando,
+      };
+      estado.esperando = {
+        paso: { id: "_confirmar", tipo: "opcion", texto: pregunta },
+        opciones: OPC_CONFIRMAR, multiple: false, textoLibre: true, pregunta,
+      };
+      salida.push({ tipo: "eco", texto: pregunta });
+      return { estado, salida };
+    }
+  }
+
   estado.respuestas[p.id] = respuesta;
   estado.esperando = null;
+
+  // Espejo corto: si escribió con sus palabras, Eco dice lo que entendió ("Va, casi nunca.").
+  if (texto && !p.espejo && (p.tipo === "opcion" || p.tipo === "multiple") && !SIN_ESPEJO.includes(estado.bloque ?? "")) {
+    const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
+    const elegidas = opciones.filter((o) => ids.includes(o.id));
+    const literal = normalizar(elegidas.map((o) => o.label).join(" ")).replace(/[^a-z0-9ñ ]/g, "");
+    if (elegidas.length && normalizar(texto).replace(/[^a-z0-9ñ ]/g, "") !== literal) {
+      salida.push({ tipo: "eco", texto: `Va, ${espejoCorto(p, elegidas, opciones)}.` });
+    }
+  }
 
   for (const r of p.reacciones ?? []) {
     const ok = !r.si || ("paso" in r.si || "todos" in r.si || "alguno" in r.si || "no" in r.si || "cuenta" in r.si || "emocionPrincipal" in r.si || "amarillo" in r.si || "unaEmocion" in r.si
