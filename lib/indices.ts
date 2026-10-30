@@ -81,6 +81,13 @@ export interface ResumenSesion {
   completa: boolean;
   /** Último bloque al que llegó: sirve para ver dónde abandonan. */
   ultimoBloque: string | null;
+  /** Respuestas desviadas (sin sentido, groserías, fuera de tema) y preguntas saltadas. */
+  /** Si aceptó participar. Sin consentimiento, el equipo no debe usar el resto del resumen. */
+  consintio: boolean;
+  desvios: number;
+  omitidas: number;
+  /** Sesión a revisar antes de incluirla en el análisis (3 o más desvíos). */
+  revisarCalidad: boolean;
 }
 
 export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesion {
@@ -128,5 +135,10 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     comoTermina: str("ci_ahora"),
     completa: estado.completa,
     ultimoBloque: estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
+    consintio:
+      estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si",
+    desvios: estado.desviosTotal,
+    omitidas: estado.omitidas.length,
+    revisarCalidad: estado.desviosTotal >= 3,
   };
 }

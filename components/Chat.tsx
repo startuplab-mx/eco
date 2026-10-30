@@ -5,7 +5,7 @@ import guionJson from "@/data/guion.json";
 import instanciaJson from "@/config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "@/lib/tipos";
 import { arrancar, crearEstado, registrarRecurso, type Entrada } from "@/lib/motor";
-import { turno, iaPorHTTP, type Mensaje } from "@/lib/turno";
+import { turno, iaPorHTTP, fallasIA, type Mensaje } from "@/lib/turno";
 import type { ServicioIA } from "@/lib/ia-tipos";
 import { resumen } from "@/lib/indices";
 import Ejercicio from "./Ejercicio";
@@ -85,9 +85,12 @@ export default function Chat() {
   }, [items, cola.length, estado?.esperando]);
 
   const escribiendo = cola.length > 0 || pensando;
+  const enVuelo = useRef(false);
 
   async function enviar(entrada: Entrada, etiqueta: string) {
-    if (!estado || pensando) return;
+    // El ref evita que dos toques rápidos manden dos turnos antes de que React actualice "pensando".
+    if (!estado || pensando || enVuelo.current) return;
+    enVuelo.current = true;
     setItems((xs) => [...xs, { key: llave.current++, s: { tipo: "usuario", texto: etiqueta } }]);
     setSeleccion([]);
     setTexto("");
@@ -106,6 +109,7 @@ export default function Chat() {
         puentes: u.puentes + r.uso.puentes,
       }));
     } finally {
+      enVuelo.current = false;
       setPensando(false);
     }
   }
@@ -238,6 +242,7 @@ export default function Chat() {
               <div className="debug-titulo">Resumen que se guardaría (sólo en modo prueba)</div>
               <div className="debug-ia">
                 IA: {ia ? "activa" : "apagada"} · llamadas {uso.llamadas} · frases escritas por IA {uso.puentes} · respaldos al guion {uso.respaldos}
+                {fallasIA.length > 0 && <div>Últimas fallas: {fallasIA.join(" · ")}</div>}
               </div>
               <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
             </div>

@@ -19,7 +19,6 @@ export interface ResultadoTurno {
   uso: { llamadas: number; respaldos: number; puentes: number };
 }
 
-const NO_ENTENDI = "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?";
 
 export async function turno(
   g: Guion,
@@ -35,8 +34,10 @@ export async function turno(
   const comando = texto && ["pausa", "salir"].includes(normalizar(texto));
   let final: Entrada = entrada;
 
-  // 1. Texto escrito: revisar riesgo y entender a qué opción corresponde.
-  if (ia && esp && texto && !comando && !estado.pausa && esp.paso.tipo !== "ejercicio") {
+  // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.
+  let repregunta: string | null = null;
+  let modeloSinRiesgo = false;
+  if (ia && esp && texto && !comando && esp.paso.tipo !== "ejercicio") {
     uso.llamadas++;
     const r = await ia.interpretar({
       codigo: estado.codigo,
@@ -45,31 +46,62 @@ export async function turno(
       opciones: esp.opciones.map((o) => ({ id: o.id, label: o.label })),
       texto: filtrarIdentificadores(texto).texto,
     });
-    if (!r) uso.respaldos++;
+    const aceptaOtro = !!esp.paso.aceptaOtro && !!r?.otro;
+    modeloSinRiesgo = !!r && !r.riesgo;
+    if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
-    else if (esp.paso.tipo === "multiple") {
-      // Se conserva el texto (sus propias palabras) y se suman las opciones que entendió el modelo.
-      final = { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones] };
+    else if (estado.pausa) {
+      // Pausa, "salir" u "otro día": el riesgo ya se revisó; la opción la decide el motor.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
+    } else if (estado.confirmacion) {
+      // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
+      // El texto se conserva para que la lista de alarma lo revise.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
+    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length) {
+      // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
+      final = { texto, desvio: r.tipo };
+    } else if (esp.paso.tipo === "multiple") {
+      // Lo que entendió el modelo manda; el texto se conserva (sus propias palabras).
+      final = r.opciones.length
+        ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
+        : aceptaOtro
+          ? { texto, opciones: entrada.opciones, sinReglas: true, otro: r.otro! }
+          : { texto, opciones: entrada.opciones, sinOtro: true };
+      repregunta = r.repregunta;
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
-      // Primero se intenta con las reglas; si no alcanzan, se usa lo que entendió el modelo.
-      const local = responder(g, inst, estado, entrada);
-      if (!local.respondido) {
-        if (r.opciones[0]) final = { opcion: r.opciones[0] };
-        else {
-          return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };
-        }
-      }
+      // Se conserva el texto para el espejo y para que la lista de alarma lo revise.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : aceptaOtro ? { texto, otro: r.otro! } : { texto, sinOtro: true };
+      repregunta = r.repregunta;
     }
   }
 
-  const res = responder(g, inst, estado, final);
+  // Si el modelo revisó el texto y no vio riesgo, las frases ambiguas de la lista no activan la crisis.
+  if (modeloSinRiesgo && texto && !final.alarma) final = { ...final, alarmaDescartada: true };
+  let res = responder(g, inst, estado, final);
+
+  // Respuesta escrita que no se entendió: se repregunta una vez; a la segunda se deja pasar.
+  const sinEntender =
+    !!texto && !comando && !!esp && esp.paso.id.charAt(0) !== "_" && !res.respondido && !res.desvio && !res.aviso &&
+    !res.estado.confirmacion && !res.estado.rojo && !res.estado.pausa && res.estado.esperando?.paso.id === esp.paso.id;
+  if (sinEntender) {
+    const clave = `?${esp!.paso.id}`;
+    if ((estado.desviosPaso[clave] ?? 0) >= 1) {
+      res = responder(g, inst, estado, { desvio: "insiste" });
+    } else {
+      res = {
+        ...res,
+        estado: { ...res.estado, desviosPaso: { ...res.estado.desviosPaso, [clave]: 1 } },
+        salida: repregunta ? [{ tipo: "eco", texto: repregunta }] : res.salida,
+      };
+    }
+  }
   let salida = res.salida;
 
   // 2. Reescribir reacciones y validaciones (nunca en crisis, nunca preguntas ni textos fijos).
   const inicio = salida.findIndex((s) => s.tipo === "eco" && s.reescribible);
   // Sin reacción del guion, sólo se escribe puente después de una respuesta abierta (no en datos ni escalas).
-  const huboTextoLibre = !!texto && !comando && res.respondido && esp?.paso.tipo === "abierta";
-  if (ia && !res.estado.rojo && res.respondido && (inicio >= 0 || huboTextoLibre)) {
+  const huboTextoLibre = !!texto && !comando && res.respondido && !res.desvio && esp?.paso.tipo === "abierta";
+  if (ia && !res.estado.rojo && !res.desvio && !final.desvio && res.respondido && (inicio >= 0 || huboTextoLibre)) {
     let fin = inicio;
     while (fin >= 0 && fin < salida.length && salida[fin].tipo === "eco" && (salida[fin] as { reescribible?: boolean }).reescribible) fin++;
     const base = inicio >= 0 ? salida.slice(inicio, fin).map((s) => ("texto" in s ? s.texto : "")) : [];
@@ -99,9 +131,16 @@ export async function turno(
   return { estado: res.estado, salida, uso };
 }
 
+/** Últimas fallas de la IA en este navegador (para el panel de prueba). Nunca incluye texto del joven. */
+export const fallasIA: string[] = [];
+function anotarFalla(ruta: string, motivo: string) {
+  fallasIA.push(`${ruta.replace("/api/", "")}: ${motivo}`);
+  if (fallasIA.length > 8) fallasIA.shift();
+}
+
 /** Implementación para el navegador: llama a las rutas del servidor con tiempo límite. */
-export function iaPorHTTP(tiempoMs = 4500): ServicioIA {
-  async function post<T>(ruta: string, cuerpo: unknown): Promise<T | null> {
+export function iaPorHTTP(): ServicioIA {
+  async function post<T>(ruta: string, cuerpo: unknown, tiempoMs: number): Promise<T | null> {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), tiempoMs);
     try {
@@ -111,15 +150,21 @@ export function iaPorHTTP(tiempoMs = 4500): ServicioIA {
         body: JSON.stringify(cuerpo),
         signal: ctrl.signal,
       });
-      return r.ok ? ((await r.json()) as T) : null;
-    } catch {
+      if (!r.ok) {
+        const e = (await r.json().catch(() => ({}))) as { error?: string };
+        anotarFalla(ruta, `${r.status} ${e.error ?? ""}`);
+        return null;
+      }
+      return (await r.json()) as T;
+    } catch (e) {
+      anotarFalla(ruta, (e as Error).name === "AbortError" ? `tardó más de ${tiempoMs / 1000} s` : "sin conexión");
       return null;
     } finally {
       clearTimeout(t);
     }
   }
   return {
-    interpretar: (p) => post("/api/interpretar", p),
-    redactar: (p) => post("/api/redactar", p),
+    interpretar: (p) => post("/api/interpretar", p, 9000),
+    redactar: (p) => post("/api/redactar", p, 6000),
   };
 }

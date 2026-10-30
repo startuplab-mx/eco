@@ -49,6 +49,14 @@ export interface Paso {
   opcionesExtra?: Opcion[];
   /** La caja de texto va primero y las opciones abajo, como etiquetas. */
   textoPrimero?: boolean;
+  /** Si lo escrito no corresponde a ninguna opción, se registra como "otro" con sus palabras. */
+  aceptaOtro?: boolean;
+  /** No se puede saltar (consentimiento): un desvío sólo redirige. */
+  noSaltar?: boolean;
+  /** No hacer espejo corto (ofrecimientos como "¿Quieres hacer un ejercicio?"). */
+  sinEspejo?: boolean;
+  /** Al responder escribiendo, Eco repite lo que entendió y pregunta si es así. */
+  espejo?: { plantilla: string; textos: Record<string, string>; sinConfirmar?: string[]; siNo: string };
   /** En el índice se invierte (4 - valor) para que toda la variable apunte al mismo lado. */
   invertido?: boolean;
   placeholder?: string;
@@ -97,7 +105,15 @@ export interface Guion {
     ordenNucleo: string[];
   };
   preguntasCierre: string[];
+  /** Textos fijos para respuestas desviadas (revisables por el equipo psicológico). */
+  desvios: {
+    redirigir: string[]; groseria: string[]; saltarNoQuiere: string[]; saltarInsiste: string[];
+    otroDia: string; seQuiereIr: string; privacidad: string[]; orientacion: string[];
+  };
+  /** Frases que activan la crisis siempre. */
   alarma: string[];
+  /** Frases ambiguas ("me corto", "me obligan"): activan la crisis salvo que el modelo descarte el riesgo. */
+  alarmaRevisar: string[];
   bloques: Record<string, Bloque>;
 }
 
@@ -146,7 +162,17 @@ export interface Estado {
   esperando: Espera | null;
   /** Lo que se esperaba antes de "pausa" o "salir". */
   esperandoPrevio?: Espera;
-  pausa: null | "pausa" | "salir";
+  pausa: null | "pausa" | "salir" | "otrodia";
+  /** Desvíos acumulados (sin sentido, groserías, fuera de tema) desde la última oferta de "otro día". */
+  desvios: number;
+  /** Total de desvíos en la sesión (calidad de datos). */
+  desviosTotal: number;
+  /** Desvíos por pregunta. */
+  desviosPaso: Record<string, number>;
+  /** Preguntas saltadas porque el joven no quiso contestar o insistió en desviarse. */
+  omitidas: string[];
+  /** Respuesta escrita que Eco entendió y está confirmando con el joven ("¿Es así?"). */
+  confirmacion?: { entrada: { opcion?: string; opciones?: string[]; texto?: string; sinReglas?: boolean; confirmado?: boolean; otro?: string }; previa: Espera };
   gruposMostrados: string[];
   modulosHechos: string[];
   modulosEnRuta: string[];

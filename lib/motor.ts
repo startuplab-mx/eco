@@ -6,7 +6,7 @@
 import type {
   Bloque, Condicion, EjercicioId, Espera, Estado, Guion, Instancia, Opcion, Paso, Respuesta, Salida,
 } from "./tipos";
-import { filtrarIdentificadores, hayAlarma, normalizar } from "./seguridad";
+import { esGroseriaDirigida, filtrarIdentificadores, nivelAlarma, normalizar, pareceSinSentido } from "./seguridad";
 import { calcularNivel } from "./indices";
 
 export interface Entrada {
@@ -18,6 +18,18 @@ export interface Entrada {
   texto?: string;
   /** El clasificador de riesgo detectó una señal: activa el protocolo rojo. */
   alarma?: boolean;
+  /** El modelo revisó el texto y descartó el riesgo: las frases ambiguas no activan la crisis. */
+  alarmaDescartada?: boolean;
+  /** El modelo ya interpretó el texto: no aplicar las reglas de palabras sobre él. */
+  sinReglas?: boolean;
+  /** El joven ya confirmó el espejo ("¿Es así?" → Sí). */
+  confirmado?: boolean;
+  /** Frase breve (del modelo) para una respuesta que no está en las opciones. */
+  otro?: string;
+  /** El modelo no reconoció una respuesta válida: no registrar lo escrito como "otro" ni adivinar por palabras sueltas. */
+  sinOtro?: boolean;
+  /** Respuesta desviada (la clasifica el modelo; sin modelo, reglas básicas). */
+  desvio?: "sin_sentido" | "groseria" | "fuera_de_tema" | "no_quiere" | "se_quiere_ir" | "privacidad" | "pide_orientacion" | "insiste";
 }
 
 export interface Resultado {
@@ -25,6 +37,10 @@ export interface Resultado {
   salida: Salida[];
   /** true si la entrada quedó registrada como respuesta del paso que se esperaba. */
   respondido?: boolean;
+  /** true si la entrada se trató como desvío (no se escribe puente). */
+  desvio?: boolean;
+  /** true si Eco pidió quitar nombres o lugares (no es una respuesta poco clara). */
+  aviso?: boolean;
 }
 
 const PAUSA: Paso = { id: "_pausa", tipo: "opcion" };
@@ -32,12 +48,62 @@ const OPC_PAUSA: Opcion[] = [
   { id: "seguir", label: "Seguir" },
   { id: "terminar", label: "Terminar" },
 ];
+const OPC_OTRODIA: Opcion[] = [
+  { id: "seguir", label: "Seguir" },
+  { id: "otrodia", label: "Otro día" },
+];
 const OPC_SALIR: Opcion[] = [
   { id: "si", label: "Sí, terminar" },
   { id: "no", label: "No, sigamos" },
 ];
 
+const OPC_CONFIRMAR: Opcion[] = [
+  { id: "si", label: "Sí" },
+  { id: "no", label: "No exactamente" },
+];
+/** Bloques donde no se hace espejo corto (datos personales, consentimiento, transiciones). */
+const SIN_ESPEJO = ["bienvenida", "datos", "transicion"];
+
 // ---------- utilidades ----------
+
+/** "a", "a y b", "a, b y c". */
+export function listaNatural(xs: string[]): string {
+  if (xs.length <= 1) return xs[0] ?? "";
+  return `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
+}
+
+function minuscula(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
+/** Espejo corto de lo que se entendió de una respuesta escrita: "casi nunca", "3 de 5", "un 7–8". */
+function espejoCorto(p: Paso, ids: string[], opciones: Opcion[], otro: string | null): string {
+  const elegidas = opciones.filter((o) => ids.includes(o.id));
+  if (p.escala === "A5") return elegidas.map((o) => `${opciones.indexOf(o) + 1} de 5`).join(", ");
+  if (p.escala === "T10") return `un ${elegidas[0].label.replace(/ Muy (leve|fuerte)$/, "")}`;
+  const idO = idOtro(opciones);
+  return listaNatural(ids.map((id) => (id === idO && otro ? otro : minuscula(opciones.find((o) => o.id === id)?.label ?? id))));
+}
+
+/** id con el que se registra "otro": la opción visible "Otro/Otra" si existe; si no, "otro". */
+function idOtro(opciones: Opcion[]): string {
+  return opciones.find((o) => o.id === "otro" || o.id === "otra")?.id ?? "otro";
+}
+
+/** Cómo se repite una respuesta "otro": la frase del modelo o, sin modelo, sus palabras entre comillas. */
+function fraseOtro(entrada: { otro?: string; texto?: string }): string {
+  if (entrada.otro) return entrada.otro;
+  const t = filtrarIdentificadores(entrada.texto ?? "").texto.trim().replace(/[.!]+$/, "");
+  return `«${t.length > 40 ? `${t.slice(0, 40)}…` : t}»`;
+}
+
+/** Lectura simple de sí/no escrito, para la confirmación del espejo. */
+function siNo(texto: string): "si" | "no" | null {
+  const t = normalizar(texto).replace(/[^a-z ]/g, "").trim();
+  if (/\b(no|nel|nop|tampoco|mas bien)\b/.test(t)) return "no";
+  if (/\b(si|simon|sip|aja|exacto|eso|asi es|correcto|ajam|ok|va|claro)\b/.test(t)) return "si";
+  return null;
+}
 
 function codigoAleatorio(rand: () => number): string {
   let s = "";
@@ -187,6 +253,10 @@ export function crearEstado(rand: () => number = Math.random, fecha: Date = new 
     completa: false,
     terminada: false,
     preguntaCierre: Math.floor(rand() * nPreguntasCierre),
+    desvios: 0,
+    desviosTotal: 0,
+    desviosPaso: {},
+    omitidas: [],
   };
 }
 
@@ -219,6 +289,7 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
         estado.completa = estado.bloquesHechos.includes("cierre");
         return;
       }
+      if (estado.rojo && !TRAS_CRISIS.includes(id)) continue;
       if (id === "@ruta") { estado.cola.unshift(...calcularRuta(g, estado)); continue; }
       const b: Bloque = g.bloques[id];
       if (b.clase === "modulo") estado.modulosHechos.push(id);
@@ -244,7 +315,9 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
     emitirTextos(g, inst, estado, p, salida);
     if (p.tipo === "mensaje") { estado.indice++; continue; }
     if (p.tipo === "directorio") {
-      salida.push({ tipo: "directorio", excluir: p.excluir ?? [] });
+      const excluir = new Set(p.excluir ?? []);
+      if (estado.rojo) excluir.add("denuncia");
+      salida.push({ tipo: "directorio", excluir: [...excluir] });
       estado.indice++;
       continue;
     }
@@ -268,7 +341,17 @@ function irA(estado: Estado, bloques: string[]) {
   estado.bloque = null;
   estado.esperando = null;
   estado.pausa = null;
+  estado.confirmacion = undefined;
+  delete estado.esperandoPrevio;
 }
+
+/** El joven aceptó seguir en el consentimiento. Sin esto no se pregunta ni se registra nada más. */
+export function consintio(estado: Estado): boolean {
+  return estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si";
+}
+
+/** Bloques permitidos después de una crisis: no se regresa al cuestionario. */
+const TRAS_CRISIS = ["crisis", "salida", "otrodia"];
 
 function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
   if (estado.rojo) {
@@ -282,12 +365,21 @@ function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]
   avanzar(g, inst, estado, salida);
 }
 
-/** Reconoce opciones por sus sinónimos ("coraje" → con enojo). "nose" sólo si nada más coincide. */
+/**
+ * Reconoce opciones por sus sinónimos ("coraje" → con enojo). Palabra completa, salvo las raíces
+ * marcadas con * ("trist*" → triste, tristeza). Ignora lo negado ("no mucho", "no estoy triste").
+ * "nose" sólo si nada más coincide.
+ */
 function porSinonimos(opciones: Opcion[], texto: string): string[] {
-  const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ")} `;
-  const hallados = opciones
-    .filter((o) => o.sinonimos?.some((s) => t.includes(normalizar(s))))
-    .map((o) => o.id);
+  const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ").replace(/\s+/g, " ").trim()} `;
+  const coincide = (s: string) => {
+    const raiz = s.endsWith("*");
+    const f = normalizar(raiz ? s.slice(0, -1) : s);
+    const patron = raiz ? ` ${f}` : ` ${f} `;
+    if (!t.includes(patron)) return false;
+    return !t.includes(` no${patron}`) && !t.includes(` no estoy${patron}`) && !t.includes(` no me siento${patron}`) && !t.includes(` nada${patron}`);
+  };
+  const hallados = opciones.filter((o) => o.sinonimos?.some(coincide)).map((o) => o.id);
   const sinNose = hallados.filter((id) => id !== "nose");
   return sinNose.length ? sinNose : hallados;
 }
@@ -301,8 +393,8 @@ const NUMEROS: Record<string, number> = {
 /** Primer número en el texto, en cifra o en palabra ("15", "quince"). */
 function leerNumero(texto: string): number | null {
   const t = normalizar(texto);
-  const cifra = t.match(/\d{1,3}/);
-  if (cifra) return Number(cifra[0]);
+  const cifras = t.match(/\d{1,3}/g);
+  if (cifras) return Number(cifras[cifras.length - 1]); // "del 1 al 10, como un 8" → 8
   for (const palabra of t.split(/[^a-zñ]+/)) if (NUMEROS[palabra] !== undefined) return NUMEROS[palabra];
   return null;
 }
@@ -324,9 +416,83 @@ function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
   if (exacta) return exacta;
   const contiene = opciones.filter((o) => {
     const l = normalizar(o.label).replace(/[^a-z0-9ñ ]/g, "");
-    return l.length > 1 && (t.includes(l) || l.startsWith(t));
+    return l.length > 1 && (t.includes(l) || (t.length >= 3 && l.startsWith(t)));
   });
   return contiene.length === 1 ? contiene[0] : undefined;
+}
+
+function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
+  estado.pausa = "otrodia";
+  estado.esperandoPrevio = estado.esperando!;
+  estado.esperando = { paso: { id: "_otrodia", tipo: "opcion", texto }, opciones: OPC_OTRODIA, multiple: false, textoLibre: true, pregunta: texto };
+  salida.push({ tipo: "eco", texto });
+}
+
+/** Escalera de desvíos: redirige una vez, salta en la segunda, ofrece "otro día" en la tercera de la sesión. */
+function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNullable<Entrada["desvio"]>, salida: Salida[]): Resultado {
+  const p = estado.esperando!.paso;
+  const D = g.desvios;
+  const variante = (xs: string[]) => xs[(estado.desviosTotal + (estado.desviosPaso[p.id] ?? 0)) % xs.length];
+  const saltar = (texto: string): Resultado => {
+    estado.respuestas[p.id] = { valor: "omitida" };
+    estado.omitidas.push(p.id);
+    estado.esperando = null;
+    salida.push({ tipo: "eco", texto });
+    estado.indice++;
+    avanzar(g, inst, estado, salida);
+    return { estado, salida, desvio: true };
+  };
+  const repreguntar = () => {
+    emitirTextos(g, inst, estado, p, salida);
+    if (p.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, p.ejercicio ?? "respiracion") });
+  };
+
+  switch (tipo) {
+    case "no_quiere":
+      if (p.noSaltar) { irA(estado, ["salida"]); avanzar(g, inst, estado, salida); return { estado, salida, desvio: true }; }
+      return saltar(variante(D.saltarNoQuiere));
+    case "insiste":
+      // Respondió en serio pero dos veces no quedó claro: se deja pasar sin contarlo como desvío.
+      // El consentimiento nunca se salta: se vuelve a preguntar.
+      if (p.noSaltar) {
+        salida.push({ tipo: "eco", texto: variante(D.redirigir) });
+        return { estado, salida, desvio: true };
+      }
+      return saltar(variante(D.saltarInsiste));
+    case "se_quiere_ir":
+      ofrecerOtroDia(estado, D.seQuiereIr, salida);
+      return { estado, salida, desvio: true };
+    case "privacidad":
+      D.privacidad.forEach((texto) => salida.push({ tipo: "eco", texto }));
+      repreguntar();
+      return { estado, salida, desvio: true };
+    case "pide_orientacion":
+      D.orientacion.forEach((texto) => salida.push({ tipo: "eco", texto }));
+      salida.push({ tipo: "directorio", excluir: ["denuncia"] });
+      repreguntar();
+      return { estado, salida, desvio: true };
+    default: {
+      const texto = variante(tipo === "groseria" ? D.groseria : D.redirigir);
+      estado.desvios++;
+      estado.desviosTotal++;
+      const enPaso = (estado.desviosPaso[p.id] = (estado.desviosPaso[p.id] ?? 0) + 1);
+      if (estado.desvios >= 3) {
+        ofrecerOtroDia(estado, D.otroDia, salida);
+        return { estado, salida, desvio: true };
+      }
+      if (enPaso >= 2 && !p.noSaltar) return saltar(variante(D.saltarInsiste));
+      salida.push({ tipo: "eco", texto });
+      return { estado, salida, desvio: true };
+    }
+  }
+}
+
+/** Sin modelo: ¿el texto es un desvío evidente? */
+function desvioPorReglas(texto: string | undefined): Entrada["desvio"] | undefined {
+  if (!texto) return undefined;
+  if (esGroseriaDirigida(texto)) return "groseria";
+  if (pareceSinSentido(texto)) return "sin_sentido";
+  return undefined;
 }
 
 export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entrada: Entrada): Resultado {
@@ -337,18 +503,21 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   const texto = entrada.texto?.trim();
 
   // 1. Riesgo primero, en cualquier texto escrito (lista de palabras o clasificador).
-  if (entrada.alarma || (texto && hayAlarma(texto, g.alarma))) {
+  const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
+  if (entrada.alarma || nivel === "segura" || (nivel === "revisar" && !entrada.alarmaDescartada)) {
     activarRojo(g, inst, estado, salida);
     return { estado, salida };
   }
 
   // 2. Pausa y salida.
   if (estado.pausa) {
-    const op = entrada.opcion ?? (texto ? casarTexto(estado.esperando.opciones, texto)?.id : undefined);
+    let op = entrada.opcion ?? (texto ? casarTexto(estado.esperando.opciones, texto)?.id : undefined);
+    if (!op && estado.pausa === "otrodia") op = "otrodia"; // ante la duda, se respeta que hoy no es buen momento
     if (!op) { salida.push({ tipo: "eco", texto: "¿Seguimos o terminamos?" }); return { estado, salida }; }
     const modo = estado.pausa;
     estado.pausa = null;
-    const continuar = (modo === "pausa" && op === "seguir") || (modo === "salir" && op === "no");
+    const continuar = ((modo === "pausa" || modo === "otrodia") && op === "seguir") || (modo === "salir" && op === "no");
+    if (modo === "otrodia" && continuar) estado.desvios = 0;
     if (continuar) {
       const previo = estado.esperandoPrevio!;
       estado.esperando = previo;
@@ -359,7 +528,9 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       return { estado, salida };
     }
     delete estado.esperandoPrevio;
-    irA(estado, modo === "pausa" ? ["cierre"] : ["salida"]);
+    // Sin consentimiento o tras una crisis no hay cierre con preguntas: sólo despedida y directorio.
+    const destino = modo === "otrodia" ? "otrodia" : modo === "pausa" && consintio(estado) && !estado.rojo ? "cierre" : "salida";
+    irA(estado, [destino]);
     avanzar(g, inst, estado, salida);
     return { estado, salida };
   }
@@ -374,7 +545,26 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     }
   }
 
-  // 3. Respuesta al paso actual.
+  // 3. Confirmación del espejo ("Entiendo que hoy te sientes… ¿Es así?").
+  if (estado.confirmacion) {
+    const conf = estado.confirmacion;
+    const op = entrada.opcion ?? (texto ? siNo(texto) : null);
+    estado.confirmacion = undefined;
+    estado.esperando = conf.previa;
+    if (op === "si") return responder(g, inst, estado, conf.entrada);
+    if (op === "no") {
+      // La caja de texto sigue visible: así cualquier cosa que escriba pasa por la revisión de riesgo.
+      salida.push({ tipo: "eco", texto: conf.previa.paso.espejo?.siNo ?? "Va. Elige la que se parezca más." });
+      return { estado, salida };
+    }
+    // Escribió otra cosa: se toma como una nueva respuesta a la misma pregunta.
+    return responder(g, inst, estado, entrada);
+  }
+
+  // 4. Desvío clasificado por el modelo.
+  if (entrada.desvio && estado.esperando.paso.id.charAt(0) !== "_") return manejarDesvio(g, inst, estado, entrada.desvio, salida);
+
+  // 5. Respuesta al paso actual.
   const { paso: p, opciones } = estado.esperando;
   let respuesta: Respuesta | undefined;
   let elegida: Opcion | undefined;
@@ -383,33 +573,46 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     respuesta = { valor: "listo" };
   } else if (p.tipo === "multiple") {
     const ids = new Set(entrada.opciones ?? []);
-    if (texto) {
+    if (texto && !entrada.sinReglas) {
       porSinonimos(opciones, texto).forEach((id) => ids.add(id));
       texto.split(/,|\by\b|\n/).forEach((x) => { const o = casarTexto(opciones, x); if (o) ids.add(o.id); });
+    }
+    // Lo escrito no corresponde a ninguna opción: se registra como "otro" con sus palabras.
+    if (texto && !ids.size && !entrada.otro) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
+    }
+    if (texto && !ids.size && p.aceptaOtro && !entrada.sinOtro) {
+      ids.add(idOtro(opciones));
+      estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
+    }
+    if (texto) {
       if (p.textoPrimero) {
         // Sus propias palabras son dato (reconocimiento emocional): se guardan ya filtradas.
         estado.textos[p.id] = filtrarIdentificadores(texto).texto;
         if (!ids.size) {
           salida.push({ tipo: "eco", texto: "Gracias por ponerlo con tus palabras. ¿Se parece a alguna de estas? Puedes elegir varias." });
-          estado.esperando = { ...estado.esperando, textoLibre: false };
           return { estado, salida };
         }
       }
     }
     // "No sé cómo me siento" sólo cuenta si no nombró ninguna otra emoción.
     if (p.textoPrimero && ids.size > 1) ids.delete("nose");
-    const validos = [...ids].filter((id) => opciones.some((o) => o.id === id));
+    const idO = idOtro(opciones);
+    const validos = [...ids].filter((id) => id === idO ? p.aceptaOtro || opciones.some((o) => o.id === id) : opciones.some((o) => o.id === id));
     if (validos.length) respuesta = { valor: validos };
   } else if (p.tipo === "abierta") {
     if (entrada.opcion) {
       elegida = opciones.find((o) => o.id === entrada.opcion);
       if (elegida) respuesta = { valor: elegida.id };
     } else if (texto) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
       const filtro = filtrarIdentificadores(texto);
       if (filtro.encontrado && !estado.avisoIdentificador) {
         estado.avisoIdentificador = true;
         salida.push({ tipo: "eco", texto: "Gracias por confiar. Para cuidarte, no voy a guardar nombres ni lugares. ¿Me lo cuentas solo desde lo que sientes?" });
-        return { estado, salida };
+        return { estado, salida, aviso: true };
       }
       estado.textos[p.id] = filtro.texto;
       respuesta = { valor: "texto" };
@@ -423,6 +626,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const rango = n === null ? undefined : p.rangos?.find((r) => n >= r.min && n <= r.max);
       // Sólo se guarda el rango; el número exacto no sale de aquí.
       if (rango) respuesta = { valor: rango.id };
+      else if (desvioPorReglas(texto)) return manejarDesvio(g, inst, estado, desvioPorReglas(texto)!, salida);
       else {
         salida.push({ tipo: "eco", texto: "¿Me lo escribes con número? Por ejemplo: 15." });
         return { estado, salida };
@@ -432,12 +636,25 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     if (entrada.opcion) elegida = opciones.find((o) => o.id === entrada.opcion);
     else if (texto) {
       elegida = porNumero(p, opciones, texto) ?? casarTexto(opciones, texto);
-      if (!elegida) {
+      if (elegida && entrada.sinOtro && normalizar(elegida.label) !== normalizar(texto).replace(/[.!¡]+$/, "").trim() && !porNumero(p, opciones, texto)) {
+        // El modelo no la entendió: sólo vale si escribió la opción tal cual o un número de la escala.
+        elegida = undefined;
+      }
+      if (!elegida && !entrada.sinOtro) {
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
       }
     }
+    if (!elegida && texto && !entrada.otro) {
+      const d = desvioPorReglas(texto);
+      if (d) return manejarDesvio(g, inst, estado, d, salida);
+    }
     if (elegida) respuesta = { valor: elegida.id, num: elegida.valor };
+    else if (texto && p.aceptaOtro && !entrada.sinOtro) {
+      const idO = idOtro(opciones);
+      respuesta = { valor: idO };
+      estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
+    }
   }
 
   if (!respuesta || (Array.isArray(respuesta.valor) && respuesta.valor.length === 0)) {
@@ -445,8 +662,39 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     return { estado, salida };
   }
 
+  // Espejo con confirmación: la respuesta escrita se repite y se pregunta "¿Es así?" antes de registrarla.
+  if (p.espejo && texto && !entrada.confirmado) {
+    const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
+    if (ids.some((id) => !p.espejo!.sinConfirmar?.includes(id))) {
+      const otro = estado.textos[`${p.id}:otro`] ?? null;
+      const partes = ids.map((id) => p.espejo!.textos[id] ?? (otro && id === idOtro(opciones) ? otro : null)).filter((x): x is string => !!x);
+      const pregunta = p.espejo.plantilla.replace("{opciones}", listaNatural(partes));
+      estado.confirmacion = {
+        entrada: Array.isArray(respuesta.valor)
+          ? { opciones: ids, texto, sinReglas: true, confirmado: true, otro: entrada.otro }
+          : { opcion: ids[0], texto, confirmado: true, otro: entrada.otro },
+        previa: estado.esperando,
+      };
+      estado.esperando = {
+        paso: { id: "_confirmar", tipo: "opcion", texto: pregunta },
+        opciones: OPC_CONFIRMAR, multiple: false, textoLibre: true, pregunta,
+      };
+      salida.push({ tipo: "eco", texto: pregunta });
+      return { estado, salida };
+    }
+  }
+
   estado.respuestas[p.id] = respuesta;
   estado.esperando = null;
+
+  // Espejo corto: si escribió con sus palabras, Eco dice lo que entendió ("Va, casi nunca.").
+  if (texto && !p.espejo && !p.sinEspejo && (p.tipo === "opcion" || p.tipo === "multiple") && !SIN_ESPEJO.includes(estado.bloque ?? "")) {
+    const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
+    const literal = normalizar(opciones.filter((o) => ids.includes(o.id)).map((o) => o.label).join(" ")).replace(/[^a-z0-9ñ ]/g, "");
+    if (ids.length && normalizar(texto).replace(/[^a-z0-9ñ ]/g, "") !== literal) {
+      salida.push({ tipo: "eco", texto: `Va, ${espejoCorto(p, ids, opciones, estado.textos[`${p.id}:otro`] ?? null)}.` });
+    }
+  }
 
   for (const r of p.reacciones ?? []) {
     const ok = !r.si || ("paso" in r.si || "todos" in r.si || "alguno" in r.si || "no" in r.si || "cuenta" in r.si || "emocionPrincipal" in r.si || "amarillo" in r.si || "unaEmocion" in r.si
