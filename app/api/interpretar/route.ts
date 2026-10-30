@@ -1,4 +1,4 @@
-import { interpretar, iaDisponible } from "@/lib/ia-servidor";
+import { interpretar, iaDisponible, registrarFalla } from "@/lib/ia-servidor";
 import { revisar, corto } from "@/lib/servidor/guardia";
 import { filtrarIdentificadores } from "@/lib/seguridad";
 import type { PedidoInterpretar } from "@/lib/ia-tipos";
@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   try {
     const r = await interpretar(pedido);
     return r ? Response.json(r) : Response.json({ error: "modelo" }, { status: 502 });
-  } catch {
+  } catch (e) {
+    registrarFalla("interpretar", e);
     // No se registra el contenido: sólo que falló.
     return Response.json({ error: "modelo" }, { status: 502 });
   }

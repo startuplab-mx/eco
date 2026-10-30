@@ -67,6 +67,12 @@ const ESQUEMA_REDACTAR = {
 
 // ---------- llamadas ----------
 
+/** Registro técnico de fallas: tipo, estado y mensaje de la API. Nunca el texto del joven. */
+export function registrarFalla(donde: string, e: unknown) {
+  const err = e as { status?: number; name?: string; message?: string };
+  console.error(`[eco:${donde}] ${err?.name ?? "Error"} ${err?.status ?? ""} ${String(err?.message ?? "").slice(0, 300)}`);
+}
+
 async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number): Promise<Record<string, unknown> | null> {
   const base = {
     model: modelo,

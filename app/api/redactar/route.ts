@@ -1,4 +1,4 @@
-import { redactar, iaDisponible } from "@/lib/ia-servidor";
+import { redactar, iaDisponible, registrarFalla } from "@/lib/ia-servidor";
 import { revisar, corto } from "@/lib/servidor/guardia";
 import { filtrarIdentificadores } from "@/lib/seguridad";
 import type { PedidoRedactar } from "@/lib/ia-tipos";
@@ -26,7 +26,8 @@ export async function POST(req: Request) {
   try {
     const r = await redactar(pedido);
     return r ? Response.json(r) : Response.json({ error: "modelo" }, { status: 502 });
-  } catch {
+  } catch (e) {
+    registrarFalla("redactar", e);
     return Response.json({ error: "modelo" }, { status: 502 });
   }
 }

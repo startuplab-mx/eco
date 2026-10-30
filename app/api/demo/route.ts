@@ -7,7 +7,7 @@ import type { ServicioIA } from "@/lib/ia-tipos";
 import { arrancar, crearEstado, type Entrada } from "@/lib/motor";
 import { turno, type Mensaje } from "@/lib/turno";
 import { resumen } from "@/lib/indices";
-import { interpretar, redactar, iaDisponible, MODELO_RAPIDO, MODELO_ESCRITURA } from "@/lib/ia-servidor";
+import { interpretar, redactar, iaDisponible, MODELO_RAPIDO, MODELO_ESCRITURA, registrarFalla } from "@/lib/ia-servidor";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,10 +73,19 @@ const PERSONAS: Record<string, { nombre: string; plan: Plan; defecto: number }> 
   },
 };
 
+const fallas: string[] = [];
+function anota(donde: string) {
+  return (e: unknown) => {
+    registrarFalla(donde, e);
+    const err = e as { status?: number; message?: string };
+    fallas.push(`${donde}: ${err?.status ?? ""} ${String(err?.message ?? e).slice(0, 300)}`);
+    return null;
+  };
+}
 function servidorIA(): ServicioIA {
   return {
-    interpretar: (p) => interpretar(p).catch(() => null),
-    redactar: (p) => redactar(p).catch(() => null),
+    interpretar: (p) => interpretar(p).then((r) => r ?? (fallas.push("interpretar: respuesta vacía o sin JSON"), null)).catch(anota("interpretar")),
+    redactar: (p) => redactar(p).catch(anota("redactar")),
   };
 }
 
@@ -123,6 +132,7 @@ export async function GET(req: Request) {
   if (!persona) return Response.json({ error: "persona" }, { status: 400 });
   const modo = new URL(req.url).searchParams.get("modo") ?? "ambos";
   const inicio = Date.now();
+  fallas.length = 0;
   const sinIA = modo !== "ia" ? await correr(persona.plan, persona.defecto, null) : null;
   const conIA = modo !== "guion" && iaDisponible() ? await correr(persona.plan, persona.defecto, servidorIA()) : null;
   return Response.json({
@@ -132,5 +142,6 @@ export async function GET(req: Request) {
     segundos: Math.round((Date.now() - inicio) / 1000),
     sinIA,
     conIA,
+    fallas: [...new Set(fallas)],
   });
 }
