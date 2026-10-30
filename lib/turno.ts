@@ -60,10 +60,13 @@ export async function turno(
       // Lo que entendió el modelo manda; el texto se conserva (sus propias palabras).
       final = r.opciones.length
         ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
-        : { texto, opciones: entrada.opciones };
+        : r.otro && esp.paso.aceptaOtro
+          ? { texto, opciones: entrada.opciones, sinReglas: true, otro: r.otro }
+          : { texto, opciones: entrada.opciones };
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
       // Se conserva el texto para que Eco haga el espejo de lo que entendió.
       if (r.opciones[0]) final = { opcion: r.opciones[0], texto };
+      else if (r.otro && esp.paso.aceptaOtro) final = { texto, otro: r.otro };
       else if (!entendido(responder(g, inst, estado, entrada))) {
         // Ni el modelo ni las reglas lo entendieron: se repregunta sin avanzar.
         return { estado, salida: [{ tipo: "eco", texto: r.repregunta ?? NO_ENTENDI }], uso };

@@ -65,10 +65,10 @@ const PERSONAS: Record<string, { nombre: string; plan: Plan; defecto: number }> 
     plan: {
       bi_consentimiento: { texto: "va" }, da_edad: { texto: "17" }, da_genero: { texto: "no binario" },
       da_vive: { texto: "con mi jefa y mi carnal" },
-      en_emociones: { texto: "me siento raro, como desconectado de todo" },
-      en_termometro: { texto: "pues como a la mitad" }, en_cuerpo: { texto: "me duele la panza" },
+      en_emociones: { texto: "ansioso, como que algo malo va a pasar" },
+      en_termometro: { texto: "pues como a la mitad" }, en_cuerpo: { texto: "en mi rodilla" },
       en_tiempo: { texto: "ya tiene rato, como desde el año pasado" }, en_voz: { texto: "que nadie me ve" },
-      en_ambito: { texto: "en la escuela, con los de mi salón" }, en_regular: { texto: "nel, así estoy bien" },
+      en_ambito: { texto: "el trabajo de mi papá" }, en_regular: { texto: "nel, así estoy bien" },
       v2_miedo: { texto: "no mucho la verdad" }, v2_alerta: { texto: "sí, todo el tiempo ando al tiro" },
       v2_dormir: { texto: "de vez en cuando" }, v3_triste: { texto: "ni idea" },
       ma_parte: { texto: "nada, siento que no encajo" }, ma_maestro: { texto: "la de inglés más o menos" },

@@ -22,6 +22,8 @@ export interface Entrada {
   sinReglas?: boolean;
   /** El joven ya confirmó el espejo ("¿Es así?" → Sí). */
   confirmado?: boolean;
+  /** Frase breve (del modelo) para una respuesta que no está en las opciones. */
+  otro?: string;
 }
 
 export interface Resultado {
@@ -61,10 +63,24 @@ function minuscula(s: string): string {
 }
 
 /** Espejo corto de lo que se entendió de una respuesta escrita: "casi nunca", "3 de 5", "un 7–8". */
-function espejoCorto(p: Paso, elegidas: Opcion[], opciones: Opcion[]): string {
+function espejoCorto(p: Paso, ids: string[], opciones: Opcion[], otro: string | null): string {
+  const elegidas = opciones.filter((o) => ids.includes(o.id));
   if (p.escala === "A5") return elegidas.map((o) => `${opciones.indexOf(o) + 1} de 5`).join(", ");
   if (p.escala === "T10") return `un ${elegidas[0].label.replace(/ Muy (leve|fuerte)$/, "")}`;
-  return listaNatural(elegidas.map((o) => minuscula(o.label)));
+  const idO = idOtro(opciones);
+  return listaNatural(ids.map((id) => (id === idO && otro ? otro : minuscula(opciones.find((o) => o.id === id)?.label ?? id))));
+}
+
+/** id con el que se registra "otro": la opción visible "Otro/Otra" si existe; si no, "otro". */
+function idOtro(opciones: Opcion[]): string {
+  return opciones.find((o) => o.id === "otro" || o.id === "otra")?.id ?? "otro";
+}
+
+/** Cómo se repite una respuesta "otro": la frase del modelo o, sin modelo, sus palabras entre comillas. */
+function fraseOtro(entrada: { otro?: string; texto?: string }): string {
+  if (entrada.otro) return entrada.otro;
+  const t = filtrarIdentificadores(entrada.texto ?? "").texto.trim().replace(/[.!]+$/, "");
+  return `«${t.length > 40 ? `${t.slice(0, 40)}…` : t}»`;
 }
 
 /** Lectura simple de sí/no escrito, para la confirmación del espejo. */
@@ -439,6 +455,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       porSinonimos(opciones, texto).forEach((id) => ids.add(id));
       texto.split(/,|\by\b|\n/).forEach((x) => { const o = casarTexto(opciones, x); if (o) ids.add(o.id); });
     }
+    // Lo escrito no corresponde a ninguna opción: se registra como "otro" con sus palabras.
+    if (texto && !ids.size && p.aceptaOtro) {
+      ids.add(idOtro(opciones));
+      estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
+    }
     if (texto) {
       if (p.textoPrimero) {
         // Sus propias palabras son dato (reconocimiento emocional): se guardan ya filtradas.
@@ -452,7 +473,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     }
     // "No sé cómo me siento" sólo cuenta si no nombró ninguna otra emoción.
     if (p.textoPrimero && ids.size > 1) ids.delete("nose");
-    const validos = [...ids].filter((id) => opciones.some((o) => o.id === id));
+    const idO = idOtro(opciones);
+    const validos = [...ids].filter((id) => id === idO ? p.aceptaOtro || opciones.some((o) => o.id === id) : opciones.some((o) => o.id === id));
     if (validos.length) respuesta = { valor: validos };
   } else if (p.tipo === "abierta") {
     if (entrada.opcion) {
@@ -492,6 +514,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       }
     }
     if (elegida) respuesta = { valor: elegida.id, num: elegida.valor };
+    else if (texto && p.aceptaOtro) {
+      const idO = idOtro(opciones);
+      respuesta = { valor: idO };
+      estado.textos[`${p.id}:otro`] = fraseOtro(entrada);
+    }
   }
 
   if (!respuesta || (Array.isArray(respuesta.valor) && respuesta.valor.length === 0)) {
@@ -503,11 +530,13 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   if (p.espejo && texto && !entrada.confirmado) {
     const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
     if (ids.some((id) => !p.espejo!.sinConfirmar?.includes(id))) {
-      const pregunta = p.espejo.plantilla.replace("{opciones}", listaNatural(ids.map((id) => p.espejo!.textos[id]).filter(Boolean)));
+      const otro = estado.textos[`${p.id}:otro`] ?? null;
+      const partes = ids.map((id) => p.espejo!.textos[id] ?? (otro && id === idOtro(opciones) ? otro : null)).filter((x): x is string => !!x);
+      const pregunta = p.espejo.plantilla.replace("{opciones}", listaNatural(partes));
       estado.confirmacion = {
         entrada: Array.isArray(respuesta.valor)
-          ? { opciones: ids, texto, sinReglas: true, confirmado: true }
-          : { opcion: ids[0], texto, confirmado: true },
+          ? { opciones: ids, texto, sinReglas: true, confirmado: true, otro: entrada.otro }
+          : { opcion: ids[0], texto, confirmado: true, otro: entrada.otro },
         previa: estado.esperando,
       };
       estado.esperando = {
@@ -523,12 +552,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   estado.esperando = null;
 
   // Espejo corto: si escribió con sus palabras, Eco dice lo que entendió ("Va, casi nunca.").
-  if (texto && !p.espejo && (p.tipo === "opcion" || p.tipo === "multiple") && !SIN_ESPEJO.includes(estado.bloque ?? "")) {
+  if (texto && !p.espejo && !p.sinEspejo && (p.tipo === "opcion" || p.tipo === "multiple") && !SIN_ESPEJO.includes(estado.bloque ?? "")) {
     const ids = Array.isArray(respuesta.valor) ? respuesta.valor : [String(respuesta.valor)];
-    const elegidas = opciones.filter((o) => ids.includes(o.id));
-    const literal = normalizar(elegidas.map((o) => o.label).join(" ")).replace(/[^a-z0-9ñ ]/g, "");
-    if (elegidas.length && normalizar(texto).replace(/[^a-z0-9ñ ]/g, "") !== literal) {
-      salida.push({ tipo: "eco", texto: `Va, ${espejoCorto(p, elegidas, opciones)}.` });
+    const literal = normalizar(opciones.filter((o) => ids.includes(o.id)).map((o) => o.label).join(" ")).replace(/[^a-z0-9ñ ]/g, "");
+    if (ids.length && normalizar(texto).replace(/[^a-z0-9ñ ]/g, "") !== literal) {
+      salida.push({ tipo: "eco", texto: `Va, ${espejoCorto(p, ids, opciones, estado.textos[`${p.id}:otro`] ?? null)}.` });
     }
   }
 

@@ -145,7 +145,8 @@
     "solo": "La soledad duele, aunque haya gente alrededor. Aquí te escucho.",
     "avergonzado": "La vergüenza pesa mucho. Aquí nadie te va a juzgar.",
     "confundido": "No saber también es una respuesta. Vamos despacio.",
-    "nose": "No saber también es una respuesta. Vamos despacio."
+    "nose": "No saber también es una respuesta. Vamos despacio.",
+    "otro": "Gracias por ponerle nombre con tus palabras. Vamos despacio."
   },
   "ejercicios": {
     "respiracion": {
@@ -195,6 +196,7 @@
       "cansado",
       "confundido",
       "nose",
+      "otro",
       "tranquilo",
       "contento"
     ],
@@ -252,6 +254,10 @@
         "V9"
       ],
       "nose": [
+        "D",
+        "V9"
+      ],
+      "otro": [
         "D",
         "V9"
       ]
@@ -533,7 +539,8 @@
               "id": "nd",
               "label": "Prefiero no decir"
             }
-          ]
+          ],
+          "aceptaOtro": true
         }
       ]
     },
@@ -715,7 +722,8 @@
               "nose"
             ],
             "siNo": "Va. Elige las que se parezcan más a cómo te sientes."
-          }
+          },
+          "aceptaOtro": true
         },
         {
           "id": "en_sensacion",
@@ -746,7 +754,8 @@
               "id": "apagado",
               "label": "Nada, como sin energía"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "en_termometro",
@@ -773,7 +782,8 @@
               "id": "no",
               "label": "No, sigamos"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "en_respirar_ej",
@@ -821,7 +831,8 @@
               "id": "ninguna",
               "label": "No la noto en el cuerpo"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "en_tiempo",
@@ -954,7 +965,8 @@
               "nd"
             ],
             "siNo": "Va. Elige la que se parezca más."
-          }
+          },
+          "aceptaOtro": true
         },
         {
           "id": "en_validacion",
@@ -1014,7 +1026,8 @@
               "id": "no",
               "label": "Ahora no"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "en_regular_ej",
@@ -1449,7 +1462,8 @@
               "id": "otra",
               "label": "Otra"
             }
-          ]
+          ],
+          "aceptaOtro": true
         }
       ]
     },
@@ -1714,7 +1728,8 @@
               "label": "Saltar este tema",
               "fin": true
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "mc_perdida",
@@ -1957,7 +1972,8 @@
               "id": "no",
               "label": "Ahora no"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "me_como",
@@ -2030,7 +2046,8 @@
               "id": "otro",
               "label": "Otro"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "mf_gracias",
@@ -2083,7 +2100,8 @@
               "id": "triste",
               "label": "Con tristeza"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "mg_bien",
@@ -2140,7 +2158,8 @@
               "id": "otro",
               "label": "Otro"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "mh_que",
@@ -2265,7 +2284,8 @@
               "id": "nadie",
               "label": "Nadie"
             }
-          ]
+          ],
+          "aceptaOtro": true
         },
         {
           "id": "mi_impide",
@@ -2309,7 +2329,8 @@
               },
               "texto": "Es un miedo muy entendible. Por eso existen líneas donde no te piden tu nombre. Al final te las comparto."
             }
-          ]
+          ],
+          "aceptaOtro": true
         }
       ]
     },
@@ -2411,7 +2432,8 @@
               "id": "bien",
               "label": "Estoy bien así"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "ci_peor_ej",
@@ -2463,7 +2485,8 @@
               "id": "no",
               "label": "No, gracias"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "ci_amarillo_ej2",
@@ -2522,7 +2545,8 @@
               "id": "no",
               "label": "No, gracias"
             }
-          ]
+          ],
+          "sinEspejo": true
         },
         {
           "id": "cr_ejercicio_ej",

@@ -49,6 +49,10 @@ export interface Paso {
   opcionesExtra?: Opcion[];
   /** La caja de texto va primero y las opciones abajo, como etiquetas. */
   textoPrimero?: boolean;
+  /** Si lo escrito no corresponde a ninguna opción, se registra como "otro" con sus palabras. */
+  aceptaOtro?: boolean;
+  /** No hacer espejo corto (ofrecimientos como "¿Quieres hacer un ejercicio?"). */
+  sinEspejo?: boolean;
   /** Al responder escribiendo, Eco repite lo que entendió y pregunta si es así. */
   espejo?: { plantilla: string; textos: Record<string, string>; sinConfirmar?: string[]; siNo: string };
   /** En el índice se invierte (4 - valor) para que toda la variable apunte al mismo lado. */
@@ -150,7 +154,7 @@ export interface Estado {
   esperandoPrevio?: Espera;
   pausa: null | "pausa" | "salir";
   /** Respuesta escrita que Eco entendió y está confirmando con el joven ("¿Es así?"). */
-  confirmacion?: { entrada: { opcion?: string; opciones?: string[]; texto?: string; sinReglas?: boolean; confirmado?: boolean }; previa: Espera };
+  confirmacion?: { entrada: { opcion?: string; opciones?: string[]; texto?: string; sinReglas?: boolean; confirmado?: boolean; otro?: string }; previa: Espera };
   gruposMostrados: string[];
   modulosHechos: string[];
   modulosEnRuta: string[];

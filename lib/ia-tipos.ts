@@ -17,6 +17,8 @@ export interface RespuestaInterpretar {
   opciones: string[];
   /** Repregunta breve cuando no queda claro. */
   repregunta: string | null;
+  /** Lo que respondió, en frase breve, cuando no corresponde a ninguna opción ("en la rodilla"). */
+  otro?: string | null;
 }
 
 export interface PedidoRedactar {
@@ -70,4 +72,13 @@ export function validarRepregunta(texto: unknown): string | null {
   if (!t || t.length > 170 || !t.includes("?")) return null;
   if (PROHIBIDO.test(t) || CON_GENERO.test(t)) return null;
   return t;
+}
+
+/** Frase breve para "otro": máximo 6 palabras, sin preguntas ni palabras prohibidas. */
+export function validarFrase(texto: unknown): string | null {
+  if (typeof texto !== "string") return null;
+  const t = texto.trim().replace(/[.。]+$/, "").replace(/^["“«]|["”»]$/g, "").trim();
+  if (!t || t.length > 50 || t.split(/\s+/).length > 6) return null;
+  if (/[?¿]/.test(t) || PROHIBIDO.test(t) || CON_GENERO.test(t)) return null;
+  return t.charAt(0).toLowerCase() + t.slice(1);
 }

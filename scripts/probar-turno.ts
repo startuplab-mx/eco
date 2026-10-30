@@ -89,6 +89,25 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { opcion: "a_veces" }, iaBuena, []);
   ok(!textos(r.salida).some((t) => t.startsWith("Va,")), "sin espejo cuando se pica la etiqueta");
 
+  // "Otro": lo que no está en las opciones se registra y se repite.
+  const iaOtro: ServicioIA = {
+    interpretar: async (p) => ({ riesgo: false, opciones: [], repregunta: null, otro: /rodilla/.test(p.texto) ? "en la rodilla" : /ansios/.test(p.texto) ? "con ansiedad" : null }),
+    redactar: async () => ({ puente: null }),
+  };
+  e = hasta("en_cuerpo");
+  r = await turno(g, inst, e, { texto: "en mi rodilla" }, iaOtro, []);
+  ok(textos(r.salida)[0] === "Va, en la rodilla." && JSON.stringify(r.estado.respuestas["en_cuerpo"]?.valor) === '["otro"]', "«en mi rodilla» → otro, con espejo");
+  r = await turno(g, inst, e, { texto: "en mi rodilla" }, null, []);
+  ok(textos(r.salida)[0] === "Va, «en mi rodilla».", "sin modelo: espejo con sus palabras");
+  e = hasta("en_emociones");
+  r = await turno(g, inst, e, { texto: "ansioso" }, iaOtro, []);
+  ok(textos(r.salida)[0] === "Entiendo que hoy te sientes con ansiedad. ¿Es así?", "emoción fuera de la lista → espejo con confirmación");
+  r = await turno(g, inst, r.estado, { opcion: "si" }, iaOtro, []);
+  ok(JSON.stringify(r.estado.respuestas["en_emociones"]?.valor) === '["otro"]' && r.estado.esperando?.paso.id === "en_termometro", "se registra como otro y sigue");
+  e = hasta("en_regular");
+  r = await turno(g, inst, e, { texto: "nel, así estoy bien" }, null, []);
+  ok(!textos(r.salida).some((t) => t.startsWith("Va,")), "sin espejo en el ofrecimiento del ejercicio");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

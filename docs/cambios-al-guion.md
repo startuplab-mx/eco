@@ -91,3 +91,9 @@ presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiabl
   le muestra las etiquetas para elegir. No se confirma cuando sólo eligió "No sé" o "Prefiero no decir".
 - **Corto, sin preguntar**, en las demás preguntas con opciones: "Va, casi nunca.", "Va, 3 de 5.", "Va, un 7–8.".
   No se hace en datos personales (edad, género, con quién vive) ni cuando el joven pica la etiqueta.
+- **Respuestas fuera de las opciones** (emociones, cuerpo, ámbito, con quién vive, estrategias, modelos, a quién
+  acudiría, barreras, motivos, redes): se registran como "otro" y Eco las repite ("Va, en la rodilla.";
+  "Entiendo que hoy te sientes con ansiedad. ¿Es así?"). La frase la arma el modelo en lenguaje neutro; sin
+  modelo, Eco repite sus palabras entre comillas. Una emoción "otro" sigue la ruta de "No sé" (módulo D y apoyo).
+- **Sin espejo** en ofrecimientos y compuertas: "¿Quieres hacer un ejercicio?", "¿quieres que respiremos?",
+  "Este tema puede ser difícil; puedes saltarlo", "¿Quieres saber cómo?" y similares.

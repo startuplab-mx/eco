@@ -2,7 +2,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import {
-  validarPuente, validarRepregunta,
+  validarPuente, validarRepregunta, validarFrase,
   type PedidoInterpretar, type PedidoRedactar, type RespuestaInterpretar, type RespuestaRedactar,
 } from "./ia-tipos";
 
@@ -38,7 +38,8 @@ const SISTEMA_INTERPRETAR = `${REGLAS_ECO}
 Tu tarea ahora: leer lo que escribió un joven como respuesta a una pregunta y devolver JSON.
 1. "riesgo": true SOLO si el texto dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima o lo obliga a algo, o que está en peligro ahora. Ejemplos de true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar". La tristeza, el miedo o el enojo en general NO son riesgo: "estoy triste", "me da miedo la colonia", "ya no puedo con la escuela" son false.
 2. "opciones": los id de las opciones que corresponden a lo que escribió. Si la pregunta es de una sola opción, devuelve como máximo uno. Si no queda claro, devuelve una lista vacía. Si la pregunta es abierta, devuelve lista vacía.
-3. "repregunta": si no quedó claro y la pregunta tiene opciones, una pregunta breve y cálida (máximo 25 palabras) que le ayude a elegir, mencionando dos o tres opciones con su texto exacto. Si quedó claro o la pregunta es abierta, null.`;
+3. "otro": si lo que escribió SÍ responde la pregunta pero no corresponde a ninguna opción, una frase breve (máximo 5 palabras) en lenguaje neutro que complete la idea de la pregunta. Ejemplos: a "¿Dónde la notas?" con "en mi rodilla" → "en la rodilla"; a "¿Cómo te sientes hoy?" con "ansioso" → "con ansiedad"; a "¿Con qué tiene que ver?" con "el trabajo de mi papá" → "el trabajo en casa". Sin nombres ni lugares identificables. Si corresponde a una opción o no responde la pregunta, null.
+4. "repregunta": si no quedó claro y la pregunta tiene opciones, una pregunta breve y cálida (máximo 25 palabras) que le ayude a elegir, mencionando dos o tres opciones con su texto exacto. Si quedó claro o la pregunta es abierta, null.`;
 
 const SISTEMA_REDACTAR = `${REGLAS_ECO}
 
@@ -57,8 +58,9 @@ const ESQUEMA_INTERPRETAR = {
     riesgo: { type: "boolean" },
     opciones: { type: "array", items: { type: "string" } },
     repregunta: { type: ["string", "null"] },
+    otro: { type: ["string", "null"] },
   },
-  required: ["riesgo", "opciones", "repregunta"],
+  required: ["riesgo", "opciones", "repregunta", "otro"],
   additionalProperties: false,
 };
 
@@ -129,6 +131,7 @@ export async function interpretar(p: PedidoInterpretar): Promise<RespuestaInterp
     riesgo: r.riesgo === true,
     opciones,
     repregunta: opciones.length ? null : validarRepregunta(r.repregunta),
+    otro: opciones.length ? null : validarFrase(r.otro),
   };
 }
 
