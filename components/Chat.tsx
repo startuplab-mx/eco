@@ -83,24 +83,15 @@ export default function Chat() {
     setTexto("");
   }
 
-  function enviarTexto() {
-    const t = texto.trim();
-    if (!t) return;
-    enviar({ texto: t }, t);
-  }
-
   const esp = estado?.esperando;
   const terminada = estado?.terminada;
-  const textoPrimero = !!esp && !estado?.pausa && (esp.paso.tipo === "abierta" || !!esp.paso.textoPrimero);
-
-  /** Envía texto y/o etiquetas marcadas (abiertas, emociones y selección múltiple). */
-  function enviarPrimero() {
+  /** Envía lo escrito y/o las etiquetas marcadas. */
+  function enviarActual() {
     if (!esp) return;
     const t = texto.trim();
     const marcadas = esp.opciones.filter((o) => seleccion.includes(o.id)).map((o) => o.label);
     if (!t && !marcadas.length) return;
-    const etiqueta = [t, ...marcadas].filter(Boolean).join(" · ");
-    if (esp.multiple) enviar({ texto: t || undefined, opciones: seleccion }, etiqueta);
+    if (esp.multiple) enviar({ texto: t || undefined, opciones: seleccion }, [t, ...marcadas].filter(Boolean).join(" · "));
     else enviar({ texto: t }, t);
   }
 
@@ -150,18 +141,19 @@ export default function Chat() {
       </section>
 
       <footer className="controles">
-        {!escribiendo && esp && (textoPrimero ? (
+        {!escribiendo && esp && (
           <>
             {esp.textoLibre && (
-              <form className="escribir grande" onSubmit={(e) => { e.preventDefault(); enviarPrimero(); }}>
+              <form className="escribir" onSubmit={(e) => { e.preventDefault(); enviarActual(); }}>
                 <textarea
                   value={texto}
                   onChange={(e) => setTexto(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarPrimero(); }
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarActual(); }
                   }}
-                  placeholder={esp.paso.placeholder ?? "Escribe aquí…"}
-                  rows={2}
+                  placeholder={esp.paso.placeholder ?? (esp.paso.tipo === "abierta" ? "Escribe aquí…" : "Escribe tu respuesta…")}
+                  rows={esp.paso.tipo === "abierta" ? 2 : 1}
+                  inputMode={esp.paso.tipo === "numero" ? "numeric" : "text"}
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck={false}
@@ -173,14 +165,17 @@ export default function Chat() {
             )}
             {esp.opciones.length > 0 && (
               <div className="etiquetas-bloque">
-                <div className="etiquetas-titulo">{esp.textoLibre ? "O elige:" : "Elige una o varias:"}</div>
-                <div className="opciones">
+                {esp.textoLibre && (
+                  <div className="etiquetas-titulo">{esp.multiple ? "O elige una o varias:" : "O elige:"}</div>
+                )}
+                <div className="etiquetas">
                   {esp.opciones.map((o) => {
                     const marcada = seleccion.includes(o.id);
                     return (
                       <button
                         key={o.id}
                         className={`etiqueta ${marcada ? "marcada" : ""}`}
+                        aria-pressed={esp.multiple ? marcada : undefined}
                         onClick={() =>
                           esp.multiple
                             ? setSeleccion((s) => (marcada ? s.filter((x) => x !== o.id) : [...s, o.id]))
@@ -195,51 +190,10 @@ export default function Chat() {
               </div>
             )}
             {esp.multiple && !esp.textoLibre && (
-              <button className="listo" disabled={!seleccion.length} onClick={enviarPrimero}>Listo</button>
+              <button className="listo" disabled={!seleccion.length} onClick={enviarActual}>Enviar</button>
             )}
           </>
-        ) : (
-          <>
-            {esp.opciones.length > 0 && (
-              <div className="opciones">
-                {esp.opciones.map((o) => {
-                  const marcada = seleccion.includes(o.id);
-                  return (
-                    <button
-                      key={o.id}
-                      className={`opcion ${marcada ? "marcada" : ""}`}
-                      onClick={() =>
-                        esp.multiple
-                          ? setSeleccion((s) => (marcada ? s.filter((x) => x !== o.id) : [...s, o.id]))
-                          : enviar({ opcion: o.id }, o.label)
-                      }
-                    >
-                      {o.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            {esp.multiple && (
-              <button className="listo" disabled={!seleccion.length} onClick={enviarPrimero}>Listo</button>
-            )}
-            {esp.textoLibre && (
-              <form className="escribir discreta" onSubmit={(e) => { e.preventDefault(); enviarTexto(); }}>
-                <input
-                  value={texto}
-                  onChange={(e) => setTexto(e.target.value)}
-                  placeholder="O escribe tu respuesta…"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  maxLength={600}
-                  aria-label="Tu respuesta"
-                />
-                <button type="submit" disabled={!texto.trim()}>Enviar</button>
-              </form>
-            )}
-          </>
-        ))}
+        )}
         {!escribiendo && terminada && (
           <button className="borrar" onClick={iniciar}>
             Cerrar y borrar esta plática

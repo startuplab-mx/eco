@@ -34,7 +34,7 @@ export interface Reaccion {
   texto: string;
 }
 
-export type TipoPaso = "mensaje" | "opcion" | "multiple" | "abierta" | "ejercicio" | "directorio";
+export type TipoPaso = "mensaje" | "opcion" | "multiple" | "abierta" | "numero" | "ejercicio" | "directorio";
 
 export type EjercicioId = "respiracion" | "punos" | "mano" | "anclaje";
 
@@ -52,6 +52,8 @@ export interface Paso {
   /** En el índice se invierte (4 - valor) para que toda la variable apunte al mismo lado. */
   invertido?: boolean;
   placeholder?: string;
+  /** En "numero": rangos en los que se guarda el número (el número exacto no se guarda). */
+  rangos?: { id: string; min: number; max: number }[];
   /** En preguntas abiertas: botones rápidos además del texto libre. */
   rapidas?: Opcion[];
   /** Código de variable (V1…V22) y del ítem, para índices y registro. */

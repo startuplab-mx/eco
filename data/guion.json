@@ -5,34 +5,67 @@
       {
         "id": "nunca",
         "label": "Nunca",
-        "valor": 0
+        "valor": 0,
+        "sinonimos": [
+          "nunca",
+          "jamas",
+          "ninguna vez"
+        ]
       },
       {
         "id": "casi_nunca",
         "label": "Casi nunca",
-        "valor": 1
+        "valor": 1,
+        "sinonimos": [
+          "casi nunca",
+          "rara vez",
+          "muy poco"
+        ]
       },
       {
         "id": "a_veces",
         "label": "A veces",
-        "valor": 2
+        "valor": 2,
+        "sinonimos": [
+          "a veces",
+          "aveces",
+          "de vez en cuando",
+          "algunas veces",
+          "luego"
+        ]
       },
       {
         "id": "seguido",
         "label": "Seguido",
-        "valor": 3
+        "valor": 3,
+        "sinonimos": [
+          "seguido",
+          "mucho",
+          "frecuente",
+          "seguid"
+        ]
       },
       {
         "id": "casi_siempre",
         "label": "Casi siempre",
-        "valor": 4
+        "valor": 4,
+        "sinonimos": [
+          "siempre",
+          "diario",
+          "todo el tiempo",
+          "todos los dias"
+        ]
       }
     ],
     "A5": [
       {
         "id": "a1",
         "label": "1 Nada",
-        "valor": 0
+        "valor": 0,
+        "sinonimos": [
+          "nada",
+          "para nada"
+        ]
       },
       {
         "id": "a2",
@@ -52,7 +85,12 @@
       {
         "id": "a5",
         "label": "5 Mucho",
-        "valor": 4
+        "valor": 4,
+        "sinonimos": [
+          "mucho",
+          "totalmente",
+          "completamente"
+        ]
       }
     ],
     "T10": [
@@ -377,21 +415,41 @@
       "pasos": [
         {
           "id": "da_edad",
-          "tipo": "opcion",
+          "tipo": "numero",
           "variable": "edad",
-          "texto": "Para empezar, ¿en qué rango de edad estás?",
-          "opciones": [
+          "texto": "Para empezar, ¿cuántos años tienes?",
+          "placeholder": "Escribe tu edad…",
+          "rapidas": [
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ],
+          "rangos": [
+            {
+              "id": "menor_12",
+              "min": 0,
+              "max": 11
+            },
             {
               "id": "12-14",
-              "label": "12–14"
+              "min": 12,
+              "max": 14
             },
             {
               "id": "15-16",
-              "label": "15–16"
+              "min": 15,
+              "max": 16
             },
             {
               "id": "17-18",
-              "label": "17–18"
+              "min": 17,
+              "max": 18
+            },
+            {
+              "id": "mayor_18",
+              "min": 19,
+              "max": 120
             }
           ]
         },
