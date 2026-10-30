@@ -303,8 +303,8 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   const iaFuera: ServicioIA = { interpretar: async () => ({ tipo: "fuera_de_tema", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
   e = hasta("da_edad");
   r = await turno(g, inst, e, { texto: "51" }, iaFuera, []);
-  ok(r.estado.respuestas["da_edad"]?.valor === "mayor_18" && textos(r.salida)[0].startsWith("Eco está pensado para jóvenes de 12 a 18"), "«51»: se registra el rango y se avisa, aunque el modelo diga fuera de tema");
-  ok(resumen(g, inst, r.estado).fueraDeEdad === true, "edad fuera de rango: no se suma a la escuela");
+  ok(r.estado.respuestas["da_edad"]?.valor === "adulto" && textos(r.salida)[0].startsWith("Eco está pensado para jóvenes de 12 a 18") && r.estado.esperando?.paso.id === "da_genero", "«51»: se registra como adulto, se avisa y sigue");
+  ok(resumen(g, inst, r.estado).edad === "adulto", "el resumen cuenta la sesión con edad «adulto»");
   r = await turno(g, inst, e, { texto: "tengo 9" }, iaFuera, []);
   ok(r.estado.respuestas["da_edad"]?.valor === "menor_12", "«tengo 9» → menor de 12");
   r = await turno(g, inst, e, { texto: "y tú qué" }, iaFuera, []);

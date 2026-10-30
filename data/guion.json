@@ -542,14 +542,14 @@
               "max": 18
             },
             {
-              "id": "mayor_18",
+              "id": "adulto",
               "min": 19,
               "max": 120
             }
           ],
           "avisoRango": {
-            "menor_12": "Eco está pensado para jóvenes de 12 a 18 años. Si quieres, puedes seguir; tus respuestas no se suman a las de la escuela.",
-            "mayor_18": "Eco está pensado para jóvenes de 12 a 18 años. Si quieres, puedes seguir; tus respuestas no se suman a las de la escuela."
+            "menor_12": "Eco está pensado para jóvenes de 12 a 18 años, pero si quieres puedes seguir.",
+            "adulto": "Eco está pensado para jóvenes de 12 a 18 años, pero si quieres puedes seguir."
           }
         },
         {
