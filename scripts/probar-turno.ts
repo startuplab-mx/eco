@@ -6,6 +6,9 @@ import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { ServicioIA } from "../lib/ia-tipos";
 import { arrancar, crearEstado, responder } from "../lib/motor";
 import { turno } from "../lib/turno";
+import { nivelAlarma, filtrarIdentificadores } from "../lib/seguridad";
+import { resumen } from "../lib/indices";
+import { validarPuente, validarRepregunta, validarFrase } from "../lib/ia-tipos";
 
 const g = guionJson as unknown as Guion;
 const inst = instJson as Instancia;
@@ -80,7 +83,9 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, conf, { texto: "sí, así" }, null, []);
   ok(r.estado.esperando?.paso.id === "en_termometro", "«sí, así» escrito también confirma");
   r = await turno(g, inst, conf, { opcion: "no" }, null, []);
-  ok(r.estado.esperando?.paso.id === "en_emociones" && !r.estado.respuestas["en_emociones"] && r.estado.esperando.textoLibre === false, "«No exactamente» muestra las etiquetas para elegir");
+  ok(r.estado.esperando?.paso.id === "en_emociones" && !r.estado.respuestas["en_emociones"] && r.estado.esperando.opciones.length > 0 && r.estado.esperando.textoLibre !== false, "«No exactamente» muestra las etiquetas y deja la caja de texto");
+  const trasNo = await turno(g, inst, r.estado, { texto: "me quiero morir" }, null, []);
+  ok(trasNo.estado.rojo, "tras «No exactamente», lo escrito pasa por la revisión de riesgo");
 
   // Espejo corto en una escala escrita.
   e = hasta("v2_alerta");
@@ -189,6 +194,110 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   r = await turno(g, inst, r.estado, { texto: "jajaja" }, null, []);
   ok(r.estado.esperando?.paso.id === "bi_consentimiento" && !r.estado.respuestas["bi_consentimiento"], "el consentimiento nunca se salta");
+
+  // ——— Regresiones de la revisión independiente ———
+  const iaNoEntiende: ServicioIA = { interpretar: async () => ({ tipo: "sin_sentido", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  const iaRiesgo: ServicioIA = { interpretar: async () => ({ tipo: "responde", riesgo: true, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+
+  // C1: el consentimiento no se salta aunque el modelo tampoco entienda.
+  c = arrancar(g, inst, crearEstado()).estado;
+  const vistos: string[] = [];
+  for (let i = 0; i < 4 && !c.terminada; i++) { c = (await turno(g, inst, c, { texto: "qwerty" }, iaNoEntiende, [])).estado; vistos.push(c.esperando?.paso.id ?? "fin"); }
+  ok(Object.keys(c.respuestas).length === 0 && vistos.every((p) => ["bi_consentimiento", "_otrodia", "fin"].includes(p)), `C1: con modelo, el consentimiento no se salta (${vistos.join(",")})`);
+  const iaNoQuiere: ServicioIA = { interpretar: async () => ({ tipo: "no_quiere", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  c = arrancar(g, inst, crearEstado()).estado;
+  for (let i = 0; i < 3; i++) c = (await turno(g, inst, c, { texto: "no quiero contestar" }, iaNoQuiere, [])).estado;
+  ok(!c.respuestas["bi_consentimiento"] || c.respuestas["bi_consentimiento"].valor !== "si", "C1: «no quiero contestar» nunca cuenta como sí al consentimiento");
+  ok(!Object.keys(c.respuestas).some((k) => k.startsWith("da_") || k.startsWith("en_")), "C1: sin consentimiento no se registra nada más");
+
+  // C2: riesgo mientras espera la confirmación del espejo.
+  e = hasta("en_emociones");
+  r = await turno(g, inst, e, { texto: "triste. y enojado" }, null, []);
+  r = await turno(g, inst, r.estado, { texto: "ya no quiero vivir" }, null, []);
+  ok(r.estado.rojo && r.estado.confirmacion === undefined && r.salida.some((s) => s.tipo === "eco-crisis"), "C2: riesgo en la confirmación abre la crisis limpia");
+  ok(r.estado.esperando?.paso.id !== "en_termometro", "C2: no vuelve a la pregunta siguiente");
+
+  // C3: tras la crisis no regresa al cuestionario ni muestra el 089.
+  let pasos: string[] = [];
+  let est = r.estado;
+  let sal = r.salida;
+  for (let i = 0; i < 12 && est.esperando && !est.terminada; i++) {
+    pasos.push(est.esperando.paso.id);
+    const op = est.esperando.opciones[est.esperando.opciones.length - 1]?.id;
+    const t = await turno(g, inst, est, op ? { opcion: op } : { texto: "ok" }, null, []);
+    est = t.estado; sal = sal.concat(t.salida);
+  }
+  ok(pasos.every((p) => p.startsWith("cr_") || p.startsWith("sa_") || p.startsWith("od_") || p === "_pausa"), `C3: tras la crisis sólo hay pasos de crisis (${pasos.join(",")})`);
+  const dirs = sal.filter((s) => s.tipo === "directorio") as { excluir: string[] }[];
+  ok(dirs.length > 0 && dirs.every((d) => d.excluir.includes("denuncia")), "C3: el directorio en rojo nunca incluye denuncia");
+
+  // C4: riesgo escrito durante la pausa.
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "pausa" }, null, []);
+  const enPausa = r.estado;
+  r = await turno(g, inst, enPausa, { texto: "me quiero matar" }, null, []);
+  ok(r.estado.rojo, "C4: la lista de alarma funciona en pausa");
+  r = await turno(g, inst, enPausa, { texto: "ya no le veo sentido a seguir así" }, iaRiesgo, []);
+  ok(r.estado.rojo, "C4: el modelo revisa el riesgo en pausa");
+  r = await turno(g, inst, e, { texto: "salir" }, null, []);
+  r = await turno(g, inst, r.estado, { texto: "me voy a quitar la vida" }, null, []);
+  ok(r.estado.rojo, "C4: la lista de alarma funciona al salir");
+
+  // C5: la confirmación conserva el texto escrito.
+  e = hasta("en_emociones");
+  r = await turno(g, inst, e, { texto: "triste" }, null, []);
+  r = await turno(g, inst, r.estado, { texto: "sí, y me quiero morir" }, null, []);
+  ok(r.estado.rojo, "C5: «sí, y me quiero morir» en la confirmación activa la crisis");
+
+  // I2: pausa → terminar antes del consentimiento va a salida, no al cierre.
+  c = arrancar(g, inst, crearEstado()).estado;
+  r = await turno(g, inst, c, { texto: "pausa" }, null, []);
+  r = await turno(g, inst, r.estado, { opcion: "terminar" }, null, []);
+  ok(!textos(r.salida).some((t) => /preguntas para cerrar|último/i.test(t)) && !r.estado.cola.includes("cierre"), "I2: sin consentimiento, terminar no pasa por el cierre");
+  ok(resumen(g, inst, r.estado).consintio === false, "I2: el resumen marca que no consintió");
+
+  // I3/I4: lista de alarma.
+  const A = (t: string) => nivelAlarma(t, g.alarma, g.alarmaRevisar);
+  for (const t of ["me kiero morir", "ya no kiero vivir", "me voy a quitar la vida", "me amenazó", "me violaron", "abusó de mí", "si no le entro me va a ir mal", "me quieren reclutar"])
+    ok(A(t) === "segura", `I3: «${t}» es alarma segura`);
+  for (const t of ["me mato", "mi novio me obliga", "me pegan en la casa"]) ok(A(t) === "revisar", `I3: «${t}» se revisa con el modelo`);
+  for (const t of ["quiero matarme de risa", "me muero de hambre", "quiero comer queso", "que onda", "me toca exponer mañana"]) ok(A(t) === null, `I4: «${t}» no es alarma`);
+
+  // I5: validadores.
+  ok(!validarPuente("Te noto muy cansado."), "I5: puente con adjetivo con género se rechaza");
+  ok(!validarPuente("Lo mejor es que hables con tu mamá."), "I5: puente con consejo se rechaza");
+  ok(!validarPuente("Marca al 800 123 4567."), "I5: puente con teléfono se rechaza");
+  ok(!!validarPuente("Querer que te dejen en paz dice mucho del cansancio que cargas."), "I5: puente sobrio pasa");
+  ok(!validarFrase("ansioso") && !!validarFrase("con ansiedad"), "I5: frase del espejo en lenguaje neutro");
+  const ops = [{ label: "Nunca" }, { label: "A veces" }, { label: "Seguido" }];
+  ok(!validarRepregunta("¿Quién te hizo eso?", ops) && !validarRepregunta("¿Y eso a qué se debe?", ops) && !validarRepregunta("¿Me cuentas más?", ops), "I5: repreguntas que piden detalles se rechazan");
+  ok(!!validarRepregunta("¿Dirías que es más a veces o seguido?", ops), "I5: repregunta que ofrece las opciones pasa");
+
+  // I6: filtro de identificadores.
+  const F = (t: string) => filtrarIdentificadores(t).texto;
+  ok(F("mi primo juan me pega") === "mi primo [nombre] me pega", "I6: nombre en minúscula tras parentesco");
+  ok(F("Sofía no me habla").startsWith("[nombre]"), "I6: nombre al inicio de oración");
+  ok(F("voy en la secu 23") === "voy en la [escuela]", "I6: escuela con número");
+  ok(F("mi tío abusa de mí") === "mi tío abusa de mí", "I6: no tapa verbos tras parentesco");
+  ok(F("que ya me dejen en paz") === "que ya me dejen en paz", "I6: no tapa palabras comunes");
+  ok(F("marca al 55 1234 5678") === "marca al [número]", "I6: el teléfono no se vuelve [lugar]");
+
+  // I7: escalas por reglas.
+  e = hasta("v2_alerta");
+  for (const [t, esperado] of [["no mucho la verdad", undefined], ["s", undefined], ["nadar", undefined], ["casi siempre", "casi_siempre"], ["a veces", "a_veces"], ["nunca jamás", "nunca"]] as const) {
+    r = await turno(g, inst, e, { texto: t }, null, []);
+    ok(r.estado.respuestas["v2_alerta"]?.valor === esperado, `I7: «${t}» → ${esperado ?? "no se entiende"}`);
+  }
+  e = hasta("en_termometro");
+  r = await turno(g, inst, e, { texto: "del 1 al 10 como un 8" }, null, []);
+  ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "I7: usa el último número (8 → t4)");
+
+  // Consentimiento por sinónimos.
+  for (const [t, v] of [["nel", "no"], ["va", "si"], ["simón", "si"], ["ahorita no", "no"]] as const) {
+    c = arrancar(g, inst, crearEstado()).estado;
+    r = await turno(g, inst, c, { texto: t }, null, []);
+    ok(r.estado.respuestas["bi_consentimiento"]?.valor === v, `consentimiento «${t}» → ${v}`);
+  }
 
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);

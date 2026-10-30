@@ -254,7 +254,9 @@ async function probarRiesgo() {
 }
 
 export async function GET(req: Request) {
-  if (process.env.VERCEL_ENV === "production") return new Response("No disponible", { status: 404 });
+  // Sólo en versiones de prueba de Vercel o en local. Si falta VERCEL_ENV y no es desarrollo, se cierra.
+  const permitido = process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development";
+  if (!permitido) return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
   if (p === "desvios") return Response.json(await probarDesvios(new URL(req.url).searchParams.get("paso")));
   if (p === "riesgo") {

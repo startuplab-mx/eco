@@ -37,7 +37,7 @@ export async function turno(
   // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.
   let repregunta: string | null = null;
   let modeloSinRiesgo = false;
-  if (ia && esp && texto && !comando && !estado.pausa && esp.paso.tipo !== "ejercicio") {
+  if (ia && esp && texto && !comando && esp.paso.tipo !== "ejercicio") {
     uso.llamadas++;
     const r = await ia.interpretar({
       codigo: estado.codigo,
@@ -50,10 +50,14 @@ export async function turno(
     modeloSinRiesgo = !!r && !r.riesgo;
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
-    else if (estado.confirmacion) {
+    else if (estado.pausa) {
+      // Pausa, "salir" u "otro día": el riesgo ya se revisó; la opción la decide el motor.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
+    } else if (estado.confirmacion) {
       // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
-      final = r.opciones[0] ? { opcion: r.opciones[0] } : entrada;
-    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro) {
+      // El texto se conserva para que la lista de alarma lo revise.
+      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
+    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length) {
       // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
       final = { texto, desvio: r.tipo };
     } else if (esp.paso.tipo === "multiple") {

@@ -26,7 +26,7 @@ export interface Entrada {
   confirmado?: boolean;
   /** Frase breve (del modelo) para una respuesta que no está en las opciones. */
   otro?: string;
-  /** El modelo no reconoció una respuesta válida: no registrar lo escrito como "otro". */
+  /** El modelo no reconoció una respuesta válida: no registrar lo escrito como "otro" ni adivinar por palabras sueltas. */
   sinOtro?: boolean;
   /** Respuesta desviada (la clasifica el modelo; sin modelo, reglas básicas). */
   desvio?: "sin_sentido" | "groseria" | "fuera_de_tema" | "no_quiere" | "se_quiere_ir" | "privacidad" | "pide_orientacion" | "insiste";
@@ -289,6 +289,7 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
         estado.completa = estado.bloquesHechos.includes("cierre");
         return;
       }
+      if (estado.rojo && !TRAS_CRISIS.includes(id)) continue;
       if (id === "@ruta") { estado.cola.unshift(...calcularRuta(g, estado)); continue; }
       const b: Bloque = g.bloques[id];
       if (b.clase === "modulo") estado.modulosHechos.push(id);
@@ -314,7 +315,9 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
     emitirTextos(g, inst, estado, p, salida);
     if (p.tipo === "mensaje") { estado.indice++; continue; }
     if (p.tipo === "directorio") {
-      salida.push({ tipo: "directorio", excluir: p.excluir ?? [] });
+      const excluir = new Set(p.excluir ?? []);
+      if (estado.rojo) excluir.add("denuncia");
+      salida.push({ tipo: "directorio", excluir: [...excluir] });
       estado.indice++;
       continue;
     }
@@ -338,7 +341,17 @@ function irA(estado: Estado, bloques: string[]) {
   estado.bloque = null;
   estado.esperando = null;
   estado.pausa = null;
+  estado.confirmacion = undefined;
+  delete estado.esperandoPrevio;
 }
+
+/** El joven aceptó seguir en el consentimiento. Sin esto no se pregunta ni se registra nada más. */
+export function consintio(estado: Estado): boolean {
+  return estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si";
+}
+
+/** Bloques permitidos después de una crisis: no se regresa al cuestionario. */
+const TRAS_CRISIS = ["crisis", "salida", "otrodia"];
 
 function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
   if (estado.rojo) {
@@ -352,12 +365,21 @@ function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]
   avanzar(g, inst, estado, salida);
 }
 
-/** Reconoce opciones por sus sinónimos ("coraje" → con enojo). "nose" sólo si nada más coincide. */
+/**
+ * Reconoce opciones por sus sinónimos ("coraje" → con enojo). Palabra completa, salvo las raíces
+ * marcadas con * ("trist*" → triste, tristeza). Ignora lo negado ("no mucho", "no estoy triste").
+ * "nose" sólo si nada más coincide.
+ */
 function porSinonimos(opciones: Opcion[], texto: string): string[] {
-  const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ")} `;
-  const hallados = opciones
-    .filter((o) => o.sinonimos?.some((s) => t.includes(normalizar(s))))
-    .map((o) => o.id);
+  const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ").replace(/\s+/g, " ").trim()} `;
+  const coincide = (s: string) => {
+    const raiz = s.endsWith("*");
+    const f = normalizar(raiz ? s.slice(0, -1) : s);
+    const patron = raiz ? ` ${f}` : ` ${f} `;
+    if (!t.includes(patron)) return false;
+    return !t.includes(` no${patron}`) && !t.includes(` no estoy${patron}`) && !t.includes(` no me siento${patron}`) && !t.includes(` nada${patron}`);
+  };
+  const hallados = opciones.filter((o) => o.sinonimos?.some(coincide)).map((o) => o.id);
   const sinNose = hallados.filter((id) => id !== "nose");
   return sinNose.length ? sinNose : hallados;
 }
@@ -371,8 +393,8 @@ const NUMEROS: Record<string, number> = {
 /** Primer número en el texto, en cifra o en palabra ("15", "quince"). */
 function leerNumero(texto: string): number | null {
   const t = normalizar(texto);
-  const cifra = t.match(/\d{1,3}/);
-  if (cifra) return Number(cifra[0]);
+  const cifras = t.match(/\d{1,3}/g);
+  if (cifras) return Number(cifras[cifras.length - 1]); // "del 1 al 10, como un 8" → 8
   for (const palabra of t.split(/[^a-zñ]+/)) if (NUMEROS[palabra] !== undefined) return NUMEROS[palabra];
   return null;
 }
@@ -394,7 +416,7 @@ function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
   if (exacta) return exacta;
   const contiene = opciones.filter((o) => {
     const l = normalizar(o.label).replace(/[^a-z0-9ñ ]/g, "");
-    return l.length > 1 && (t.includes(l) || l.startsWith(t));
+    return l.length > 1 && (t.includes(l) || (t.length >= 3 && l.startsWith(t)));
   });
   return contiene.length === 1 ? contiene[0] : undefined;
 }
@@ -431,6 +453,11 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
       return saltar(variante(D.saltarNoQuiere));
     case "insiste":
       // Respondió en serio pero dos veces no quedó claro: se deja pasar sin contarlo como desvío.
+      // El consentimiento nunca se salta: se vuelve a preguntar.
+      if (p.noSaltar) {
+        salida.push({ tipo: "eco", texto: variante(D.redirigir) });
+        return { estado, salida, desvio: true };
+      }
       return saltar(variante(D.saltarInsiste));
     case "se_quiere_ir":
       ofrecerOtroDia(estado, D.seQuiereIr, salida);
@@ -484,7 +511,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
 
   // 2. Pausa y salida.
   if (estado.pausa) {
-    const op = entrada.opcion ?? (texto ? casarTexto(estado.esperando.opciones, texto)?.id : undefined);
+    let op = entrada.opcion ?? (texto ? casarTexto(estado.esperando.opciones, texto)?.id : undefined);
+    if (!op && estado.pausa === "otrodia") op = "otrodia"; // ante la duda, se respeta que hoy no es buen momento
     if (!op) { salida.push({ tipo: "eco", texto: "¿Seguimos o terminamos?" }); return { estado, salida }; }
     const modo = estado.pausa;
     estado.pausa = null;
@@ -500,7 +528,9 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       return { estado, salida };
     }
     delete estado.esperandoPrevio;
-    irA(estado, modo === "pausa" ? ["cierre"] : modo === "otrodia" ? ["otrodia"] : ["salida"]);
+    // Sin consentimiento o tras una crisis no hay cierre con preguntas: sólo despedida y directorio.
+    const destino = modo === "otrodia" ? "otrodia" : modo === "pausa" && consintio(estado) && !estado.rojo ? "cierre" : "salida";
+    irA(estado, [destino]);
     avanzar(g, inst, estado, salida);
     return { estado, salida };
   }
@@ -523,7 +553,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     estado.esperando = conf.previa;
     if (op === "si") return responder(g, inst, estado, conf.entrada);
     if (op === "no") {
-      estado.esperando = { ...conf.previa, textoLibre: false };
+      // La caja de texto sigue visible: así cualquier cosa que escriba pasa por la revisión de riesgo.
       salida.push({ tipo: "eco", texto: conf.previa.paso.espejo?.siNo ?? "Va. Elige la que se parezca más." });
       return { estado, salida };
     }
@@ -562,7 +592,6 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
         estado.textos[p.id] = filtrarIdentificadores(texto).texto;
         if (!ids.size) {
           salida.push({ tipo: "eco", texto: "Gracias por ponerlo con tus palabras. ¿Se parece a alguna de estas? Puedes elegir varias." });
-          estado.esperando = { ...estado.esperando, textoLibre: false };
           return { estado, salida };
         }
       }
@@ -607,7 +636,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
     if (entrada.opcion) elegida = opciones.find((o) => o.id === entrada.opcion);
     else if (texto) {
       elegida = porNumero(p, opciones, texto) ?? casarTexto(opciones, texto);
-      if (!elegida) {
+      if (elegida && entrada.sinOtro && normalizar(elegida.label) !== normalizar(texto).replace(/[.!¡]+$/, "").trim() && !porNumero(p, opciones, texto)) {
+        // El modelo no la entendió: sólo vale si escribió la opción tal cual o un número de la escala.
+        elegida = undefined;
+      }
+      if (!elegida && !entrada.sinOtro) {
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
       }

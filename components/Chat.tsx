@@ -85,9 +85,12 @@ export default function Chat() {
   }, [items, cola.length, estado?.esperando]);
 
   const escribiendo = cola.length > 0 || pensando;
+  const enVuelo = useRef(false);
 
   async function enviar(entrada: Entrada, etiqueta: string) {
-    if (!estado || pensando) return;
+    // El ref evita que dos toques rápidos manden dos turnos antes de que React actualice "pensando".
+    if (!estado || pensando || enVuelo.current) return;
+    enVuelo.current = true;
     setItems((xs) => [...xs, { key: llave.current++, s: { tipo: "usuario", texto: etiqueta } }]);
     setSeleccion([]);
     setTexto("");
@@ -106,6 +109,7 @@ export default function Chat() {
         puentes: u.puentes + r.uso.puentes,
       }));
     } finally {
+      enVuelo.current = false;
       setPensando(false);
     }
   }

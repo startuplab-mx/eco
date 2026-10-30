@@ -9,8 +9,8 @@ export async function POST(req: Request) {
   if (!iaDisponible()) return Response.json({ error: "sin_ia" }, { status: 503 });
   let cuerpo: Partial<PedidoInterpretar>;
   try { cuerpo = await req.json(); } catch { return Response.json({ error: "json" }, { status: 400 }); }
-  const motivo = revisar(req, cuerpo.codigo);
-  if (motivo) return Response.json({ error: motivo }, { status: 429 });
+  const rechazo = revisar(req, cuerpo);
+  if (rechazo) return Response.json({ error: rechazo.error }, { status: rechazo.status });
 
   const pedido: PedidoInterpretar = {
     codigo: cuerpo.codigo!,

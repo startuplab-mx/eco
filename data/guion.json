@@ -19,7 +19,8 @@
         "sinonimos": [
           "casi nunca",
           "rara vez",
-          "muy poco"
+          "muy poco",
+          "poquito"
         ]
       },
       {
@@ -30,8 +31,7 @@
           "a veces",
           "aveces",
           "de vez en cuando",
-          "algunas veces",
-          "luego"
+          "algunas veces"
         ]
       },
       {
@@ -41,8 +41,7 @@
         "sinonimos": [
           "seguido",
           "mucho",
-          "frecuente",
-          "seguid"
+          "frecuente*"
         ]
       },
       {
@@ -358,7 +357,25 @@
     "me quieren reclutar",
     "me quieren enganchar",
     "no me dejan salirme",
-    "no me dejan decir que no"
+    "no me dejan decir que no",
+    "quitar la vida",
+    "me voy a quitar la vida",
+    "me amenazo",
+    "me violaron",
+    "me violo",
+    "me viola",
+    "abuso de mi",
+    "abusan de mi",
+    "abusaron de mi",
+    "abusa de mi",
+    "me manosea",
+    "me manosean",
+    "me tocan sin que yo quiera",
+    "me toca sin que yo quiera",
+    "me quiero aventar",
+    "me voy a aventar",
+    "tomarme las pastillas",
+    "me voy a tomar las pastillas"
   ],
   "bloques": {
     "bienvenida": {
@@ -375,11 +392,23 @@
           "id": "bi_consentimiento",
           "tipo": "opcion",
           "variable": "consentimiento",
-          "texto": "Lo que respondas lo lee un equipo de psicólogos, sin saber quién eres, para crear apoyos en la escuela. Solo si me cuentas que estás en peligro te voy a ofrecer ayuda directa. ¿Quieres seguir?",
+          "texto": "Lo que respondas lo lee un equipo de psicología, sin saber quién eres, para crear apoyos en la escuela. Solo si me cuentas que estás en peligro te voy a ofrecer ayuda directa. ¿Quieres seguir?",
           "opciones": [
             {
               "id": "si",
-              "label": "Sí, vamos"
+              "label": "Sí, vamos",
+              "sinonimos": [
+                "si",
+                "sí",
+                "va",
+                "vamos",
+                "simon",
+                "ok",
+                "dale",
+                "claro",
+                "sale",
+                "orale"
+              ]
             },
             {
               "id": "dudas",
@@ -388,7 +417,16 @@
             {
               "id": "no",
               "label": "Ahora no",
-              "salir": true
+              "salir": true,
+              "sinonimos": [
+                "no",
+                "nel",
+                "ahorita no",
+                "luego",
+                "despues",
+                "otro dia",
+                "nop"
+              ]
             }
           ],
           "noSaltar": true
@@ -406,7 +444,7 @@
             "Te explico. Aquí no hay nombres: cada plática tiene un código al azar.",
             "Tus respuestas se guardan como números y temas, no como tu texto completo.",
             "Lo que escribes lo lee un sistema de inteligencia artificial para entenderte mejor, sin datos que digan quién eres.",
-            "Un equipo de psicólogos las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
+            "Un equipo de psicología las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
             "Si alguna pregunta no quieres contestarla, sólo dímelo. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
           ]
         },
@@ -424,12 +462,33 @@
           "opciones": [
             {
               "id": "si",
-              "label": "Sí, vamos"
+              "label": "Sí, vamos",
+              "sinonimos": [
+                "si",
+                "sí",
+                "va",
+                "vamos",
+                "simon",
+                "ok",
+                "dale",
+                "claro",
+                "sale",
+                "orale"
+              ]
             },
             {
               "id": "no",
               "label": "Ahora no",
-              "salir": true
+              "salir": true,
+              "sinonimos": [
+                "no",
+                "nel",
+                "ahorita no",
+                "luego",
+                "despues",
+                "otro dia",
+                "nop"
+              ]
             }
           ],
           "noSaltar": true
@@ -572,33 +631,34 @@
               "id": "tranquilo",
               "label": "En calma",
               "sinonimos": [
-                "tranquil",
-                "calma",
-                "relaj",
+                "tranquil*",
+                "calm*",
+                "relaj*",
                 "en paz",
-                "seren"
+                "seren*"
               ]
             },
             {
               "id": "contento",
               "label": "Con alegría",
               "sinonimos": [
-                "content",
-                "feliz",
-                "alegr",
+                "content*",
+                "feliz*",
+                "alegr*",
                 "a gusto",
-                "chido"
+                "chido",
+                "chida"
               ]
             },
             {
               "id": "cansado",
               "label": "Con cansancio",
               "sinonimos": [
-                "cansad",
+                "cansad*",
                 "cansancio",
-                "agotad",
-                "exhaust",
-                "fatiga",
+                "agotad*",
+                "exhaust*",
+                "fatiga*",
                 "sueno",
                 "sin pila"
               ]
@@ -607,28 +667,28 @@
               "id": "triste",
               "label": "Con tristeza",
               "sinonimos": [
-                "trist",
-                "aguitad",
-                "bajon",
-                "deprimid",
-                "desanimad",
-                "llor",
-                "chillar"
+                "trist*",
+                "aguitad*",
+                "bajon*",
+                "deprimid*",
+                "desanimad*",
+                "llor*",
+                "chillar*"
               ]
             },
             {
               "id": "enojado",
               "label": "Con enojo",
               "sinonimos": [
-                "enoj",
+                "enoj*",
                 "coraje",
                 "rabia",
-                "enfad",
-                "molest",
-                "furi",
-                "irritad",
-                "encabron",
-                "emputad",
+                "enfad*",
+                "molest*",
+                "furi*",
+                "irritad*",
+                "encabron*",
+                "emputad*",
                 "harto",
                 "harta"
               ]
@@ -638,32 +698,33 @@
               "label": "Con miedo",
               "sinonimos": [
                 "miedo",
-                "asustad",
+                "asustad*",
                 "susto",
-                "aterrad",
+                "aterrad*",
                 "terror",
                 "panico",
-                "sacad de onda"
+                "sacado de onda",
+                "sacada de onda"
               ]
             },
             {
               "id": "preocupado",
               "label": "Con preocupación",
               "sinonimos": [
-                "preocup",
-                "nervi",
-                "ansi",
-                "estres",
-                "angusti",
-                "inquiet"
+                "preocup*",
+                "nervi*",
+                "ansi*",
+                "estres*",
+                "angusti*",
+                "inquiet*"
               ]
             },
             {
               "id": "vacio",
               "label": "Con vacío",
               "sinonimos": [
-                "vaci",
-                "apagad",
+                "vaci*",
+                "apagad*",
                 "hueco",
                 "como nada"
               ]
@@ -673,9 +734,9 @@
               "label": "Con soledad",
               "sinonimos": [
                 "soledad",
-                "me siento sol",
-                "aislad",
-                "abandonad",
+                "me siento sol*",
+                "aislad*",
+                "abandonad*",
                 "nadie me pela",
                 "nadie me entiende"
               ]
@@ -684,22 +745,22 @@
               "id": "avergonzado",
               "label": "Con vergüenza",
               "sinonimos": [
-                "verguenz",
-                "avergonz",
+                "verguenz*",
+                "avergonz*",
                 "me da pena",
-                "humillad",
-                "ridicul"
+                "humillad*",
+                "ridicul*"
               ]
             },
             {
               "id": "confundido",
               "label": "Con confusión",
               "sinonimos": [
-                "confund",
-                "confusi",
+                "confund*",
+                "confusi*",
                 "no entiendo",
-                "revuelt",
-                "perdid"
+                "revuelt*",
+                "perdid*"
               ]
             },
             {
@@ -2011,7 +2072,7 @@
         {
           "id": "mf_intro",
           "tipo": "mensaje",
-          "texto": "Todos buscamos formas de sentirnos mejor. Esta pregunta es solo sobre ti y nadie va a saber tu respuesta."
+          "texto": "Todas las personas buscamos formas de sentirnos mejor. Esta pregunta es solo sobre ti y nadie va a saber tu respuesta."
         },
         {
           "id": "mf_consumo",
@@ -2650,7 +2711,7 @@
     "privacidad": [
       "Aquí no hay nombres: cada plática tiene un código al azar.",
       "Eco no te pide ubicación ni teléfono, y lo que escribes no se guarda completo.",
-      "Un equipo de psicólogos ve las respuestas de muchos jóvenes juntas, sin saber quién eres."
+      "Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién eres."
     ],
     "orientacion": [
       "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
@@ -2679,6 +2740,12 @@
     "me quieren meter a trabajar",
     "me quieren meter con ellos",
     "me estan buscando",
-    "me andan buscando"
+    "me andan buscando",
+    "me mato",
+    "me obliga",
+    "me acosa",
+    "me acosan",
+    "me siguen",
+    "me tocan"
   ]
 }

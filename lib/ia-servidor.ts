@@ -145,7 +145,7 @@ export async function interpretar(p: PedidoInterpretar): Promise<RespuestaInterp
     tipo: opciones.length ? "responde" : tipo,
     riesgo: r.riesgo === true,
     opciones,
-    repregunta: opciones.length ? null : validarRepregunta(r.repregunta),
+    repregunta: opciones.length ? null : validarRepregunta(r.repregunta, p.opciones),
     otro: opciones.length ? null : validarFrase(r.otro),
   };
 }
