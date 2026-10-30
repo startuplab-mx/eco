@@ -325,18 +325,10 @@
     "matarme",
     "suicid",
     "quitarme la vida",
-    "me corto",
-    "cortarme",
-    "me lastimo",
-    "lastimarme",
     "hacerme dano",
     "me van a matar",
     "me quieren matar",
     "me amenazaron",
-    "me amenazan",
-    "me pegan",
-    "me golpean",
-    "me obligan",
     "me quieren llevar",
     "me quieren levantar",
     "me van a levantar",
@@ -348,7 +340,18 @@
     "mejor no existir",
     "acabar con todo",
     "mejor me muero",
-    "ojala me muriera"
+    "ojala me muriera",
+    "me matan",
+    "si hablo me matan",
+    "me van a hacer algo",
+    "le van a hacer algo a mi familia",
+    "le hacen algo a mi familia",
+    "me voy a cortar",
+    "me quiero cortar",
+    "me estan amenazando",
+    "me tienen amenazad",
+    "me quiero suicidar",
+    "me voy a matar"
   ],
   "bloques": {
     "bienvenida": {
@@ -2645,5 +2648,26 @@
     "orientacion": [
       "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
     ]
-  }
+  },
+  "alarmaRevisar": [
+    "me corto",
+    "cortarme",
+    "me lastimo",
+    "lastimarme",
+    "me pegan",
+    "me golpean",
+    "me obligan",
+    "me amenazan",
+    "me corte",
+    "me pegaron",
+    "me pego",
+    "me golpearon",
+    "me golpea",
+    "me amenaza",
+    "me obligaron",
+    "me forzaron",
+    "me lastimaron",
+    "no quiero seguir aqui",
+    "me hago dano"
+  ]
 }

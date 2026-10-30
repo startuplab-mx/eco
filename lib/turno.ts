@@ -36,6 +36,7 @@ export async function turno(
 
   // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.
   let repregunta: string | null = null;
+  let modeloSinRiesgo = false;
   if (ia && esp && texto && !comando && !estado.pausa && esp.paso.tipo !== "ejercicio") {
     uso.llamadas++;
     const r = await ia.interpretar({
@@ -46,6 +47,7 @@ export async function turno(
       texto: filtrarIdentificadores(texto).texto,
     });
     const aceptaOtro = !!esp.paso.aceptaOtro && !!r?.otro;
+    modeloSinRiesgo = !!r && !r.riesgo;
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
     else if (estado.confirmacion) {
@@ -69,6 +71,8 @@ export async function turno(
     }
   }
 
+  // Si el modelo revisó el texto y no vio riesgo, las frases ambiguas de la lista no activan la crisis.
+  if (modeloSinRiesgo && texto && !final.alarma) final = { ...final, alarmaDescartada: true };
   let res = responder(g, inst, estado, final);
 
   // Respuesta escrita que no se entendió: se repregunta una vez; a la segunda se deja pasar.

@@ -15,10 +15,35 @@ export function normalizar(texto: string): string {
 const COLOQUIALES =
   /\b(morir|muero|muriendo|morirme|matar|mato)( me)? de (la )?(risa|hambre|sueno|aburrimiento|pena|verguenza|envidia|calor|frio|ganas|amor|cansancio|nervios|emocion|flojera)\b/g;
 
-/** true si el texto contiene alguna frase de alarma (sin contar las expresiones coloquiales). */
-export function hayAlarma(texto: string, alarma: string[]): boolean {
-  const t = normalizar(texto).replace(COLOQUIALES, " ");
-  return alarma.some((frase) => t.includes(normalizar(frase)));
+/** Normaliza para buscar frases de alarma: sin acentos, números como letras, signos como espacios. */
+function paraAlarma(texto: string): string {
+  return ` ${normalizar(texto)
+    .replace(/0/g, "o").replace(/1/g, "i").replace(/3/g, "e").replace(/4/g, "a").replace(/5/g, "s").replace(/7/g, "t")
+    .replace(/[^a-zñ]+/g, " ")
+    .replace(COLOQUIALES, " ")
+    .replace(/\s+/g, " ")
+    .trim()} `;
+}
+
+function contiene(t: string, frase: string): boolean {
+  const f = paraAlarma(frase).trim();
+  if (t.includes(` ${f}`)) return true;
+  // Frases largas escritas sin espacios ("mequieromorir").
+  const junta = f.replace(/ /g, "");
+  return junta.length >= 11 && t.replace(/ /g, "").includes(junta);
+}
+
+/** "segura": activa la crisis siempre. "revisar": ambigua, la puede descartar el modelo. null: nada. */
+export function nivelAlarma(texto: string, alarma: string[], alarmaRevisar: string[] = []): "segura" | "revisar" | null {
+  const t = paraAlarma(texto);
+  if (alarma.some((f) => contiene(t, f))) return "segura";
+  if (alarmaRevisar.some((f) => contiene(t, f))) return "revisar";
+  return null;
+}
+
+/** true si el texto contiene alguna frase de alarma (segura o ambigua). */
+export function hayAlarma(texto: string, alarma: string[], alarmaRevisar: string[] = []): boolean {
+  return nivelAlarma(texto, alarma, alarmaRevisar) !== null;
 }
 
 /** Sin modelo: letras al azar, sólo risas, sólo emojis o signos. */

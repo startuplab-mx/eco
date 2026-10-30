@@ -110,7 +110,10 @@ export interface Guion {
     redirigir: string[]; groseria: string[]; saltarNoQuiere: string[]; saltarInsiste: string[];
     otroDia: string; seQuiereIr: string; privacidad: string[]; orientacion: string[];
   };
+  /** Frases que activan la crisis siempre. */
   alarma: string[];
+  /** Frases ambiguas ("me corto", "me obligan"): activan la crisis salvo que el modelo descarte el riesgo. */
+  alarmaRevisar: string[];
   bloques: Record<string, Bloque>;
 }
 

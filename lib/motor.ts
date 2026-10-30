@@ -6,7 +6,7 @@
 import type {
   Bloque, Condicion, EjercicioId, Espera, Estado, Guion, Instancia, Opcion, Paso, Respuesta, Salida,
 } from "./tipos";
-import { esGroseriaDirigida, filtrarIdentificadores, hayAlarma, normalizar, pareceSinSentido } from "./seguridad";
+import { esGroseriaDirigida, filtrarIdentificadores, nivelAlarma, normalizar, pareceSinSentido } from "./seguridad";
 import { calcularNivel } from "./indices";
 
 export interface Entrada {
@@ -18,6 +18,8 @@ export interface Entrada {
   texto?: string;
   /** El clasificador de riesgo detectó una señal: activa el protocolo rojo. */
   alarma?: boolean;
+  /** El modelo revisó el texto y descartó el riesgo: las frases ambiguas no activan la crisis. */
+  alarmaDescartada?: boolean;
   /** El modelo ya interpretó el texto: no aplicar las reglas de palabras sobre él. */
   sinReglas?: boolean;
   /** El joven ya confirmó el espejo ("¿Es así?" → Sí). */
@@ -474,7 +476,8 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   const texto = entrada.texto?.trim();
 
   // 1. Riesgo primero, en cualquier texto escrito (lista de palabras o clasificador).
-  if (entrada.alarma || (texto && hayAlarma(texto, g.alarma))) {
+  const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
+  if (entrada.alarma || nivel === "segura" || (nivel === "revisar" && !entrada.alarmaDescartada)) {
     activarRojo(g, inst, estado, salida);
     return { estado, salida };
   }

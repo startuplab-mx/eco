@@ -173,6 +173,18 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "asdfgh" }, null, []);
   ok(textos(r.salida)[0] === D.redirigir[0], "la primera redirección usa la variante principal");
 
+  // Frases ambiguas: el modelo puede descartarlas; las inequívocas, no.
+  const iaSinRiesgo: ServicioIA = { interpretar: async () => ({ tipo: "responde", riesgo: false, opciones: ["casi_nunca"], repregunta: null, otro: null }), redactar: async () => null };
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "me corto el pelo cada mes, casi nunca" }, iaSinRiesgo, []);
+  ok(!r.estado.rojo && r.estado.respuestas["v2_alerta"]?.valor === "casi_nunca", "«me corto el pelo»: el modelo descarta el riesgo");
+  r = await turno(g, inst, e, { texto: "me corto el pelo cada mes" }, null, []);
+  ok(r.estado.rojo, "«me corto…» sin modelo: gana la crisis");
+  r = await turno(g, inst, e, { texto: "me quiero morir, casi nunca" }, iaSinRiesgo, []);
+  ok(r.estado.rojo, "«me quiero morir»: el modelo no puede descartarlo");
+  r = await turno(g, inst, e, { texto: "me-quiero-m0rir" }, null, []);
+  ok(r.estado.rojo, "variantes con guiones y números también activan");
+
   let c = arrancar(g, inst, crearEstado()).estado;
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   r = await turno(g, inst, r.estado, { texto: "jajaja" }, null, []);
