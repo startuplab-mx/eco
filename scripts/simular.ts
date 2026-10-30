@@ -27,7 +27,7 @@ for (let i = 0; i < N; i++) {
     let entrada: Entrada;
     const r = rand();
     if (r < 0.04) entrada = { texto: elige(textosLibres) };
-    else if (esp.paso.tipo === "numero") entrada = rand() < 0.8 ? { texto: String(10 + Math.floor(rand() * 10)) } : { opcion: "nd" };
+    else if (esp.paso.tipo === "numero") entrada = rand() < 0.8 ? { texto: String(10 + Math.floor(rand() * 10)) } : { opcion: elige(esp.opciones).id };
     else if (esp.paso.tipo === "abierta") entrada = rand() < 0.5 ? { texto: "me gusta el futbol" } : { opcion: elige(esp.opciones).id };
     else if (esp.multiple) entrada = { opciones: esp.opciones.filter(() => rand() < 0.3).map((o) => o.id).concat(elige(esp.opciones).id) };
     else entrada = { opcion: elige(esp.opciones).id };

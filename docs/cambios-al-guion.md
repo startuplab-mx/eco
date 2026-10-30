@@ -70,7 +70,7 @@ presión ≥ Seguido · sin adulto confiable ("No"). "No sé" en adulto confiabl
   Eco le pide que elija. Que la haya nombrado con sus palabras se registra (V20). Las escalas siguen con botones.
 - **Consumo (V15)** pasa a la escala estándar Nunca…Casi siempre (más "Prefiero no decir"), para que tenga índice.
 - **Clima familiar (V12):** en el índice, la tensión se invierte (mayor = mejor clima).
-- **Edad:** "¿Cuántos años tienes?" con respuesta escrita (acepta "15", "quince", "tengo 15"). Sólo se guarda
-  el rango (12–14, 15–16, 17–18, o fuera de rango); la edad exacta no se guarda.
+- **Edad:** "¿Cuántos años tienes?" con opciones "Entre 12 y 14", "Entre 15 y 16", "Entre 17 y 18". También se puede
+  escribir el número ("15", "quince"); sólo se guarda el rango, nunca la edad exacta.
 - **Pantalla:** todas las preguntas usan la misma forma: caja de texto arriba y opciones abajo como etiquetas
   chicas. Las escalas aceptan respuesta escrita ("casi siempre", "diario", "7" en el termómetro).
