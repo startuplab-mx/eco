@@ -1,0 +1,2408 @@
+{
+  "version": "0.1",
+  "escalas": {
+    "E5": [
+      {
+        "id": "nunca",
+        "label": "Nunca",
+        "valor": 0
+      },
+      {
+        "id": "casi_nunca",
+        "label": "Casi nunca",
+        "valor": 1
+      },
+      {
+        "id": "a_veces",
+        "label": "A veces",
+        "valor": 2
+      },
+      {
+        "id": "seguido",
+        "label": "Seguido",
+        "valor": 3
+      },
+      {
+        "id": "casi_siempre",
+        "label": "Casi siempre",
+        "valor": 4
+      }
+    ],
+    "A5": [
+      {
+        "id": "a1",
+        "label": "1 Nada",
+        "valor": 0
+      },
+      {
+        "id": "a2",
+        "label": "2",
+        "valor": 1
+      },
+      {
+        "id": "a3",
+        "label": "3",
+        "valor": 2
+      },
+      {
+        "id": "a4",
+        "label": "4",
+        "valor": 3
+      },
+      {
+        "id": "a5",
+        "label": "5 Mucho",
+        "valor": 4
+      }
+    ],
+    "T10": [
+      {
+        "id": "t1",
+        "label": "1–2 Muy leve",
+        "valor": 1.5
+      },
+      {
+        "id": "t2",
+        "label": "3–4",
+        "valor": 3.5
+      },
+      {
+        "id": "t3",
+        "label": "5–6",
+        "valor": 5.5
+      },
+      {
+        "id": "t4",
+        "label": "7–8",
+        "valor": 7.5
+      },
+      {
+        "id": "t5",
+        "label": "9–10 Muy fuerte",
+        "valor": 9.5
+      }
+    ]
+  },
+  "grupos": {
+    "emociones": {
+      "texto": "Ahora quiero saber cómo te has sentido estas dos semanas. No hay respuestas buenas ni malas."
+    },
+    "creencias": {
+      "texto": "Te voy a mostrar unas frases. Dime qué tanto estás de acuerdo, sin pensarlo mucho."
+    },
+    "futuro": {
+      "texto": "Cambiemos de tema.",
+      "noAlInicio": true
+    }
+  },
+  "validaciones": {
+    "tranquilo": "Qué bueno. Me gustaría saber qué te ayuda a sentirte así.",
+    "contento": "Qué bueno. Me gustaría saber qué te ayuda a sentirte así.",
+    "cansado": "Estar cansado/a también es una señal. A veces es el cuerpo, a veces es todo lo que uno carga.",
+    "triste": "La tristeza aparece cuando algo nos importa. Gracias por decírmelo.",
+    "enojado": "El enojo muchas veces protege algo. Es válido sentirlo.",
+    "miedo": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
+    "preocupado": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
+    "vacio": "Sentirse vacío/a a veces pasa cuando uno lleva mucho tiempo aguantando. No estás solo/a en eso.",
+    "solo": "Sentirse solo/a duele, aunque haya gente alrededor. Aquí te escucho.",
+    "avergonzado": "La vergüenza pesa mucho. Aquí nadie te va a juzgar.",
+    "confundido": "No saber también es una respuesta. Vamos despacio.",
+    "nose": "No saber también es una respuesta. Vamos despacio."
+  },
+  "ejercicios": {
+    "respiracion": {
+      "titulo": "Respiración 4-4-6",
+      "pasos": [
+        "Inhala contando 4.",
+        "Sostén el aire contando 4.",
+        "Suéltalo despacio contando 6.",
+        "Repite durante un minuto."
+      ]
+    },
+    "punos": {
+      "titulo": "Soltar el enojo",
+      "pasos": [
+        "Aprieta los puños 5 segundos.",
+        "Suelta.",
+        "Repite tres veces."
+      ]
+    },
+    "mano": {
+      "titulo": "Una mano en el pecho",
+      "pasos": [
+        "Pon una mano en tu pecho.",
+        "Di en tu mente: esto es difícil y estoy haciendo lo mejor que puedo."
+      ]
+    },
+    "anclaje": {
+      "titulo": "Anclaje 5-4-3-2-1",
+      "pasos": [
+        "Nombra 5 cosas que ves.",
+        "4 cosas que puedes tocar.",
+        "3 cosas que oyes.",
+        "2 cosas que hueles.",
+        "1 cosa que saboreas."
+      ]
+    }
+  },
+  "ruta": {
+    "prioridad": [
+      "miedo",
+      "preocupado",
+      "triste",
+      "vacio",
+      "enojado",
+      "solo",
+      "avergonzado",
+      "cansado",
+      "confundido",
+      "nose",
+      "tranquilo",
+      "contento"
+    ],
+    "porEmocion": {
+      "miedo": [
+        "V2",
+        "E",
+        "V1"
+      ],
+      "preocupado": [
+        "V2",
+        "E",
+        "V1"
+      ],
+      "triste": [
+        "V3",
+        "C",
+        "D"
+      ],
+      "vacio": [
+        "V3",
+        "C",
+        "D"
+      ],
+      "enojado": [
+        "V4",
+        "V5",
+        "G"
+      ],
+      "solo": [
+        "V9",
+        "A",
+        "B"
+      ],
+      "avergonzado": [
+        "V5",
+        "D",
+        "F"
+      ],
+      "cansado": [
+        "V2",
+        "B",
+        "F"
+      ],
+      "tranquilo": [
+        "D",
+        "H"
+      ],
+      "contento": [
+        "D",
+        "H"
+      ],
+      "confundido": [
+        "D",
+        "V9"
+      ],
+      "nose": [
+        "D",
+        "V9"
+      ]
+    },
+    "porAmbito": {
+      "escuela": [
+        "A"
+      ],
+      "casa": [
+        "B"
+      ],
+      "colonia": [
+        "V1"
+      ],
+      "extrano": [
+        "C"
+      ],
+      "vi": [
+        "E"
+      ],
+      "redes": [
+        "G"
+      ],
+      "amigos": [
+        "V7"
+      ],
+      "futuro": [
+        "H"
+      ]
+    },
+    "relleno": [
+      "I",
+      "D",
+      "H",
+      "A",
+      "B"
+    ],
+    "minModulos": 3,
+    "maxModulos": 4,
+    "ordenNucleo": [
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V6",
+      "V7",
+      "V8",
+      "V9"
+    ]
+  },
+  "preguntasCierre": [
+    "Si pudieras cambiar una cosa de tu colonia para sentirte más tranquilo/a, ¿cuál sería?",
+    "¿Qué le dirías a un niño más chico que está viviendo lo mismo que tú?",
+    "¿Qué te gustaría que los adultos entendieran de los jóvenes de aquí?"
+  ],
+  "alarma": [
+    "me quiero morir",
+    "quiero morirme",
+    "no quiero vivir",
+    "no quiero seguir viviendo",
+    "ya no quiero vivir",
+    "me quiero matar",
+    "quiero matarme",
+    "matarme",
+    "suicid",
+    "quitarme la vida",
+    "me corto",
+    "cortarme",
+    "me lastimo",
+    "lastimarme",
+    "hacerme dano",
+    "me van a matar",
+    "me quieren matar",
+    "me amenazaron",
+    "me amenazan",
+    "me pegan",
+    "me golpean",
+    "me obligan",
+    "me quieren llevar",
+    "me quieren levantar",
+    "me van a levantar"
+  ],
+  "bloques": {
+    "bienvenida": {
+      "id": "bienvenida",
+      "nombre": "Fase 1 — Bienvenida y consentimiento",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "bi_hola",
+          "tipo": "mensaje",
+          "texto": "¡Hola! Soy Eco, un espacio para platicar cómo te sientes. No te voy a pedir tu nombre ni nada que diga quién eres. Tampoco necesito saber de personas, lugares o cosas que hayan pasado: me interesa cómo estás tú."
+        },
+        {
+          "id": "bi_consentimiento",
+          "tipo": "opcion",
+          "variable": "consentimiento",
+          "texto": "Lo que respondas lo lee un equipo de psicólogos, sin saber quién eres, para crear apoyos en la escuela. Solo si me cuentas que estás en peligro te voy a ofrecer ayuda directa. ¿Quieres seguir?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí, vamos"
+            },
+            {
+              "id": "dudas",
+              "label": "Tengo dudas"
+            },
+            {
+              "id": "no",
+              "label": "Ahora no",
+              "salir": true
+            }
+          ]
+        },
+        {
+          "id": "bi_dudas",
+          "tipo": "mensaje",
+          "si": {
+            "paso": "bi_consentimiento",
+            "en": [
+              "dudas"
+            ]
+          },
+          "texto": [
+            "Te explico. Aquí no hay nombres: cada plática tiene un código al azar.",
+            "Tus respuestas se guardan como números y temas, no como tu texto completo.",
+            "Un equipo de psicólogos las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
+            "Puedes saltar cualquier pregunta. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
+          ]
+        },
+        {
+          "id": "bi_consentimiento2",
+          "tipo": "opcion",
+          "variable": "consentimiento",
+          "si": {
+            "paso": "bi_consentimiento",
+            "en": [
+              "dudas"
+            ]
+          },
+          "texto": "¿Quieres seguir?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí, vamos"
+            },
+            {
+              "id": "no",
+              "label": "Ahora no",
+              "salir": true
+            }
+          ]
+        }
+      ]
+    },
+    "datos": {
+      "id": "datos",
+      "nombre": "Fase 2 — Rompehielos y datos mínimos",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "da_llegaste",
+          "tipo": "opcion",
+          "variable": "llegada",
+          "texto": "Para empezar, ¿cómo llegaste hoy?",
+          "opciones": [
+            {
+              "id": "bien",
+              "label": "Bien"
+            },
+            {
+              "id": "mas_menos",
+              "label": "Más o menos"
+            },
+            {
+              "id": "mal",
+              "label": "Mal"
+            },
+            {
+              "id": "enojado",
+              "label": "Enojado/a"
+            }
+          ]
+        },
+        {
+          "id": "da_edad",
+          "tipo": "opcion",
+          "variable": "edad",
+          "texto": "¿En qué rango de edad estás?",
+          "opciones": [
+            {
+              "id": "12-14",
+              "label": "12–14"
+            },
+            {
+              "id": "15-16",
+              "label": "15–16"
+            },
+            {
+              "id": "17-18",
+              "label": "17–18"
+            }
+          ]
+        },
+        {
+          "id": "da_genero",
+          "tipo": "opcion",
+          "variable": "genero",
+          "texto": "¿Cómo te identificas?",
+          "opciones": [
+            {
+              "id": "mujer",
+              "label": "Mujer"
+            },
+            {
+              "id": "hombre",
+              "label": "Hombre"
+            },
+            {
+              "id": "otro",
+              "label": "Otro"
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ]
+        },
+        {
+          "id": "da_vive",
+          "tipo": "multiple",
+          "variable": "vive",
+          "texto": "¿Con quién vives? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "mama",
+              "label": "Mamá"
+            },
+            {
+              "id": "papa",
+              "label": "Papá"
+            },
+            {
+              "id": "abuelos",
+              "label": "Abuelos"
+            },
+            {
+              "id": "hermanos",
+              "label": "Hermanos/as"
+            },
+            {
+              "id": "otros_familiares",
+              "label": "Otros familiares"
+            },
+            {
+              "id": "pareja",
+              "label": "Pareja"
+            },
+            {
+              "id": "solo",
+              "label": "Solo/a"
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ]
+        }
+      ]
+    },
+    "entrada": {
+      "id": "entrada",
+      "nombre": "Fase 2B — Puerta de entrada emocional",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "en_emociones",
+          "tipo": "multiple",
+          "variable": "V20",
+          "item": "V20.emocion",
+          "texto": "Antes de cualquier otra cosa, quiero saber cómo estás tú. ¿Cómo te sientes hoy? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "tranquilo",
+              "label": "Tranquilo/a"
+            },
+            {
+              "id": "contento",
+              "label": "Contento/a"
+            },
+            {
+              "id": "cansado",
+              "label": "Cansado/a"
+            },
+            {
+              "id": "triste",
+              "label": "Triste"
+            },
+            {
+              "id": "enojado",
+              "label": "Enojado/a"
+            },
+            {
+              "id": "miedo",
+              "label": "Con miedo"
+            },
+            {
+              "id": "preocupado",
+              "label": "Preocupado/a"
+            },
+            {
+              "id": "vacio",
+              "label": "Vacío/a"
+            },
+            {
+              "id": "solo",
+              "label": "Solo/a"
+            },
+            {
+              "id": "avergonzado",
+              "label": "Avergonzado/a"
+            },
+            {
+              "id": "confundido",
+              "label": "Confundido/a"
+            },
+            {
+              "id": "nose",
+              "label": "No sé cómo me siento"
+            }
+          ]
+        },
+        {
+          "id": "en_sensacion",
+          "tipo": "opcion",
+          "variable": "V20",
+          "item": "V20.sensacion",
+          "si": {
+            "paso": "en_emociones",
+            "incluye": [
+              "nose"
+            ]
+          },
+          "texto": "Está bien, a veces es difícil ponerle nombre. ¿Se parece más a algo pesado, a algo que quema o a algo que aprieta?",
+          "opciones": [
+            {
+              "id": "pesado",
+              "label": "Pesado"
+            },
+            {
+              "id": "quema",
+              "label": "Quema"
+            },
+            {
+              "id": "aprieta",
+              "label": "Aprieta"
+            },
+            {
+              "id": "apagado",
+              "label": "Nada, como apagado/a"
+            }
+          ]
+        },
+        {
+          "id": "en_termometro",
+          "tipo": "opcion",
+          "escala": "T10",
+          "variable": "V21",
+          "item": "V21.inicial",
+          "texto": "Si {emocion} fuera un termómetro del 1 al 10, ¿qué tan fuerte está ahora?"
+        },
+        {
+          "id": "en_respirar",
+          "tipo": "opcion",
+          "si": {
+            "paso": "en_termometro",
+            "gte": 9
+          },
+          "texto": "Eso es muy intenso. Antes de seguir, ¿quieres que respiremos juntos un minuto?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No, sigamos"
+            }
+          ]
+        },
+        {
+          "id": "en_respirar_ej",
+          "tipo": "ejercicio",
+          "ejercicio": "respiracion",
+          "si": {
+            "paso": "en_respirar",
+            "en": [
+              "si"
+            ]
+          }
+        },
+        {
+          "id": "en_cuerpo",
+          "tipo": "multiple",
+          "variable": "V22",
+          "item": "V22.zona",
+          "texto": "Las emociones también se sienten en el cuerpo. ¿Dónde la notas?",
+          "opciones": [
+            {
+              "id": "pecho",
+              "label": "Pecho"
+            },
+            {
+              "id": "estomago",
+              "label": "Estómago"
+            },
+            {
+              "id": "garganta",
+              "label": "Garganta"
+            },
+            {
+              "id": "cabeza",
+              "label": "Cabeza"
+            },
+            {
+              "id": "manos",
+              "label": "Manos o brazos"
+            },
+            {
+              "id": "todo",
+              "label": "Todo el cuerpo"
+            },
+            {
+              "id": "ninguna",
+              "label": "No la noto en el cuerpo"
+            }
+          ]
+        },
+        {
+          "id": "en_tiempo",
+          "tipo": "opcion",
+          "variable": "V21",
+          "item": "V21.cronicidad",
+          "texto": "¿Desde cuándo te sientes así?",
+          "opciones": [
+            {
+              "id": "hoy",
+              "label": "Solo hoy",
+              "valor": 1
+            },
+            {
+              "id": "semana",
+              "label": "Esta semana",
+              "valor": 2
+            },
+            {
+              "id": "semanas",
+              "label": "Desde hace semanas",
+              "valor": 3
+            },
+            {
+              "id": "mucho",
+              "label": "Desde hace mucho",
+              "valor": 4
+            },
+            {
+              "id": "siempre",
+              "label": "Casi siempre me siento así",
+              "valor": 5
+            }
+          ]
+        },
+        {
+          "id": "en_voz",
+          "tipo": "abierta",
+          "variable": "V20",
+          "item": "V20.voz",
+          "texto": [
+            "Si {emocion} pudiera hablar, ¿qué diría?",
+            "Puedes escribirlo, o elegir una frase si se parece."
+          ],
+          "rapidas": [
+            {
+              "id": "ya_no_puedo",
+              "label": "\"Ya no puedo\""
+            },
+            {
+              "id": "alerta",
+              "label": "\"Tengo que estar alerta\""
+            },
+            {
+              "id": "nadie_entiende",
+              "label": "\"Nadie me entiende\""
+            },
+            {
+              "id": "que_pare",
+              "label": "\"Quiero que esto pare\""
+            },
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "en_ambito",
+          "tipo": "opcion",
+          "variable": "ambito",
+          "item": "ambito",
+          "texto": "¿Con qué tiene que ver más lo que sientes? No necesitas explicar qué pasó.",
+          "opciones": [
+            {
+              "id": "escuela",
+              "label": "La escuela"
+            },
+            {
+              "id": "casa",
+              "label": "Mi casa"
+            },
+            {
+              "id": "colonia",
+              "label": "Mi colonia"
+            },
+            {
+              "id": "extrano",
+              "label": "Alguien que extraño"
+            },
+            {
+              "id": "vi",
+              "label": "Algo que vi o escuché"
+            },
+            {
+              "id": "redes",
+              "label": "Las redes"
+            },
+            {
+              "id": "amigos",
+              "label": "Mis amigos"
+            },
+            {
+              "id": "futuro",
+              "label": "Mi futuro"
+            },
+            {
+              "id": "nose",
+              "label": "No sé"
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ]
+        },
+        {
+          "id": "en_validacion",
+          "tipo": "mensaje",
+          "texto": "{validacion}"
+        },
+        {
+          "id": "en_bien",
+          "tipo": "abierta",
+          "variable": "V20",
+          "item": "V20.recurso",
+          "si": {
+            "emocionPrincipal": [
+              "tranquilo",
+              "contento"
+            ]
+          },
+          "texto": "¿Qué te ayuda a sentirte así?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "en_regular",
+          "tipo": "opcion",
+          "si": {
+            "todos": [
+              {
+                "no": {
+                  "paso": "en_respirar",
+                  "en": [
+                    "si"
+                  ]
+                }
+              },
+              {
+                "no": {
+                  "emocionPrincipal": [
+                    "tranquilo",
+                    "contento"
+                  ]
+                }
+              }
+            ]
+          },
+          "texto": "¿Quieres hacer un ejercicio cortito antes de seguir?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "Ahora no"
+            }
+          ]
+        },
+        {
+          "id": "en_regular_ej",
+          "tipo": "ejercicio",
+          "ejercicio": "@emocion",
+          "si": {
+            "paso": "en_regular",
+            "en": [
+              "si"
+            ]
+          }
+        },
+        {
+          "id": "en_puente",
+          "tipo": "mensaje",
+          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas que tienen que ver con eso, para entender mejor lo que vives. Puedes saltar cualquiera."
+        }
+      ]
+    },
+    "V1": {
+      "id": "V1",
+      "nombre": "V1 Exposición percibida a violencia",
+      "clase": "nucleo",
+      "pasos": [
+        {
+          "id": "v1_colonia",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V1",
+          "item": "V1.comunitaria",
+          "texto": "Hay lugares donde pasan cosas que dan miedo y uno se acostumbra a vivir así. ¿Qué tan seguido sientes que en tu colonia pasan cosas que dan miedo?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "Gracias por decírmelo. Vivir así cansa, aunque uno ya no lo note."
+            }
+          ]
+        },
+        {
+          "id": "v1_escuela",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V1",
+          "item": "V1.escolar",
+          "texto": "¿Qué tan seguido te sientes inseguro/a en la escuela o en el camino?"
+        },
+        {
+          "id": "v1_enterado",
+          "tipo": "opcion",
+          "variable": "V1",
+          "item": "V1.indirecta",
+          "texto": "¿Te has enterado de que le pasó algo grave a alguien que conoces? No necesito saber qué.",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ],
+          "reacciones": [
+            {
+              "si": {
+                "en": [
+                  "si"
+                ]
+              },
+              "texto": "Enterarse de algo así también pesa, aunque no te haya pasado a ti."
+            }
+          ]
+        }
+      ]
+    },
+    "V2": {
+      "id": "V2",
+      "nombre": "V2 Miedo y ansiedad",
+      "clase": "nucleo",
+      "grupo": "emociones",
+      "pasos": [
+        {
+          "id": "v2_miedo",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V2",
+          "item": "V2.miedo",
+          "texto": "¿Qué tan seguido sientes miedo de que te pase algo a ti o a tu familia?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "Tiene sentido sentir eso. El miedo es tu forma de cuidarte."
+            }
+          ]
+        },
+        {
+          "id": "v2_alerta",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V2",
+          "item": "V2.hipervigilancia",
+          "texto": "¿Te cuesta relajarte, como si siempre tuvieras que estar alerta?"
+        },
+        {
+          "id": "v2_dormir",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V2",
+          "item": "V2.sueno",
+          "texto": "¿Te cuesta dormir porque te quedas pensando en cosas que pasan?"
+        }
+      ]
+    },
+    "V3": {
+      "id": "V3",
+      "nombre": "V3 Tristeza y desesperanza",
+      "clase": "nucleo",
+      "grupo": "emociones",
+      "pasos": [
+        {
+          "id": "v3_triste",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V3",
+          "item": "V3.animo",
+          "texto": "¿Te has sentido triste o sin ganas de hacer cosas?"
+        },
+        {
+          "id": "v3_desesperanza",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V3",
+          "item": "V3.desesperanza",
+          "texto": "¿Sientes que no importa lo que hagas, las cosas no van a mejorar?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "Cuando uno lleva mucho tiempo así, cuesta ver que algo cambie. Gracias por decírmelo."
+            }
+          ]
+        }
+      ]
+    },
+    "V4": {
+      "id": "V4",
+      "nombre": "V4 Enojo e impulsividad",
+      "clase": "nucleo",
+      "grupo": "emociones",
+      "pasos": [
+        {
+          "id": "v4_enojo",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V4",
+          "item": "V4.enojo",
+          "texto": "¿Te enojas tan fuerte que sientes que podrías explotar?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "El enojo así de fuerte también cansa. Es válido sentirlo."
+            }
+          ]
+        }
+      ]
+    },
+    "V5": {
+      "id": "V5",
+      "nombre": "V5 Culpa y conflicto de lealtad",
+      "clase": "nucleo",
+      "grupo": "emociones",
+      "pasos": [
+        {
+          "id": "v5_lealtad",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V5",
+          "item": "V5.lealtad",
+          "texto": "A veces uno siente que tiene que callar o hacer cosas para proteger a alguien. ¿Te ha pasado?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "Eso es mucho peso para cargar solo/a. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
+            }
+          ]
+        },
+        {
+          "id": "v5_culpa",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V5",
+          "item": "V5.culpa",
+          "texto": "¿Cargas con sentimientos de culpa que no puedes platicar con nadie?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "La culpa que no se platica pesa el doble. Aquí no hay juicio."
+            }
+          ]
+        }
+      ]
+    },
+    "V6": {
+      "id": "V6",
+      "nombre": "V6 Normalización de la violencia",
+      "clase": "nucleo",
+      "grupo": "creencias",
+      "pasos": [
+        {
+          "id": "v6_normal",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V6",
+          "item": "V6.aceptacion",
+          "texto": "\"Aquí la violencia es algo normal\"."
+        },
+        {
+          "id": "v6_dinero",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V6",
+          "item": "V6.atractivo",
+          "texto": "\"Tener poder o dinero rápido vale el riesgo\"."
+        }
+      ]
+    },
+    "V7": {
+      "id": "V7",
+      "nombre": "V7 Presión o reclutamiento percibido",
+      "clase": "nucleo",
+      "pasos": [
+        {
+          "id": "v7_presion",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V7",
+          "item": "V7.presion",
+          "texto": "¿Has sentido presión para hacer cosas que te ponen en riesgo?",
+          "reacciones": [
+            {
+              "texto": "No necesito saber de qué se trata. Si algún día quieres hablarlo con alguien, te puedo decir cómo."
+            }
+          ]
+        },
+        {
+          "id": "v7_libertad",
+          "tipo": "opcion",
+          "variable": "V7",
+          "item": "V7.libertad",
+          "si": {
+            "paso": "v7_presion",
+            "gte": 2
+          },
+          "texto": "Si quisieras decir que no, ¿sientes que podrías?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            },
+            {
+              "id": "nose",
+              "label": "No sé"
+            }
+          ],
+          "reacciones": [
+            {
+              "si": {
+                "en": [
+                  "no"
+                ]
+              },
+              "texto": "Sentir que no puedes decir que no es de lo más pesado que hay. No tienes que resolverlo hoy."
+            }
+          ]
+        }
+      ]
+    },
+    "V8": {
+      "id": "V8",
+      "nombre": "V8 Proyecto de vida",
+      "clase": "nucleo",
+      "grupo": "futuro",
+      "pasos": [
+        {
+          "id": "v8_cinco",
+          "tipo": "opcion",
+          "variable": "V8",
+          "item": "V8.metas",
+          "texto": "¿Te imaginas cómo te gustaría estar en 5 años?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí",
+              "valor": 2
+            },
+            {
+              "id": "mas_menos",
+              "label": "Más o menos",
+              "valor": 1
+            },
+            {
+              "id": "no",
+              "label": "No",
+              "valor": 0
+            }
+          ]
+        },
+        {
+          "id": "v8_cinco_txt",
+          "tipo": "abierta",
+          "variable": "V8",
+          "item": "V8.metas_texto",
+          "si": {
+            "paso": "v8_cinco",
+            "en": [
+              "si"
+            ]
+          },
+          "texto": "¿Me quieres contar un poquito?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "v8_escuela",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V8",
+          "item": "V8.escuela",
+          "texto": "¿Qué tan importante es para ti terminar la escuela?"
+        }
+      ]
+    },
+    "V9": {
+      "id": "V9",
+      "nombre": "V9 Apoyo y afrontamiento",
+      "clase": "nucleo",
+      "grupo": "futuro",
+      "pasos": [
+        {
+          "id": "v9_adulto",
+          "tipo": "opcion",
+          "variable": "V9",
+          "item": "V9.adulto",
+          "texto": "¿Tienes a un adulto en quien confíes para platicar cosas difíciles?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            },
+            {
+              "id": "nose",
+              "label": "No sé"
+            }
+          ]
+        },
+        {
+          "id": "v9_amigos",
+          "tipo": "opcion",
+          "variable": "V9",
+          "item": "V9.pares",
+          "texto": "¿Tienes amigos con quienes te sientes seguro/a?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            }
+          ]
+        },
+        {
+          "id": "v9_estrategias",
+          "tipo": "multiple",
+          "variable": "V9",
+          "item": "V9.estrategias",
+          "texto": "Cuando te sientes mal, ¿qué haces? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "deporte",
+              "label": "Deporte"
+            },
+            {
+              "id": "musica",
+              "label": "Música"
+            },
+            {
+              "id": "hablar",
+              "label": "Hablar con alguien"
+            },
+            {
+              "id": "encerrarme",
+              "label": "Encerrarme"
+            },
+            {
+              "id": "consumir",
+              "label": "Consumir algo"
+            },
+            {
+              "id": "pelear",
+              "label": "Pelear"
+            },
+            {
+              "id": "otra",
+              "label": "Otra"
+            }
+          ]
+        }
+      ]
+    },
+    "transicion": {
+      "id": "transicion",
+      "nombre": "Transición entre módulos",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "tr_seguir",
+          "tipo": "opcion",
+          "texto": "Vas muy bien. ¿Seguimos con otro tema o prefieres terminar aquí?",
+          "opciones": [
+            {
+              "id": "seguir",
+              "label": "Seguimos"
+            },
+            {
+              "id": "descanso",
+              "label": "Un descanso"
+            },
+            {
+              "id": "terminar",
+              "label": "Terminar",
+              "terminar": true
+            }
+          ]
+        },
+        {
+          "id": "tr_descanso",
+          "tipo": "opcion",
+          "si": {
+            "paso": "tr_seguir",
+            "en": [
+              "descanso"
+            ]
+          },
+          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Listo/a?",
+          "opciones": [
+            {
+              "id": "seguir",
+              "label": "Sí, sigamos"
+            },
+            {
+              "id": "terminar",
+              "label": "Mejor termino",
+              "terminar": true
+            }
+          ]
+        }
+      ]
+    },
+    "A": {
+      "id": "A",
+      "nombre": "Módulo A — Mi escuela (V11)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "ma_parte",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V11",
+          "item": "V11.pertenencia",
+          "texto": "Hablemos de la escuela. ¿Qué tanto estás de acuerdo con esto: \"Me siento parte de esta escuela\"?"
+        },
+        {
+          "id": "ma_maestro",
+          "tipo": "opcion",
+          "variable": "V11",
+          "item": "V11.vinculo_docente",
+          "texto": "¿Hay algún maestro o maestra con quien te sientas en confianza?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            },
+            {
+              "id": "nose",
+              "label": "No estoy seguro/a"
+            }
+          ],
+          "reacciones": [
+            {
+              "si": {
+                "en": [
+                  "si"
+                ]
+              },
+              "texto": "Qué bueno. Tener a alguien así ayuda mucho."
+            },
+            {
+              "si": {
+                "en": [
+                  "no"
+                ]
+              },
+              "texto": "Entiendo. A veces cuesta encontrar a alguien con quien conectar."
+            }
+          ]
+        },
+        {
+          "id": "ma_gusta",
+          "tipo": "abierta",
+          "variable": "V11",
+          "item": "V11.significado",
+          "texto": "¿Qué es lo que más te gusta de venir a la escuela?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "ma_cambiar",
+          "tipo": "opcion",
+          "variable": "V11",
+          "item": "V11.cambio",
+          "texto": "¿Y qué cambiarías para sentirte mejor aquí?",
+          "opciones": [
+            {
+              "id": "deporte_arte",
+              "label": "Más deporte o arte"
+            },
+            {
+              "id": "escuchen",
+              "label": "Que me escuchen"
+            },
+            {
+              "id": "seguro",
+              "label": "Sentirme más seguro/a"
+            },
+            {
+              "id": "presion",
+              "label": "Menos presión"
+            },
+            {
+              "id": "nada",
+              "label": "Nada"
+            },
+            {
+              "id": "otra",
+              "label": "Otra cosa…"
+            }
+          ]
+        },
+        {
+          "id": "ma_cambiar_txt",
+          "tipo": "abierta",
+          "variable": "V11",
+          "item": "V11.cambio_texto",
+          "si": {
+            "paso": "ma_cambiar",
+            "en": [
+              "otra"
+            ]
+          },
+          "texto": "¿Qué cambiarías?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "id": "B",
+      "nombre": "Módulo B — Mi casa (V12)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mb_intro",
+          "tipo": "mensaje",
+          "texto": "Ahora sobre tu casa. No necesito saber quién vive ahí ni a qué se dedican; solo cómo te sientes tú."
+        },
+        {
+          "id": "mb_carino",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V12",
+          "item": "V12.afecto",
+          "texto": "¿Qué tan seguido sientes cariño en tu casa?"
+        },
+        {
+          "id": "mb_tension",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V12",
+          "item": "V12.tension",
+          "texto": "¿Qué tan seguido hay un ambiente tenso o de preocupación?",
+          "reacciones": [
+            {
+              "si": {
+                "gte": 3
+              },
+              "texto": "Vivir con esa tensión puede ser agotador. Tiene sentido que a veces te sientas cansado/a o con el estómago apretado."
+            }
+          ]
+        },
+        {
+          "id": "mb_hablar",
+          "tipo": "opcion",
+          "variable": "V12",
+          "item": "V12.comunicacion",
+          "texto": "¿Puedes hablar en casa de lo que sientes?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí",
+              "valor": 2
+            },
+            {
+              "id": "a_veces",
+              "label": "A veces",
+              "valor": 1
+            },
+            {
+              "id": "no",
+              "label": "No",
+              "valor": 0
+            }
+          ]
+        },
+        {
+          "id": "mb_pedir",
+          "tipo": "abierta",
+          "variable": "V12",
+          "item": "V12.deseo",
+          "texto": "Si pudieras pedir una cosa para tu casa, ¿qué sería?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "C": {
+      "id": "C",
+      "nombre": "Módulo C — Lo que se fue (V10)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mc_entrar",
+          "tipo": "opcion",
+          "texto": "Este tema puede ser difícil; puedes saltarlo.",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Está bien, sigamos"
+            },
+            {
+              "id": "saltar",
+              "label": "Saltar este tema",
+              "fin": true
+            }
+          ]
+        },
+        {
+          "id": "mc_perdida",
+          "tipo": "opcion",
+          "variable": "V10",
+          "item": "V10.perdida",
+          "texto": "¿Has perdido a alguien importante para ti, o alguien se fue y no sabes de él o ella?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No"
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ]
+        },
+        {
+          "id": "mc_duele",
+          "tipo": "opcion",
+          "variable": "V10",
+          "item": "V10.duelo",
+          "si": {
+            "paso": "mc_perdida",
+            "en": [
+              "si"
+            ]
+          },
+          "texto": "Lo siento mucho. ¿Qué tanto sigues pensando en esa persona y te duele?",
+          "opciones": [
+            {
+              "id": "casi_nada",
+              "label": "Casi nada",
+              "valor": 1
+            },
+            {
+              "id": "poco",
+              "label": "Un poco",
+              "valor": 2
+            },
+            {
+              "id": "bastante",
+              "label": "Bastante",
+              "valor": 3
+            },
+            {
+              "id": "mucho",
+              "label": "Mucho, todos los días",
+              "valor": 4
+            }
+          ]
+        },
+        {
+          "id": "mc_decir",
+          "tipo": "abierta",
+          "variable": "V10",
+          "item": "V10.expresion",
+          "si": {
+            "paso": "mc_perdida",
+            "en": [
+              "si"
+            ]
+          },
+          "texto": "A veces ayuda decir lo que no pudimos decir. Si quisieras decirle algo a esa persona, ¿qué le dirías? Recuerda, sin nombres.",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ],
+          "reacciones": [
+            {
+              "si": {
+                "en": [
+                  "texto"
+                ]
+              },
+              "texto": "Gracias por compartir algo tan importante. Ese cariño sigue siendo tuyo."
+            }
+          ]
+        }
+      ]
+    },
+    "D": {
+      "id": "D",
+      "nombre": "Módulo D — Cómo me veo (V13 y V18)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "md_valiosa",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V13",
+          "item": "V13.autovaloracion",
+          "texto": "¿Qué tanto estás de acuerdo con \"Siento que soy una persona valiosa\"?",
+          "reacciones": [
+            {
+              "si": {
+                "lte": 1
+              },
+              "texto": "Me da pena que te sientas así. Mucha gente con lo que vives se siente igual, y eso no define lo que vales."
+            }
+          ]
+        },
+        {
+          "id": "md_bien",
+          "tipo": "abierta",
+          "variable": "V13",
+          "item": "V13.fortalezas",
+          "texto": "¿Qué es algo que te sale bien o que te gusta de ti?",
+          "rapidas": [
+            {
+              "id": "nada",
+              "label": "No se me ocurre nada"
+            },
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "md_bien_ayuda",
+          "tipo": "multiple",
+          "variable": "V13",
+          "item": "V13.fortalezas_opcion",
+          "si": {
+            "paso": "md_bien",
+            "en": [
+              "nada"
+            ]
+          },
+          "texto": "Va, te ayudo. ¿Alguno de estos?",
+          "opciones": [
+            {
+              "id": "amigo",
+              "label": "Soy buen/a amigo/a"
+            },
+            {
+              "id": "reir",
+              "label": "Hago reír"
+            },
+            {
+              "id": "fuerte",
+              "label": "Soy fuerte"
+            },
+            {
+              "id": "cuido",
+              "label": "Cuido a otros"
+            },
+            {
+              "id": "habilidad",
+              "label": "Soy bueno/a en algo: deporte, música, dibujo…"
+            }
+          ]
+        },
+        {
+          "id": "md_salir",
+          "tipo": "opcion",
+          "escala": "A5",
+          "variable": "V18",
+          "item": "V18.recuperacion",
+          "texto": "\"Cuando me pasa algo difícil, logro salir adelante\"."
+        },
+        {
+          "id": "md_fuerza",
+          "tipo": "abierta",
+          "variable": "V18",
+          "item": "V18.sentido",
+          "texto": "¿Qué te da fuerza para seguir cuando las cosas están difíciles?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "E": {
+      "id": "E",
+      "nombre": "Módulo E — Lo que no se borra (V14)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "me_intro",
+          "tipo": "mensaje",
+          "texto": "A veces, después de vivir o ver algo que asusta, el cuerpo y la mente se quedan en alerta. Te pregunto por eso."
+        },
+        {
+          "id": "me_imagenes",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V14",
+          "item": "V14.intrusivos",
+          "texto": "¿Te vienen imágenes o recuerdos feos sin que quieras?"
+        },
+        {
+          "id": "me_evito",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V14",
+          "item": "V14.evitacion",
+          "texto": "¿Evitas lugares, sonidos o personas porque te recuerdan algo que te asustó?"
+        },
+        {
+          "id": "me_sobresalto",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V14",
+          "item": "V14.sobresalto",
+          "texto": "¿Te asustas fácil con ruidos fuertes, como cohetes o portazos?"
+        },
+        {
+          "id": "me_psicologo",
+          "tipo": "opcion",
+          "si": {
+            "cuenta": {
+              "pasos": [
+                "me_imagenes",
+                "me_evito",
+                "me_sobresalto"
+              ],
+              "gte": 3
+            },
+            "min": 2
+          },
+          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No estás loco/a ni débil. Hablar con un psicólogo ayuda mucho con esto.",
+          "opciones": [
+            {
+              "id": "como",
+              "label": "Quiero saber cómo"
+            },
+            {
+              "id": "no",
+              "label": "Ahora no"
+            }
+          ]
+        },
+        {
+          "id": "me_como",
+          "tipo": "mensaje",
+          "si": {
+            "paso": "me_psicologo",
+            "en": [
+              "como"
+            ]
+          },
+          "texto": [
+            "Puedes buscar a {orientador} en {lugar}, {horario}.",
+            "También la Línea de la Vida, 800 911 2000, te orienta gratis y sin pedir tu nombre."
+          ]
+        }
+      ]
+    },
+    "F": {
+      "id": "F",
+      "nombre": "Módulo F — Para sentirme mejor (V15)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mf_intro",
+          "tipo": "mensaje",
+          "texto": "Todos buscamos formas de sentirnos mejor. Esta pregunta es solo sobre ti y nadie va a saber tu respuesta."
+        },
+        {
+          "id": "mf_consumo",
+          "tipo": "opcion",
+          "variable": "V15",
+          "item": "V15.frecuencia",
+          "texto": "Cuando te sientes mal, ¿qué tan seguido usas alcohol, vape u otra sustancia para sentirte mejor?",
+          "opciones": [
+            {
+              "id": "nunca",
+              "label": "Nunca",
+              "valor": 0
+            },
+            {
+              "id": "casi_nunca",
+              "label": "Casi nunca",
+              "valor": 1
+            },
+            {
+              "id": "a_veces",
+              "label": "A veces",
+              "valor": 2
+            },
+            {
+              "id": "seguido",
+              "label": "Seguido",
+              "valor": 3
+            },
+            {
+              "id": "casi_siempre",
+              "label": "Casi siempre",
+              "valor": 4
+            },
+            {
+              "id": "nd",
+              "label": "Prefiero no decir"
+            }
+          ]
+        },
+        {
+          "id": "mf_motivo",
+          "tipo": "multiple",
+          "variable": "V15",
+          "item": "V15.motivo",
+          "si": {
+            "paso": "mf_consumo",
+            "gte": 2
+          },
+          "texto": "¿Y eso te ayuda a…?",
+          "opciones": [
+            {
+              "id": "relajarme",
+              "label": "Relajarme"
+            },
+            {
+              "id": "olvidar",
+              "label": "Olvidar"
+            },
+            {
+              "id": "encajar",
+              "label": "Encajar con otros"
+            },
+            {
+              "id": "dormir",
+              "label": "Dormir"
+            },
+            {
+              "id": "otro",
+              "label": "Otro"
+            }
+          ]
+        },
+        {
+          "id": "mf_gracias",
+          "tipo": "mensaje",
+          "texto": "Gracias por tu honestidad. No te voy a juzgar. Si algún día quieres orientación, la Línea de la Vida también atiende esto, gratis y sin dar tu nombre."
+        }
+      ]
+    },
+    "G": {
+      "id": "G",
+      "nombre": "Módulo G — Lo que veo en redes (V16)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mg_contenido",
+          "tipo": "opcion",
+          "escala": "E5",
+          "variable": "V16",
+          "item": "V16.consumo",
+          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o música sobre armas, dinero fácil o grupos criminales?"
+        },
+        {
+          "id": "mg_sientes",
+          "tipo": "multiple",
+          "variable": "V16",
+          "item": "V16.impacto",
+          "si": {
+            "paso": "mg_contenido",
+            "gte": 1
+          },
+          "texto": "Cuando ves eso, ¿cómo te sientes? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "emocionado",
+              "label": "Emocionado/a"
+            },
+            {
+              "id": "igual",
+              "label": "Me da igual"
+            },
+            {
+              "id": "incomodo",
+              "label": "Incómodo/a"
+            },
+            {
+              "id": "miedo",
+              "label": "Con miedo"
+            },
+            {
+              "id": "triste",
+              "label": "Triste"
+            }
+          ]
+        },
+        {
+          "id": "mg_bien",
+          "tipo": "abierta",
+          "variable": "V16",
+          "item": "V16.contenido_positivo",
+          "texto": "¿Qué tipo de contenido te hace sentir bien?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "H": {
+      "id": "H",
+      "nombre": "Módulo H — A quién admiro (V17 y V8)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mh_admiras",
+          "tipo": "opcion",
+          "variable": "V17",
+          "item": "V17.modelo",
+          "texto": "¿A quién admiras?",
+          "opciones": [
+            {
+              "id": "familia",
+              "label": "Alguien de mi familia"
+            },
+            {
+              "id": "amigo",
+              "label": "Un amigo/a"
+            },
+            {
+              "id": "maestro",
+              "label": "Un maestro/a"
+            },
+            {
+              "id": "deportista",
+              "label": "Deportista o artista"
+            },
+            {
+              "id": "influencer",
+              "label": "Influencer"
+            },
+            {
+              "id": "nadie",
+              "label": "Nadie"
+            },
+            {
+              "id": "otro",
+              "label": "Otro"
+            }
+          ]
+        },
+        {
+          "id": "mh_que",
+          "tipo": "abierta",
+          "variable": "V17",
+          "item": "V17.razon",
+          "si": {
+            "no": {
+              "paso": "mh_admiras",
+              "en": [
+                "nadie"
+              ]
+            }
+          },
+          "texto": "¿Qué es lo que admiras de esa persona? Sin nombres.",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "mh_ser",
+          "tipo": "abierta",
+          "variable": "V8",
+          "item": "V8.aspiracion",
+          "texto": "Si pudieras ser lo que quisieras en 10 años, sin que nada te detuviera, ¿qué serías?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "mh_posible",
+          "tipo": "opcion",
+          "variable": "V8",
+          "item": "V8.expectativa",
+          "texto": "¿Qué tan posible crees que es?",
+          "opciones": [
+            {
+              "id": "muy",
+              "label": "Muy posible",
+              "valor": 3
+            },
+            {
+              "id": "algo",
+              "label": "Algo posible",
+              "valor": 2
+            },
+            {
+              "id": "imposible",
+              "label": "Casi imposible",
+              "valor": 0
+            },
+            {
+              "id": "nose",
+              "label": "No sé"
+            }
+          ]
+        },
+        {
+          "id": "mh_paso",
+          "tipo": "abierta",
+          "variable": "V8",
+          "item": "V8.primer_paso",
+          "si": {
+            "paso": "mh_posible",
+            "en": [
+              "imposible"
+            ]
+          },
+          "texto": "Entiendo que desde aquí se vea lejos. Mucha gente empezó en lugares difíciles. ¿Qué sería un primer pasito?",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "I": {
+      "id": "I",
+      "nombre": "Módulo I — Pedir ayuda (V19)",
+      "clase": "modulo",
+      "pasos": [
+        {
+          "id": "mi_acudir",
+          "tipo": "multiple",
+          "variable": "V19",
+          "item": "V19.confianza",
+          "texto": "Si necesitaras ayuda con algo serio, ¿a quién acudirías? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "familia",
+              "label": "Familia"
+            },
+            {
+              "id": "amigos",
+              "label": "Amigos"
+            },
+            {
+              "id": "escuela",
+              "label": "Alguien de la escuela"
+            },
+            {
+              "id": "salud",
+              "label": "Centro de salud"
+            },
+            {
+              "id": "iglesia",
+              "label": "Iglesia"
+            },
+            {
+              "id": "policia",
+              "label": "Policía"
+            },
+            {
+              "id": "nadie",
+              "label": "Nadie"
+            }
+          ]
+        },
+        {
+          "id": "mi_impide",
+          "tipo": "multiple",
+          "variable": "V19",
+          "item": "V19.barreras",
+          "texto": "¿Qué te impediría pedir ayuda? Puedes elegir varias.",
+          "opciones": [
+            {
+              "id": "miedo",
+              "label": "Miedo"
+            },
+            {
+              "id": "verguenza",
+              "label": "Vergüenza"
+            },
+            {
+              "id": "no_sirve",
+              "label": "Siento que no sirve"
+            },
+            {
+              "id": "ubicar",
+              "label": "Me pueden ubicar"
+            },
+            {
+              "id": "no_se",
+              "label": "No sé a dónde ir"
+            },
+            {
+              "id": "otro",
+              "label": "Otro"
+            }
+          ],
+          "reacciones": [
+            {
+              "si": {
+                "incluye": [
+                  "miedo",
+                  "ubicar"
+                ]
+              },
+              "texto": "Es un miedo muy entendible. Por eso existen líneas donde no te piden tu nombre. Al final te las comparto."
+            }
+          ]
+        }
+      ]
+    },
+    "libre": {
+      "id": "libre",
+      "nombre": "Fase 7 — Espacio libre",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "li_libre",
+          "tipo": "abierta",
+          "variable": "libre",
+          "item": "libre.espacio",
+          "texto": "¿Hay algo de cómo te sientes que quieras decirme y no te pregunté? Recuerda: sin nombres ni lugares.",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        },
+        {
+          "id": "li_cierre",
+          "tipo": "abierta",
+          "variable": "libre",
+          "item": "libre.pregunta_cierre",
+          "texto": "{preguntaCierre}",
+          "rapidas": [
+            {
+              "id": "prefiero",
+              "label": "Prefiero no escribir"
+            }
+          ]
+        }
+      ]
+    },
+    "cierre": {
+      "id": "cierre",
+      "nombre": "Fase 8 — Cierre emocional",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "ci_termometro",
+          "tipo": "opcion",
+          "escala": "T10",
+          "variable": "V21",
+          "item": "V21.final",
+          "si": {
+            "paso": "en_termometro",
+            "respondido": true
+          },
+          "texto": "Antes de despedirnos, vuelve a pensar en la emoción del inicio. Del 1 al 10, ¿qué tan fuerte está ahora?"
+        },
+        {
+          "id": "ci_ahora",
+          "tipo": "opcion",
+          "variable": "cierre",
+          "item": "cierre.como",
+          "texto": "¿Cómo te sientes ahora, después de platicar?",
+          "opciones": [
+            {
+              "id": "mejor",
+              "label": "Mejor"
+            },
+            {
+              "id": "igual",
+              "label": "Igual"
+            },
+            {
+              "id": "peor",
+              "label": "Peor"
+            },
+            {
+              "id": "nose",
+              "label": "No sé"
+            }
+          ]
+        },
+        {
+          "id": "ci_peor",
+          "tipo": "opcion",
+          "si": {
+            "paso": "ci_ahora",
+            "en": [
+              "peor"
+            ]
+          },
+          "texto": "Gracias por decírmelo. A veces hablar mueve cosas. ¿Quieres hacer un ejercicio para calmarte o ver a quién puedes llamar?",
+          "opciones": [
+            {
+              "id": "ejercicio",
+              "label": "Ejercicio"
+            },
+            {
+              "id": "lineas",
+              "label": "Líneas de ayuda"
+            },
+            {
+              "id": "bien",
+              "label": "Estoy bien así"
+            }
+          ]
+        },
+        {
+          "id": "ci_peor_ej",
+          "tipo": "ejercicio",
+          "ejercicio": "respiracion",
+          "si": {
+            "paso": "ci_peor",
+            "en": [
+              "ejercicio"
+            ]
+          }
+        },
+        {
+          "id": "ci_amarillo",
+          "tipo": "mensaje",
+          "si": {
+            "amarillo": true
+          },
+          "texto": [
+            "Gracias por todo lo que me contaste. Lo que sientes merece atención.",
+            "Si quieres que alguien te escuche en persona, puedes buscar a {orientador} en {lugar}, {horario}."
+          ]
+        },
+        {
+          "id": "ci_amarillo_ej",
+          "tipo": "opcion",
+          "si": {
+            "todos": [
+              {
+                "amarillo": true
+              },
+              {
+                "no": {
+                  "paso": "ci_peor",
+                  "en": [
+                    "ejercicio"
+                  ]
+                }
+              }
+            ]
+          },
+          "texto": "¿Quieres hacer un ejercicio de un minuto antes de irte?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No, gracias"
+            }
+          ]
+        },
+        {
+          "id": "ci_amarillo_ej2",
+          "tipo": "ejercicio",
+          "ejercicio": "@emocion",
+          "si": {
+            "paso": "ci_amarillo_ej",
+            "en": [
+              "si"
+            ]
+          }
+        },
+        {
+          "id": "ci_gracias",
+          "tipo": "mensaje",
+          "texto": "Gracias por platicar conmigo. Lo que sientes es válido y no estás solo/a. Si en algún momento necesitas hablar con una persona, aquí tienes opciones:"
+        },
+        {
+          "id": "ci_directorio",
+          "tipo": "directorio"
+        },
+        {
+          "id": "ci_adios",
+          "tipo": "mensaje",
+          "texto": "Puedes volver cuando quieras."
+        }
+      ]
+    },
+    "crisis": {
+      "id": "crisis",
+      "nombre": "Protocolo rojo — mensaje de crisis",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "cr_1",
+          "tipo": "mensaje",
+          "estilo": "crisis",
+          "texto": "Lo que me cuentas es muy importante y me preocupa que estés pasando por esto. Mereces apoyo de una persona ahora."
+        },
+        {
+          "id": "cr_2",
+          "tipo": "mensaje",
+          "estilo": "crisis",
+          "texto": "Puedes llamar gratis las 24 horas a la Línea de la Vida: 800 911 2000. Si estás en peligro inmediato, marca al 911. También puedes buscar a {orientador} en {lugar}, {horario}."
+        },
+        {
+          "id": "cr_ejercicio",
+          "tipo": "opcion",
+          "texto": "¿Quieres que te muestre un ejercicio para calmarte mientras tanto?",
+          "opciones": [
+            {
+              "id": "si",
+              "label": "Sí"
+            },
+            {
+              "id": "no",
+              "label": "No, gracias"
+            }
+          ]
+        },
+        {
+          "id": "cr_ejercicio_ej",
+          "tipo": "ejercicio",
+          "ejercicio": "respiracion",
+          "si": {
+            "paso": "cr_ejercicio",
+            "en": [
+              "si"
+            ]
+          }
+        },
+        {
+          "id": "cr_directorio",
+          "tipo": "directorio",
+          "excluir": [
+            "denuncia"
+          ]
+        },
+        {
+          "id": "cr_adios",
+          "tipo": "mensaje",
+          "texto": "Aquí voy a estar cuando quieras volver."
+        }
+      ]
+    },
+    "salida": {
+      "id": "salida",
+      "nombre": "Salida anticipada",
+      "clase": "fijo",
+      "pasos": [
+        {
+          "id": "sa_gracias",
+          "tipo": "mensaje",
+          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes es válido y no estás solo/a."
+        },
+        {
+          "id": "sa_directorio",
+          "tipo": "directorio"
+        },
+        {
+          "id": "sa_adios",
+          "tipo": "mensaje",
+          "texto": "Puedes volver cuando quieras."
+        }
+      ]
+    }
+  }
+}
