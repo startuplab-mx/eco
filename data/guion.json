@@ -2703,8 +2703,7 @@
   "desvios": {
     "redirigir": [
       "No te entendí. Te repito la pregunta:",
-      "Aquí platicamos de cómo estás tú. Te repito la pregunta:",
-      "Va. Para seguir, necesito tu respuesta a esto:"
+      "Perdón, no te entendí. ¿Me respondes esto?"
     ],
     "groseria": [
       "Se vale estar de malas. Cuando quieras, seguimos con esto:",
@@ -2726,6 +2725,10 @@
     ],
     "orientacion": [
       "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
+    ],
+    "fueraDeTema": [
+      "Aquí platicamos de cómo estás tú. Te repito la pregunta:",
+      "Eso no lo puedo responder aquí. Sigamos con esto:"
     ]
   },
   "alarmaRevisar": [

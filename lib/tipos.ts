@@ -111,7 +111,7 @@ export interface Guion {
   preguntasCierre: string[];
   /** Textos fijos para respuestas desviadas (revisables por el equipo psicológico). */
   desvios: {
-    redirigir: string[]; groseria: string[]; saltarNoQuiere: string[]; saltarInsiste: string[];
+    redirigir: string[]; fueraDeTema?: string[]; groseria: string[]; saltarNoQuiere: string[]; saltarInsiste: string[];
     otroDia: string; seQuiereIr: string; privacidad: string[]; orientacion: string[];
   };
   /** Frases que activan la crisis siempre. */

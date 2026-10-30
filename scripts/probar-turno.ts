@@ -308,7 +308,10 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, e, { texto: "tengo 9" }, iaFuera, []);
   ok(r.estado.respuestas["da_edad"]?.valor === "menor_12", "«tengo 9» → menor de 12");
   r = await turno(g, inst, e, { texto: "y tú qué" }, iaFuera, []);
-  ok(textos(r.salida).length === 2 && textos(r.salida)[1] === "¿Cuántos años tienes?", "la redirección va seguida de «¿Cuántos años tienes?»");
+  ok(textos(r.salida).length === 2 && textos(r.salida)[0] === g.desvios.fueraDeTema![0] && textos(r.salida)[1] === "¿Cuántos años tienes?", "fuera de tema: «Aquí platicamos…» y la pregunta");
+  const iaPriv: ServicioIA = { interpretar: async () => ({ tipo: "privacidad", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  r = await turno(g, inst, e, { texto: "¿quién lee esto?" }, iaPriv, []);
+  ok(textos(r.salida).at(-1) === "¿Cuántos años tienes?", "tras explicar la privacidad, repite la pregunta");
   e = hasta("v5_lealtad");
   r = await turno(g, inst, e, { texto: "asdf" }, null, []);
   ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");

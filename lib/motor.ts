@@ -461,12 +461,13 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
   };
   /** La redirección siempre va seguida de la pregunta, en su propia burbuja: nunca "¿me ayudas con esta?" a secas. */
   const repetirPregunta = () => {
+    if (p.tipo === "ejercicio") {
+      emitirTextos(g, inst, estado, p, salida);
+      salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, p.ejercicio ?? "respiracion") });
+      return;
+    }
     const q = preguntaCorta(g, inst, estado, p);
     if (q) salida.push({ tipo: "eco", texto: q });
-  };
-  const repreguntar = () => {
-    emitirTextos(g, inst, estado, p, salida);
-    if (p.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, p.ejercicio ?? "respiracion") });
   };
 
   switch (tipo) {
@@ -487,15 +488,15 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
       return { estado, salida, desvio: true };
     case "privacidad":
       D.privacidad.forEach((texto) => salida.push({ tipo: "eco", texto }));
-      repreguntar();
+      repetirPregunta();
       return { estado, salida, desvio: true };
     case "pide_orientacion":
       D.orientacion.forEach((texto) => salida.push({ tipo: "eco", texto }));
       salida.push({ tipo: "directorio", excluir: ["denuncia"] });
-      repreguntar();
+      repetirPregunta();
       return { estado, salida, desvio: true };
     default: {
-      const texto = variante(tipo === "groseria" ? D.groseria : D.redirigir);
+      const texto = variante(tipo === "groseria" ? D.groseria : tipo === "fuera_de_tema" && D.fueraDeTema?.length ? D.fueraDeTema : D.redirigir);
       estado.desvios++;
       estado.desviosTotal++;
       const enPaso = (estado.desviosPaso[p.id] = (estado.desviosPaso[p.id] ?? 0) + 1);
