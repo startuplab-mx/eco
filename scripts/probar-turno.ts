@@ -299,6 +299,23 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
     ok(r.estado.respuestas["bi_consentimiento"]?.valor === v, `consentimiento «${t}» → ${v}`);
   }
 
+  // Redacción: la redirección siempre repite la pregunta completa, en su propia burbuja.
+  const iaFuera: ServicioIA = { interpretar: async () => ({ tipo: "fuera_de_tema", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  e = hasta("da_edad");
+  r = await turno(g, inst, e, { texto: "51" }, iaFuera, []);
+  ok(r.estado.respuestas["da_edad"]?.valor === "mayor_18" && textos(r.salida)[0].startsWith("Eco está pensado para jóvenes de 12 a 18"), "«51»: se registra el rango y se avisa, aunque el modelo diga fuera de tema");
+  ok(resumen(g, inst, r.estado).fueraDeEdad === true, "edad fuera de rango: no se suma a la escuela");
+  r = await turno(g, inst, e, { texto: "tengo 9" }, iaFuera, []);
+  ok(r.estado.respuestas["da_edad"]?.valor === "menor_12", "«tengo 9» → menor de 12");
+  r = await turno(g, inst, e, { texto: "y tú qué" }, iaFuera, []);
+  ok(textos(r.salida).length === 2 && textos(r.salida)[1] === "¿Cuántos años tienes?", "la redirección va seguida de «¿Cuántos años tienes?»");
+  e = hasta("v5_lealtad");
+  r = await turno(g, inst, e, { texto: "asdf" }, null, []);
+  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
+  c = arrancar(g, inst, crearEstado()).estado;
+  r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
+  ok(textos(r.salida)[1] === "¿Quieres seguir?", "en el consentimiento también se repite la pregunta");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

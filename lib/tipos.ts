@@ -61,6 +61,10 @@ export interface Paso {
   invertido?: boolean;
   placeholder?: string;
   /** En "numero": rangos en los que se guarda el número (el número exacto no se guarda). */
+  /** Mensaje si el número cae en un rango fuera de la población (p. ej. edad menor de 12 o mayor de 18). */
+  avisoRango?: Record<string, string>;
+  /** Versión completa de la pregunta para repetirla sola cuando la original depende de la oración anterior. */
+  repetir?: string;
   rangos?: { id: string; min: number; max: number }[];
   /** En preguntas abiertas: botones rápidos además del texto libre. */
   rapidas?: Opcion[];

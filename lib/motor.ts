@@ -429,6 +429,23 @@ function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
 }
 
 /** Escalera de desvíos: redirige una vez, salta en la segunda, ofrece "otro día" en la tercera de la sesión. */
+/**
+ * La pregunta del paso, sola y completa, para repetirla en su propia burbuja después de una redirección.
+ * Toma la última oración con "?" y quita un arranque corto ("Para empezar, ¿cuántos…?" → "¿Cuántos…?").
+ */
+export function preguntaCorta(g: Guion, inst: Instancia, estado: Estado, p: Paso): string | null {
+  if (p.repetir) return resolverTexto(g, inst, estado, p.repetir);
+  if (!p.texto) return null;
+  const textos = (Array.isArray(p.texto) ? p.texto : [p.texto]).map((t) => resolverTexto(g, inst, estado, t)).filter(Boolean) as string[];
+  const oraciones = textos.flatMap((t) => t.split(/(?<=[.?!])\s+(?=[¿A-ZÁÉÍÓÚÑ"])/));
+  const conPregunta = oraciones.filter((o) => o.includes("?"));
+  let q = (conPregunta[conPregunta.length - 1] ?? textos[textos.length - 1] ?? "").trim();
+  // Sólo se quitan arranques que no aportan ("Para empezar, ¿cuántos…?"); "Del 1 al 10, ¿qué tan…?" se queda entero.
+  const arranque = q.match(/^(para empezar|ahora|y|va|bueno),?\s+(?=¿)/i);
+  if (arranque) q = "¿" + q.charAt(arranque[0].length + 1).toUpperCase() + q.slice(arranque[0].length + 2);
+  return q || null;
+}
+
 function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNullable<Entrada["desvio"]>, salida: Salida[]): Resultado {
   const p = estado.esperando!.paso;
   const D = g.desvios;
@@ -441,6 +458,11 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
     estado.indice++;
     avanzar(g, inst, estado, salida);
     return { estado, salida, desvio: true };
+  };
+  /** La redirección siempre va seguida de la pregunta, en su propia burbuja: nunca "¿me ayudas con esta?" a secas. */
+  const repetirPregunta = () => {
+    const q = preguntaCorta(g, inst, estado, p);
+    if (q) salida.push({ tipo: "eco", texto: q });
   };
   const repreguntar = () => {
     emitirTextos(g, inst, estado, p, salida);
@@ -456,6 +478,7 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
       // El consentimiento nunca se salta: se vuelve a preguntar.
       if (p.noSaltar) {
         salida.push({ tipo: "eco", texto: variante(D.redirigir) });
+        repetirPregunta();
         return { estado, salida, desvio: true };
       }
       return saltar(variante(D.saltarInsiste));
@@ -482,6 +505,7 @@ function manejarDesvio(g: Guion, inst: Instancia, estado: Estado, tipo: NonNulla
       }
       if (enPaso >= 2 && !p.noSaltar) return saltar(variante(D.saltarInsiste));
       salida.push({ tipo: "eco", texto });
+      repetirPregunta();
       return { estado, salida, desvio: true };
     }
   }
@@ -625,7 +649,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const n = leerNumero(texto);
       const rango = n === null ? undefined : p.rangos?.find((r) => n >= r.min && n <= r.max);
       // Sólo se guarda el rango; el número exacto no sale de aquí.
-      if (rango) respuesta = { valor: rango.id };
+      if (rango) {
+        respuesta = { valor: rango.id };
+        const aviso = p.avisoRango?.[rango.id];
+        if (aviso) salida.push({ tipo: "eco", texto: aviso });
+      }
       else if (desvioPorReglas(texto)) return manejarDesvio(g, inst, estado, desvioPorReglas(texto)!, salida);
       else {
         salida.push({ tipo: "eco", texto: "¿Me lo escribes con número? Por ejemplo: 15." });

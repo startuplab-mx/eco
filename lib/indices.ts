@@ -84,6 +84,8 @@ export interface ResumenSesion {
   /** Respuestas desviadas (sin sentido, groserías, fuera de tema) y preguntas saltadas. */
   /** Si aceptó participar. Sin consentimiento, el equipo no debe usar el resto del resumen. */
   consintio: boolean;
+  /** Edad fuera de 12–18: la sesión no se suma a los indicadores de la escuela. */
+  fueraDeEdad: boolean;
   desvios: number;
   omitidas: number;
   /** Sesión a revisar antes de incluirla en el análisis (3 o más desvíos). */
@@ -137,6 +139,7 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     ultimoBloque: estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
     consintio:
       estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si",
+    fueraDeEdad: ["menor_12", "mayor_18"].includes(String(estado.respuestas["da_edad"]?.valor)),
     desvios: estado.desviosTotal,
     omitidas: estado.omitidas.length,
     revisarCalidad: estado.desviosTotal >= 3,
