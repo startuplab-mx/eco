@@ -11,7 +11,7 @@ import { turno } from "@/lib/turno";
 import { cobertura } from "@/lib/catalogo";
 import { resumen } from "@/lib/indices";
 import { conversar } from "./conversar";
-import { MODELO_RAPIDO, pedirJSON } from "@/lib/ia-servidor";
+import { MODELO_RAPIDO, interpretar, pedirJSON, redactar } from "@/lib/ia-servidor";
 
 const g = guionJson as unknown as Guion;
 const inst = instJson as Instancia;
@@ -72,7 +72,8 @@ export async function simularIA(clave: string, limiteSegundos = 270) {
   const per = PERSONAS_IA[clave];
   if (!per) return { error: `persona desconocida; usa una de: ${Object.keys(PERSONAS_IA).join(", ")}` };
   const t0 = Date.now();
-  const ia: ServicioIA = { interpretar: async () => null, redactar: async () => null, conversar: (p) => conversar(p).catch(() => null) };
+  // Igual que en producción: la plática con IA y, en las partes del guion (módulo, cierre), la lectura y los puentes.
+  const ia: ServicioIA = { interpretar: (p) => interpretar(p).catch(() => null), redactar: (p) => redactar(p).catch(() => null), conversar: (p) => conversar(p).catch(() => null) };
   let { estado, salida } = arrancar(g, inst, crearEstado(Math.random, new Date(), 3, true));
   const lineas = ecoDice(salida);
   const datos: Record<string, Entrada> = {

@@ -288,6 +288,30 @@ export async function GET(req: Request) {
     });
     return Response.json({ iniciado: id });
   }
+  if (p === "leer") {
+    // Frases reales de las simulaciones: ¿el vigilante registra la pregunta que contestaba?
+    const { probarLectura } = await import("@/lib/servidor/conversar");
+    const casos = [
+      { item: "v2_alerta", texto: "pues casi siempre, sobre todo de noche cuando escucho balazos" },
+      { item: "v3_triste", texto: "pues seguido jaja, sobre todo cuando pienso en mi apa. no tengo ganas de nada, ni de salir ni de jugar" },
+      { item: "v2_miedo", texto: "pues seguido, sobre todo cuando salgo. siento que en cualquier momento pasa algo" },
+      { item: "v1_escuela", texto: "pues a veces, no siempre. depende del día" },
+      { item: "v1_colonia", texto: "pues en mi colonia se oye de todo, balazos en la noche casi siempre, y la gente ya ni se espanta mucho" },
+      { item: "v1_enterado", texto: "si, un vato de la cuadra que conozco lo mataron el mes pasado. todavia no se me quita" },
+      { item: "v5_culpa", texto: "pues casi siempre jaja no se, me siento mal con todo lo que no digo" },
+      { item: "v5_lealtad", texto: "no se la verdad, a veces siento que no puedo decir nada aunque quiera" },
+      { item: "v6_normal", texto: "pues en mi colonia como que es normal, todos se gritan y se pelean y nadie hace nada jaja" },
+      { item: "v6_dinero", texto: "pues depende, si es para ayudar a mi mama con la renta sí creo que vale la pena jaja no se" },
+      { item: "v7_libertad", texto: "pues no se, a veces si, a veces no jaja. depende quien sea y que quiera" },
+      { item: "v8_cinco", texto: "pues no se la verdad. solo se que no quiero estar asi de cansado siempre" },
+      { item: "v9_adulto", texto: "no tengo a nadie la verdad, mi jefa siempre anda de malas y mi apa casi no está. la neta solo le platico a mi amiga cuando me siento así" },
+      { item: "v3_desesperanza", texto: "pues la verdad no se ni como estoy jaja. bien supongo? pero no duermo" },
+      { item: "en_tiempo", texto: "desde que se fue mi papa, como hace un mes" },
+      { item: "v4_enojo", texto: "uff seguido, me pongo bien loco cuando mi hermano me esconde mis cosas" },
+    ];
+    const r = await probarLectura(casos);
+    return Response.json({ registradas: r.filter((x) => x.registrada).length, total: r.length, resultados: r });
+  }
   if (p === "desvios") {
     const q = new URL(req.url).searchParams;
     const propios = q.get("t") ? q.get("t")!.split("|").slice(0, 12) : null;

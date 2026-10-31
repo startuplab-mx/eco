@@ -236,3 +236,89 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Si el mensaje de la IA trae una muletilla o le falta la pregunta, el código lo repara (quita esa oración o agrega la pregunta del guion) en lugar de tirarlo; el respaldo del guion se usa sólo si la reparación tampoco pasa.
 - Muletillas con el orden cambiado: "cabe aquí", "todo cabe", "es totalmente válido".
 - Al retomar después de "¿Seguimos o lo dejamos para otro día?" (o de una pausa), Eco dice "Va, seguimos." y sólo la pregunta, en una burbuja; ya no repite el mensaje anterior completo.
+
+## Mensajes más cortos, directos y cálidos (31 oct 2026)
+
+**La IA**: máximo 2 oraciones y unas 25 palabras; la pregunta, máximo 15 palabras. Sin frases para cambiar de tema ("Cambiando un poquito", "Ahora, pensando en…", "Ya platicamos de varias cosas", "Hay un tema que me quedó pendiente") ni frases de terapeuta ("eso debe ser muy difícil", "es normal sentirse así"). Si un mensaje se pasa, el código lo recorta: quita esas frases y deja sólo una oración antes de la pregunta.
+
+**El guion** (lo que la IA toma de referencia y lo que sale tal cual en el respaldo, la ronda rápida y el cierre):
+
+| Paso | Antes | Ahora |
+|---|---|---|
+| bi_hola | ¡Hola! Soy Eco, un espacio para platicar cómo te sientes. No te voy a pedir tu nombre ni nada que diga quién eres. Tampoco necesito saber de personas, lugares o cosas que hayan pasado: me interesa cómo estás tú. | ¡Hola! Soy Eco. Aquí puedes platicar cómo te sientes. No te voy a pedir tu nombre ni nada que diga quién eres: lo que me importa es cómo estás tú. |
+| bi_consentimiento | Lo que platiquemos lo revisa un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Solo si me cuentas que estás en peligro te voy a dar teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir? | Lo que platiquemos lo ve un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Si me cuentas que estás en peligro, te doy teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir? |
+| en_emociones | Ahora quiero saber cómo estás tú. ¿Cómo te sientes hoy? Escríbelo con tus palabras o elige una o varias. | ¿Cómo te sientes hoy? Escríbelo como quieras o elige una o varias. |
+| en_respirar | Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos? | Eso está muy fuerte. Cuando una emoción está así, el corazón se acelera y cuesta pensar. ¿Respiramos un minuto? Inhalas contando 4, aguantas 4 y sueltas el aire contando 6. Ayuda a que el cuerpo se calme. |
+| en_cuerpo | Lo que sentimos también se nota en el cuerpo. ¿En qué parte lo sientes? | ¿En qué parte del cuerpo lo sientes? |
+| en_ambito | ¿Hay algo que te haga sentir así? Puede ser un lugar, alguien o algo que pasa. No tienes que contar qué pasó. | ¿Qué crees que te hace sentir así? No tienes que contar qué pasó. |
+| en_puente | Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas sobre lo que vives. Si alguna no quieres contestarla, solo dímelo. | Gracias por contarme. Ahora unas preguntas sobre lo que vives. Si alguna no quieres contestarla, solo dime. |
+| v1_enterado | ¿Te has enterado de que le pasó algo grave a alguien que conoces? No necesito saber qué. | ¿Le ha pasado algo grave a alguien que conoces? No tienes que decirme qué. |
+| v2_dormir | ¿Qué tan seguido te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor? | ¿Qué tan seguido te cuesta dormir por pensar en lo que pasa a tu alrededor? |
+| v4_enojo (reacción) | El enojo así de fuerte también cansa. Es válido sentirlo. | El enojo así de fuerte también cansa. Tiene sentido sentirlo. |
+| v5_lealtad (reacción) | Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa. | Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es. |
+| mb_intro | Ahora sobre tu casa. No necesito saber quién vive ahí ni a qué se dedican; solo cómo te sientes tú. | Ahora sobre tu casa. Solo me importa cómo te sientes tú ahí. |
+| mb_tension (reacción) | Vivir con esa tensión puede ser agotador. Tiene sentido que a veces sientas cansancio o el estómago apretado. | Vivir con esa tensión cansa mucho. |
+| mc_entrar | El siguiente tema es sobre personas que has perdido o que ya no están contigo. Puede ser difícil. ¿Quieres seguir con este tema? | Ahora un tema que puede ser difícil: personas que perdiste o que ya no están contigo. ¿Quieres hablar de eso? |
+| mc_decir | A veces ayuda decir lo que no pudimos decir. Si quisieras decirle algo a esa persona, ¿qué le dirías? Recuerda, sin nombres. | Si pudieras decirle algo a esa persona, ¿qué le dirías? Sin nombres. |
+| md_valiosa (reacción) | Me da pena que te sientas así. Mucha gente con lo que vives se siente igual, y eso no define lo que vales. | Me da pena que te sientas así. Eso no define lo que vales. |
+| me_intro | A veces, después de vivir o ver algo que asusta, el cuerpo y la mente se quedan en alerta. Te pregunto por eso. | Cuando uno vive o ve algo que asusta, a veces el cuerpo se queda en alerta. Te pregunto por eso. |
+| me_imagenes | ¿Qué tan seguido te vienen a la mente imágenes o recuerdos feos sin que tú quieras? | ¿Qué tan seguido te llegan a la mente recuerdos feos sin que tú quieras? |
+| me_psicologo | Lo que cuentas le pasa a mucha gente después de vivir cosas fuertes. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho. ¿Quieres saber dónde buscar ese apoyo? | Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. ¿Quieres saber dónde buscar ese apoyo? |
+| mf_intro | Todas las personas buscamos formas de sentirnos mejor. Esta pregunta es solo sobre ti y nadie va a saber tu respuesta. | Todos buscamos formas de sentirnos mejor. Nadie va a saber lo que contestes. |
+| mg_contenido | Hablemos de redes. ¿Qué tan seguido ves videos o escuchas música que hablan de armas, dinero fácil o grupos criminales? | Sobre redes: ¿qué tan seguido ves videos o escuchas música de armas, dinero fácil o grupos criminales? |
+| mh_ser | Si pudieras ser lo que quisieras en 10 años, sin que nada te detuviera, ¿qué serías? | Si pudieras ser lo que quisieras de grande, ¿qué serías? |
+| mi_acudir | Si necesitaras ayuda con algo serio, ¿a quién acudirías? Puedes elegir varias. | Si te pasara algo serio, ¿a quién le pedirías ayuda? Puedes elegir varias. |
+| mi_impide (reacción) | Es un miedo muy entendible. Por eso existen líneas donde no te piden tu nombre. Al final te las comparto. | Se entiende ese miedo. Hay líneas donde no te piden tu nombre; al final te las paso. |
+| validación «vacío» | Esa sensación de vacío aparece cuando llevas mucho tiempo aguantando. Le pasa a más gente de la que crees. | Sentirse vacío le pasa a más gente de la que crees. |
+| intro emociones | Ahora quiero saber cómo te has sentido en las últimas dos semanas. No hay respuestas buenas ni malas. | Ahora piensa en estas últimas dos semanas. No hay respuestas buenas ni malas. |
+
+Las preguntas medidas que cambian (v1_enterado, v2_dormir, me_imagenes, mg_contenido, mi_acudir) sólo se acortan: preguntan lo mismo.
+
+## Plática por temas: las preguntas tal cual, con su intro (31 oct 2026)
+
+Meta: que el joven se sienta escuchado y pueda sacar lo que trae dentro, y que todos contesten las mismas preguntas.
+
+**Antes → ahora**
+
+| | Antes | Ahora |
+|---|---|---|
+| Quién escribe la pregunta | La IA la decía con sus palabras ("Cuando cuentas lo que pasa en tu colonia ¿qué tan seguido…?") | El sistema la muestra tal cual el guion, igual para todos |
+| Orden | La IA escogía el siguiente tema según el hilo | Siete temas en orden fijo; se termina un tema antes de pasar al otro |
+| Cambio de tema | Sin aviso (de la edad a "¿cuándo sientes miedo?") | Cada tema abre con una intro corta, una sola vez |
+| Qué hace la IA | Escribía puente + pregunta | Decide **escuchar** (se abrió o algo le pesa: retoma lo que dijo e invita a seguir contando, sin pregunta del cuestionario, máximo 2 turnos seguidos) o **seguir** (frase corta y cálida, sin preguntas, sin mencionar lugares, personas ni hechos) |
+| Dudas y desvíos | La IA contestaba y volvía a preguntar | Contesta o regresa con calma; la pregunta sigue en pantalla con sus botones, sin repetirla |
+| Respuesta que no se entiende | Aclaración sólo sin IA | Una sola aclaración ("No te entendí bien. ¿Cuál de estas se parece más?") y luego se salta |
+| Pide respirar | Dependía de que la IA lo ofreciera | Se le muestra la respiración en ese momento, en cualquier parte de la plática |
+| Después de los temas | Ronda rápida y cierre | ¿Seguimos?, un módulo (el que más tiene que ver con lo que contó), la pregunta libre y el cierre |
+
+**Temas e intros** (para revisión del equipo psicológico)
+
+| # | Tema | Intro | Preguntas |
+|---|---|---|---|
+| 1 | Cómo te sientes hoy | Listo. Ahora sí, platiquemos de ti. | emociones, termómetro, cuerpo, desde cuándo, qué crees que te hace sentir así |
+| 2 | Tu día a día | Ahora unas preguntas sobre cómo te sientes en tu colonia y en la escuela. No necesito saber qué pasa ahí, solo cómo estás tú. | V1 |
+| 3 | Cómo te afecta | A veces lo que vivimos se nos queda en el cuerpo y en la cabeza. Te pregunto cómo te afecta a ti. | V2 |
+| 4 | Por dentro | Ahora sobre cómo andas por dentro estas semanas. No hay respuestas buenas ni malas. | V3, V4, V5 |
+| 5 | Lo que piensas | Ahora unas preguntas sobre lo que piensas tú. No hay respuestas buenas ni malas, y nadie va a saber lo que contestes. | V6, V7 |
+| 6 | Tu futuro | Hablemos de lo que quieres para ti más adelante. | V8 (con "¿Me cuentas cómo te imaginas?" si dice que sí) |
+| 7 | Con quién cuentas | Por último, sobre con quién cuentas cuando algo se pone difícil. | V9 |
+
+Las intros 3 y 7 quedaron sin signo de pregunta para que no haya dos preguntas seguidas.
+
+**Después de los temas:** "Vas muy bien. ¿Seguimos con otro tema o prefieres terminar aquí?" (Seguimos / Un descanso / Terminar). Si sigue, un solo módulo, dentro de la misma plática (Eco escucha igual que en los temas): se elige primero por lo que cree que le hace sentir así (escuela → A, casa → B, alguien que extraña → C, algo que vio → E, redes → G, futuro → H) y luego por su emoción principal; si no hay pista, D (lo bueno de ti). Si el módulo es C (pérdidas), en lugar de esa pregunta va su propia entrada: "Ahora un tema que puede ser difícil… ¿Quieres hablar de eso?" (Sí, sigamos / Prefiero saltarlo). Después, la pregunta libre y el cierre.
+
+Textos nuevos para revisión:
+- Intros de módulo que no tenían: D "Ahora hablemos de lo bueno que hay en ti.", H "Ahora sobre lo que te inspira y lo que sueñas.", I "Ahora sobre pedir ayuda cuando la necesitas."
+- Al terminar E, si hay señales de estrés después de algo fuerte (la misma condición de antes): "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. Al final te dejo dónde buscar ese apoyo." (antes era una pregunta; el directorio del cierre ya lo muestra).
+- Al terminar F: el mismo texto de antes ("Gracias por contarme. Aquí nadie te juzga…").
+- Si pide respirar: "Va, respiremos un momento. Tómate tu tiempo; cuando termines, toca «Listo»."
+
+## Cómo se registran las respuestas escritas (31 oct 2026)
+
+| | Antes | Ahora |
+|---|---|---|
+| Qué registra el modelo | La pregunta en curso y otras que creía contestadas ("mi jefa anda de malas" → cariño en casa = Nunca) | Sólo la pregunta en curso; las demás se hacen cuando toca |
+| Opción escrita tal cual | El modelo podía cambiarla ("casi siempre" → Seguido) | Si escribe la opción con todas sus letras, se registra esa y el modelo no la cambia |
+| Sin frecuencia | El modelo la adivinaba ("no sé ni cómo estoy… no duermo" → A veces) | En las escalas, si no dice cuántas veces o qué tanto, no se registra |
+| Ya contestó y contó más | Eco le pedía que contara más | Eco reconoce lo que sintió en una frase y sigue |
+| No contestó la de botones | Se saltaba | Una sola vez: reconoce lo que dijo y "Para no equivocarme, ¿cuál de estas se parece más?" con los botones; si se abrió, Eco escucha |

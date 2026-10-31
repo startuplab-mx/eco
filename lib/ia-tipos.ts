@@ -67,21 +67,34 @@ export interface PedidoConversar {
   ejercicios: string[];
   /** Ejercicios ya ofrecidos (aceptados o no). */
   ofrecidos?: string[];
+  /** Las siguientes preguntas del guion, en orden, con la introducción del tema donde toca. Las pone el sistema tal cual. */
+  siguientes?: { id: string; texto: string; intro: string | null }[];
+  /** Puede quedarse escuchando en este turno (máximo 2 turnos seguidos). */
+  puedeEscuchar?: boolean;
+  /** La pregunta en curso todavía admite una aclaración ("¿Cuál de estas se parece más?"). */
+  puedeAclarar?: boolean;
 }
+
+/**
+ * Qué hace Eco en este turno:
+ * - seguir: frase puente (puede ir vacía) y luego el sistema pone la intro del tema y la siguiente pregunta, tal cual;
+ * - escuchar: sólo escucha e invita a seguir contando; no hay pregunta medida;
+ * - responder: contesta una duda o redirige; la pregunta en curso sigue en pantalla con sus botones;
+ * - aclarar: no se entendió la respuesta a una pregunta de botones; se pide una sola vez que elija.
+ */
+export type ModoTurno = "seguir" | "escuchar" | "responder" | "aclarar";
 
 export interface RespuestaConversar {
   riesgo: boolean;
   tipo: TipoRespuesta;
   /** Respuestas que se desprenden de lo que escribió. */
   respuestas: { id: string; valor: string[] }[];
-  /** Lo que dice Eco (null en crisis). */
+  /** Lo que dice Eco antes de lo que pone el sistema (null en crisis; "" si no hace falta decir nada). */
   mensaje: string | null;
-  /** Pregunta medida que hace en este mensaje (sus opciones se muestran como etiquetas). */
-  item: string | null;
+  modo: ModoTurno;
   ejercicio: string | null;
   /** Ejercicio que se ofrece: el sistema agrega qué es, para qué sirve y los botones Sí / Ahora no. */
   ofrecer?: string | null;
-  terminar: boolean;
   /** El mensaje lo escribió el guion porque la IA no dio uno válido. */
   respaldo?: boolean;
   /** En este mensaje se ofreció la respiración por termómetro alto. */
@@ -182,8 +195,11 @@ const PREGUNTA_DETALLE = new RegExp(
   "i",
 );
 
+/** Más adjetivos con género que se le escapan al modelo ("gracias por ser honesto", "no tienes que cargarlo solo"). */
+const GENERO_ECO = /\b(ser|tan|muy)\s+(honest|sincer|valient[e]?|abiert|cuidados)[oa]s?\b|\b(cargarlo|cargarla|cargar con (esto|eso|todo)|enfrentarlo|pasarlo|vivirlo|estar|est[aá]s|te quedes|quedarte)\s+sol[oa]\b/i;
+
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /eso debe (ser|estar) (muy |bien )?(dif[ií]cil|duro)|es (muy |totalmente )?normal sentir|te valido|valido (lo que|tu)|aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en| cu[aá]nto|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
@@ -194,6 +210,33 @@ export function abrirPreguntas(texto: string): string {
 }
 
 /** Devuelve el motivo si el mensaje no se puede mostrar, o null si está bien. */
+/** Frases para cambiar de tema que alargan sin decir nada ("Cambiando un poquito:", "Ahora, pensando en el futuro:"). */
+const FRASES_CONECTOR =
+  "(y\\s+)?(cambiando (un poqu?ito|un poco|de tema)|cambiemos (un poco )?de tema|cambio de tema|ahorita le cambiamos( un poco)?( el tema)?|pasando a otra cosa|pasemos a otra cosa|hablando de eso|ahora,? pensando (en|más)[^:,¿]*|para entender mejor[^:,¿]*)\\s*[:,.]?\\s*";
+// Oraciones completas de relleno: se quitan enteras.
+const ORACIONES_RELLENO = /(^|(?<=[.!?]\s))(ya platicamos de (varias|muchas) cosas|hay (un|otro) tema [^.!?¿]*pendiente|ahorita (cerramos|terminamos) [^.!?¿]*)[^.!?¿]*[.!]\s*/gi;
+const CONECTORES = new RegExp(`(^|(?<=[.!?]\\s))${FRASES_CONECTOR}`, "gi");
+const HAY_CONECTOR = new RegExp(`(^|[.!?]\\s)${FRASES_CONECTOR}|(^|[.!?]\\s)(ya platicamos de (varias|muchas) cosas|hay (un|otro) tema [^.!?¿]*pendiente)`, "i");
+
+/** Quita las frases para cambiar de tema y deja la oración con mayúscula. */
+export function quitarConectores(texto: string): string {
+  return texto
+    .replace(ORACIONES_RELLENO, "")
+    .replace(CONECTORES, "")
+    .replace(/(^|[.!?]\s+)(¿?)([a-záéíóúñ])/g, (_m, a: string, q: string, c: string) => a + q + c.toUpperCase())
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/** Deja como máximo una oración antes de la pregunta (la última con "?"). */
+export function acortar(texto: string): string {
+  const oraciones = texto.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const iq = oraciones.map((o) => o.includes("?")).lastIndexOf(true);
+  if (iq < 0) return oraciones.slice(0, 2).join(" ");
+  const antes = oraciones.slice(0, iq).filter((o) => o.split(/\s+/).length <= 14);
+  return [...antes.slice(0, 1), oraciones[iq]].join(" ");
+}
+
 /** Quita las oraciones que tienen una muletilla ("Eso también cabe aquí.") y deja el resto. */
 export function quitarMuletillas(texto: string): string {
   return texto
@@ -203,17 +246,56 @@ export function quitarMuletillas(texto: string): string {
     .trim();
 }
 
+/** Lugares y hechos de violencia: ni el puente ni la escucha los repiten (se habla de cómo se siente). */
+const HECHOS =
+  /\b(colonia|cuadra|calle|barrio|balazos?|balacera|balas?|disparos?|tiros|mataron|matar|muert[oa]s?|levantaron|robo|asalto|vato|pelea|golpes?)(?![a-záéíóúñü])/i;
+/** Personas y lugares de todos los días: el puente no los menciona (la escucha sí puede: "tu mamá"). */
+const PERSONAS =
+  /\b(escuela|secu|secundaria|prepa|sal[oó]n|casa|mam[aá]s?|pap[aá]s?|ap[aá]|am[aá]|jefa|jefe|herman[oa]s?|t[ií][oa]s?|abuel[oa]s?|primos?|primas?|amig[oa]s?|compas?|novi[oa]|profes?|maestr[oa]s?|vecin[oa]s?)(?![a-záéíóúñü])/i;
+
+function contar(t: string) {
+  return { palabras: t.split(/\s+/).filter(Boolean).length, oraciones: t.split(/(?<=[.!?])\s+/).filter((o) => o.trim()).length, preguntas: (t.match(/\?/g) ?? []).length };
+}
+
+/** Motivo para no usar el mensaje según el modo del turno, o null si está bien. */
+export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "responder", tipo = "responde", maxPuente?: number): string | null {
+  const t = texto.trim();
+  if (modo === "seguir" && !t) return null; // sin puente: va directo a la pregunta
+  const comun = motivoRechazo(t);
+  if (comun) return comun;
+  if (GENERO_SUELTO.test(t) || /\bdespiert[oa]s?\b/i.test(t)) return "usa adjetivos con género; usa sustantivos (el cansancio, la soledad)";
+  if (modo !== "responder" && tipo === "responde" && HECHOS.test(t)) return "repite lugares o hechos de lo que contó; habla sólo de cómo se siente";
+  const n = contar(t);
+  if (modo === "seguir") {
+    if (n.preguntas) return "el puente no lleva preguntas: la siguiente pregunta la pone el sistema";
+    const maxPalabras = ["pregunta", "privacidad", "pide_orientacion"].includes(tipo) ? 30 : maxPuente ?? 14;
+    if (n.palabras > maxPalabras || n.oraciones > 2) return `el puente es muy largo: máximo ${maxPalabras} palabras`;
+    if (tipo === "responde" && PERSONAS.test(t)) return "el puente menciona lugares o personas; habla sólo de cómo se siente";
+  }
+  if (modo === "escuchar") {
+    if (n.preguntas > 1) return "más de una pregunta";
+    if (n.palabras > 32 || n.oraciones > 3) return "muy largo: máximo 2 oraciones y unas 25 palabras";
+    if (/qu[eé] tan (seguido|fuerte)|qu[eé] tanto/i.test(t)) return "al escuchar no hagas preguntas del cuestionario; invita a seguir contando";
+  }
+  if (modo === "responder") {
+    if (n.preguntas) return "no hagas otra pregunta: la que le hiciste sigue en pantalla";
+    if (n.palabras > 40 || n.oraciones > 3) return "muy largo: máximo 2 oraciones";
+  }
+  return null;
+}
+
 export function motivoRechazo(texto: string, terminar = false): string | null {
   const t = texto.trim();
   if (terminar && t.includes("?")) return "cierra la plática pero deja una pregunta abierta";
   if (MULETILLAS.test(t)) return "usa una frase de muletilla (aquí cabe, es válido, se nota que…)";
   if (!t) return "vacío";
-  if (t.length > 420) return "muy largo (máximo 3 oraciones cortas)";
+  if (t.length > 240 || t.split(/\s+/).length > 38) return "muy largo: máximo 2 oraciones y unas 25 palabras";
+  if (HAY_CONECTOR.test(t)) return "usa una frase para cambiar de tema; ve directo a la pregunta";
   if ((t.match(/\?/g) ?? []).length > 2) return "más de una pregunta";
   if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
   if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
   if (/\bdel? \d+ al \d+|qu[eé] tan de acuerdo|en una escala/i.test(t)) return "usa una escala de números o de acuerdo; pregunta directo";
-  if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";
+  if (CON_GENERO.test(t) || GENERO_ECO.test(t)) return "usa adjetivos con género para el joven";
   return null;
 }

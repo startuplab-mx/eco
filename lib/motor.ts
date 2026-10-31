@@ -241,7 +241,7 @@ export function crearEstado(rand: () => number = Math.random, fecha: Date = new 
   return {
     codigo: codigoAleatorio(rand),
     semana: semanaISO(fecha),
-    cola: conIA ? ["bienvenida", "datos", "@ia", "@ronda", "cierre"] : ["bienvenida", "datos", "entrada", "@ruta"],
+    cola: conIA ? ["bienvenida", "datos", "@ia", "@ronda", "libre", "cierre"] : ["bienvenida", "datos", "entrada", "@ruta"],
     bloque: null,
     indice: 0,
     respuestas: {},
@@ -389,7 +389,12 @@ export function pendientesRonda(g: Guion, estado: Estado, meta = 0.8, todas = fa
 function entrarIA(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
   estado.modo = "ia";
   estado.bloque = null;
-  estado.ia = { turnos: 0, item: "en_emociones", historial: [], opcionales: [], respiracion: "no", ejercicios: [], preguntados: ["en_emociones"] };
+  const tema = g.ia?.temas?.find((t) => t.items.includes("en_emociones"));
+  estado.ia = { turnos: 0, item: "en_emociones", historial: [], opcionales: [], respiracion: "no", ejercicios: [], preguntados: ["en_emociones"], temas: tema ? [tema.id] : [] };
+  if (tema?.intro) {
+    salida.push({ tipo: "eco", texto: tema.intro });
+    estado.ia.historial.push({ quien: "eco", texto: tema.intro });
+  }
   const p = g.bloques.entrada.pasos.find((x) => x.id === "en_emociones")!;
   const texto = resolverTexto(g, inst, estado, String(p.texto));
   salida.push({ tipo: "eco", texto });
@@ -552,6 +557,9 @@ export function preguntaCorta(g: Guion, inst: Instancia, estado: Estado, p: Paso
   const conPregunta = oraciones.filter((o) => o.includes("?"));
   let q = (conPregunta[conPregunta.length - 1] ?? textos[textos.length - 1] ?? "").trim();
   // Sólo se quitan arranques que no aportan ("Para empezar, ¿cuántos…?"); "Donde vives, ¿qué tanto…?" se queda entero.
+  // "Sobre redes: ¿qué tan…?" → "¿Qué tan…?" (lo que va antes de los dos puntos es sólo entrada).
+  const dosPuntos = q.match(/^[^¿]{1,40}:\s*(?=¿)/);
+  if (dosPuntos) q = "¿" + q.charAt(dosPuntos[0].length + 1).toUpperCase() + q.slice(dosPuntos[0].length + 2);
   const arranque = q.match(/^(para empezar|ahora|y|va|bueno),?\s+(?=¿)/i);
   if (arranque) q = "¿" + q.charAt(arranque[0].length + 1).toUpperCase() + q.slice(arranque[0].length + 2);
   return q || null;
