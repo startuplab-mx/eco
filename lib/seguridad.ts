@@ -85,6 +85,16 @@ export interface ResultadoFiltro {
  * Quita nombres propios, apodos con @, teléfonos, direcciones y placas.
  * Es conservador: prefiere tachar de más que dejar pasar un nombre.
  */
+// Palabras comunes que a veces llegan con mayúscula a media oración y no son nombres.
+const PALABRAS_COMUNES = new Set(
+  (
+    "bien mal normal regular tranquilo tranquila feliz triste enojado enojada miedo nervios cansado cansada " +
+    "solo sola nunca siempre casi veces seguido nada mucho poco hoy ayer mañana semana mes casa escuela colonia " +
+    "familia amigos amigas redes futuro mama papa abuela abuelo hermano hermana tio tia profe maestro maestra " +
+    "si no ok va sale gracias perdon hola adios pues bueno tambien igual mejor peor otro otra todo todos"
+  ).split(" ").map(normalizar),
+);
+
 // Nombres de pila frecuentes. Se tapan aunque vengan en minúscula o abran la oración.
 // Se dejan fuera los que también son palabras comunes (rosa, luz, paz, sol, alma, ángel, cruz…).
 const NOMBRES_COMUNES = new Set(
@@ -138,9 +148,11 @@ export function filtrarIdentificadores(entrada: string): ResultadoFiltro {
     /(?<!\[)\b(calle|av\.?|avenida|privada|cerrada|colonia|col\.|fracc\.?|fraccionamiento|barrio|esquina|manzana|mz\.?|lote|n[uú]m(ero)?\.?|#)\s*[^,.;!?\n]{1,40}/gi,
     marca("[lugar]"),
   );
-  // Nombres propios: palabras con mayúscula inicial que no abren oración
-  t = t.replace(/(^|[^.!?¿¡\s]\s+)([A-ZÁÉÍÓÚÑ][a-záéíóúñü]{2,})(?=\b)/g, (m, antes: string, palabra: string) => {
-    if (NO_NOMBRES.has(normalizar(palabra))) return m;
+  // Nombres propios: palabras con mayúscula a media oración ("me pega Brayan").
+  // La primera palabra de cada oración NO cuenta: el teclado del celular la pone en mayúscula siempre
+  // ("Tranquilo", "Casi siempre"). Los nombres al inicio se tapan con la lista de nombres comunes.
+  t = t.replace(/([a-záéíóúñü0-9,;:]\s+)([A-ZÁÉÍÓÚÑ][a-záéíóúñü]{2,})(?=\b)/g, (m, antes: string, palabra: string) => {
+    if (NO_NOMBRES.has(normalizar(palabra)) || PALABRAS_COMUNES.has(normalizar(palabra))) return m;
     encontrado = true;
     return `${antes}[nombre]`;
   });

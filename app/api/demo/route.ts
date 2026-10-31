@@ -6,7 +6,7 @@ import type { Guion, Instancia, Salida } from "@/lib/tipos";
 import type { ServicioIA } from "@/lib/ia-tipos";
 import { arrancar, crearEstado, type Entrada } from "@/lib/motor";
 import { turno, type Mensaje } from "@/lib/turno";
-import { hayAlarma } from "@/lib/seguridad";
+import { hayAlarma, filtrarIdentificadores } from "@/lib/seguridad";
 import { resumen } from "@/lib/indices";
 import { airtableDisponible, camposSesion, guardarSesion, registrarRoja } from "@/lib/servidor/airtable";
 import { responder } from "@/lib/motor";
@@ -187,7 +187,7 @@ const DESVIOS = [
   "¿cómo me salgo de un grupo?",
 ];
 
-async function probarDesvios(soloPaso: string | null) {
+async function probarDesvios(soloPaso: string | null, propios: string[] | null = null) {
   const { responder: resp } = await import("@/lib/motor");
   const ia: ServicioIA = servidorIA();
   // Lleva una sesión hasta un paso dado contestando con botones.
@@ -208,7 +208,7 @@ async function probarDesvios(soloPaso: string | null) {
   const salida: Record<string, { texto: string; eco: string[]; registro: unknown; rojo: boolean }[]> = {};
   for (const paso of pasos) {
     const base = paso === "md_fuerza" ? null : hasta(paso);
-    salida[paso] = await Promise.all(DESVIOS.map(async (texto) => {
+    salida[paso] = await Promise.all((propios ?? DESVIOS).map(async (texto) => {
       let e = base;
       if (!e) {
         // md_fuerza está en el módulo D: se llega por la ruta de "No sé".
@@ -225,9 +225,15 @@ async function probarDesvios(soloPaso: string | null) {
         }
         e = estado;
       }
+      const esp = e.esperando!;
+      // Lo que contesta el modelo tal cual, para diagnosticar (sólo con frases propias).
+      const modelo = propios
+        ? await ia.interpretar({ codigo: e.codigo, pregunta: esp.pregunta ?? "", tipo: esp.paso.tipo as "opcion", opciones: esp.opciones.map((o) => ({ id: o.id, label: o.label })), texto: filtrarIdentificadores(texto).texto }).catch((x) => String(x))
+        : undefined;
       const r = await turno(g, inst, e, { texto }, ia, [{ quien: "eco", texto: e.esperando?.pregunta ?? "" }, { quien: "joven", texto }]);
       return {
         texto,
+        ...(modelo !== undefined ? { modelo } : {}),
         eco: r.salida.filter((s) => "texto" in s).map((s) => (s as { texto: string }).texto).slice(0, 6),
         registro: r.estado.respuestas[paso]?.valor ?? (r.estado.confirmacion ? "en confirmación" : "sin registrar"),
         rojo: r.estado.rojo,
@@ -261,7 +267,11 @@ export async function GET(req: Request) {
   if (!permitido) return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
   if (p === "airtable") return Response.json(await probarAirtable());
-  if (p === "desvios") return Response.json(await probarDesvios(new URL(req.url).searchParams.get("paso")));
+  if (p === "desvios") {
+    const q = new URL(req.url).searchParams;
+    const propios = q.get("t") ? q.get("t")!.split("|").slice(0, 12) : null;
+    return Response.json(await probarDesvios(q.get("paso"), propios));
+  }
   if (p === "riesgo") {
     const r = await probarRiesgo();
     return Response.json({ modelo: MODELO_RAPIDO, aciertos: r.filter((x) => x.ok).length, total: r.length, resultados: r });
