@@ -202,5 +202,6 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 
 **Ajustes tras simular con el modelo real (31 oct 2026)**
 - Si la IA marca una pregunta medida pero su mensaje no trae la pregunta (pasó dos veces: "a veces uno se queda con cosas que no cuenta para cuidar a alguien."), se rechaza; si falla otra vez, sale la pregunta del guion.
-- Muletillas: también "dice mucho…" y "se nota en…".
+- Muletillas: también "dice mucho / bastante de ti" y "eso se nota".
+- Si el joven escribe dos opciones a la vez ("más o menos, a veces fuerte"), Eco pregunta "¿Cuál se parece más: «Más o menos» o «Fuerte»?" en lugar de "No te entendí bien".
 - Vigilante: oír balazos, tener miedo de la violencia del lugar o no tener con quién hablar no es riesgo por sí solo (una simulación lo marcó como crisis).

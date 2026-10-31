@@ -700,6 +700,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   const { paso: p, opciones } = estado.esperando;
   let respuesta: Respuesta | undefined;
   let elegida: Opcion | undefined;
+  let dudas: string[] | null = null;
 
   if (p.tipo === "ejercicio") {
     respuesta = { valor: "listo" };
@@ -779,6 +780,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       if (!elegida && !entrada.sinOtro) {
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
+        else if (ids.length >= 2 && ids.length <= 3) dudas = ids.map((id) => opciones.find((o) => o.id === id)!.label);
       }
     }
     if (!elegida && texto && !entrada.otro) {
@@ -794,7 +796,9 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   }
 
   if (!respuesta || (Array.isArray(respuesta.valor) && respuesta.valor.length === 0)) {
-    salida.push({ tipo: "eco", texto: "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?" });
+    // Dijo dos opciones a la vez ("más o menos, a veces fuerte"): se pregunta cuál se parece más.
+    const texto2 = dudas ? `¿Cuál se parece más: ${listaNatural(dudas.map((d) => `«${d}»`)).replace(/ y («[^»]+»)$/, " o $1")}?` : "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?";
+    salida.push({ tipo: "eco", texto: texto2 });
     return { estado, salida };
   }
 

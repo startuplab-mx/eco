@@ -302,6 +302,11 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
     r = await turno(g, inst, e, { texto: t }, null, []);
     ok(r.estado.respuestas[paso]?.valor === v, `escala con palabras: «${t}» → ${v ?? "no se entiende"}`);
   }
+  e = hasta("en_termometro");
+  r = await turno(g, inst, e, { texto: "pues como mas o menos, a veces fuerte" }, null, []);
+  ok(!r.estado.respuestas["en_termometro"] && textos(r.salida)[0] === "¿Cuál se parece más: «Más o menos» o «Fuerte»?", "dos opciones a la vez: pregunta cuál se parece más");
+  r = await turno(g, inst, r.estado, { texto: "fuerte" }, null, []);
+  ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "…y luego registra la que elige");
   ok(!JSON.stringify(g).match(/[Dd]el 1 al|qué tan de acuerdo/), "el guion ya no usa escalas de números ni de acuerdo");
 
   // Consentimiento por sinónimos.
