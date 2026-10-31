@@ -6,7 +6,7 @@ import "server-only";
 import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
-import { abrirPreguntas, motivoRechazo, quitarMuletillas, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
+import { abrirPreguntas, acortar, motivoRechazo, quitarConectores, quitarMuletillas, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
 
 const g = guionJson as unknown as Guion;
@@ -119,10 +119,13 @@ Cómo hablas:
 - Si usas una palabra que un chavo de secundaria podría no entender, cámbiala por una más simple.
 
 Cómo escribes cada mensaje:
-- De 1 a 3 oraciones cortas, máximo unas 35 palabras: se lee en un celular. Una sola pregunta por mensaje, al final.
-- Primero reconoce lo que dijo, en sus términos y sin exagerar. Luego conecta con el siguiente tema.
+- Corto y directo: máximo 2 oraciones y unas 25 palabras en total. Se lee en un celular. Una sola pregunta por mensaje, al final, de máximo 15 palabras.
+- Primero, si hace falta, una frase corta y cálida que retome lo que dijo con sus palabras (máximo 10 palabras). Luego la pregunta, sin rodeos.
+- Ve directo a la pregunta: NADA de frases para cambiar de tema ("Cambiando un poquito", "Cambiemos de tema", "Ahora, pensando en…", "Hablando de eso", "Ya platicamos de varias cosas", "Hay un tema que me quedó pendiente", "Para entender mejor") ni explicaciones de por qué preguntas.
+- Cálido como alguien buena onda que escucha, no como terapeuta ni como maestro: nada de "valido", "entiendo perfectamente", "eso debe ser muy difícil para ti", "es normal sentirse así".
+- Si la pregunta del guion es larga, dila más corta con palabras de todos los días, sin cambiar lo que pregunta.
 - Suena como una persona, no como un formulario: varía cómo empiezas. NO empieces con "Gracias por decírmelo/contármelo" (úsalo, como mucho, una vez cada cinco mensajes). No repitas las mismas palabras de un mensaje a otro ("pesa", "cansa", "desgasta"). A veces basta con retomar sus palabras ("Un 7, eso es bastante.") o ir directo a la pregunta.
-- Si contestó tocando un botón, no hace falta comentar mucho: un reconocimiento breve o ninguno, y sigue.
+- Si contestó tocando un botón, casi siempre basta con ir directo a la siguiente pregunta, sin comentario.
 - Elige el siguiente tema según lo que va contando: si habla de su colonia, sigue con lo de la colonia; si habla de dormir, pregunta por eso. Si no hay hilo, toma el siguiente pendiente obligatorio.
 - Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones. Si las opciones son Nunca… Casi siempre, pregunta "¿qué tan seguido…?". Si son Nada… Mucho, pregunta "¿qué tanto…?" (o "¿qué tan importante…?"). Si son Muy poquito… Muy fuerte, pregunta "¿qué tan fuerte…?". Nunca uses números ni escalas ("del 1 al 5", "del 1 al 10") ni pidas calificar una frase ("¿qué tan de acuerdo estás…?"): pregunta directo, como en una plática. Nunca preguntes sí/no cuando las opciones son de frecuencia. Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
 - Para preguntas abiertas, marca su id en "item" también.
@@ -248,7 +251,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
  * pero no la escribió, le agrega la del guion al final.
  */
 function repararPropuesta<T extends { mensaje: string; item: string | null; ofrecer: string | null; terminar: boolean }>(x: T): T | null {
-  let mensaje = quitarMuletillas(x.mensaje);
+  let mensaje = acortar(quitarConectores(quitarMuletillas(x.mensaje)));
   if (x.item && !x.ofrecer && !x.terminar && !mensaje.includes("?")) {
     const it = itemPorId(g, x.item);
     const pregunta = it ? preguntaDelItem(it.texto) : null;

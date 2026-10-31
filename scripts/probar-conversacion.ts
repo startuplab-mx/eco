@@ -4,7 +4,7 @@ import guionJson from "../data/guion.json";
 import instJson from "../config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { RespuestaConversar, ServicioIA, PedidoConversar } from "../lib/ia-tipos";
-import { motivoRechazo, quitarMuletillas } from "../lib/ia-tipos";
+import { acortar, motivoRechazo, quitarConectores, quitarMuletillas } from "../lib/ia-tipos";
 import { arrancar, crearEstado } from "../lib/motor";
 import { turno } from "../lib/turno";
 import { cobertura, catalogo } from "../lib/catalogo";
@@ -163,6 +163,11 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   for (const m of ["Eso también cabe aquí. ¿Qué tan fuerte lo sientes?", "Todo cabe en este espacio.", "Es totalmente válido sentir eso.", "Es válido que te sientas así."])
     ok(!!motivoRechazo(m), `validador: rechaza la muletilla «${m.slice(0, 30)}…»`);
   ok(quitarMuletillas("Qué bueno. Eso también cabe aquí. ¿Qué tan fuerte sientes esa alegría ahorita?") === "Qué bueno. ¿Qué tan fuerte sientes esa alegría ahorita?", "reparación: se quita sólo la oración con muletilla");
+  ok(!!motivoRechazo("Eso pesa. Cambiando un poquito: ¿qué tan seguido duermes mal?"), "validador: rechaza frases para cambiar de tema");
+  ok(!!motivoRechazo("Eso debe ser muy difícil para ti. ¿Qué tan seguido te pasa?"), "validador: rechaza frases de terapeuta");
+  ok(acortar(quitarConectores("Eso de enojarte también pesa. Cambiando un poquito: ¿qué tan seguido te pasa?")) === "Eso de enojarte también pesa. ¿Qué tan seguido te pasa?", "reparación: quita «Cambiando un poquito» y deja la pregunta con mayúscula");
+  ok(acortar(quitarConectores("Ya platicamos de varias cosas, y te agradezco. Hay un tema de la casa que me quedó pendiente. ¿Qué tan seguido hay cariño en tu casa?")) === "¿Qué tan seguido hay cariño en tu casa?", "reparación: quita oraciones de relleno completas");
+  ok(acortar("Uno. Dos. Tres. ¿Cuatro?") === "Uno. ¿Cuatro?", "reparación: máximo una oración antes de la pregunta");
   ok(motivoRechazo("Donde vives, ¿qué tanto se ve la violencia como algo normal?") === null, "validador: acepta «¿qué tanto…?»");
 
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.

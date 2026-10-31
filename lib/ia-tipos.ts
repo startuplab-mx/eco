@@ -183,7 +183,7 @@ const PREGUNTA_DETALLE = new RegExp(
 );
 
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /eso debe (ser|estar) (muy |bien )?(dif[ií]cil|duro)|es (muy |totalmente )?normal sentir|te valido|valido (lo que|tu)|aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
@@ -194,6 +194,33 @@ export function abrirPreguntas(texto: string): string {
 }
 
 /** Devuelve el motivo si el mensaje no se puede mostrar, o null si está bien. */
+/** Frases para cambiar de tema que alargan sin decir nada ("Cambiando un poquito:", "Ahora, pensando en el futuro:"). */
+const FRASES_CONECTOR =
+  "(y\\s+)?(cambiando (un poqu?ito|un poco|de tema)|cambiemos (un poco )?de tema|cambio de tema|ahorita le cambiamos( un poco)?( el tema)?|pasando a otra cosa|pasemos a otra cosa|hablando de eso|ahora,? pensando (en|más)[^:,¿]*|para entender mejor[^:,¿]*)\\s*[:,.]?\\s*";
+// Oraciones completas de relleno: se quitan enteras.
+const ORACIONES_RELLENO = /(^|(?<=[.!?]\s))(ya platicamos de (varias|muchas) cosas|hay (un|otro) tema [^.!?¿]*pendiente|ahorita (cerramos|terminamos) [^.!?¿]*)[^.!?¿]*[.!]\s*/gi;
+const CONECTORES = new RegExp(`(^|(?<=[.!?]\\s))${FRASES_CONECTOR}`, "gi");
+const HAY_CONECTOR = new RegExp(`(^|[.!?]\\s)${FRASES_CONECTOR}|(^|[.!?]\\s)(ya platicamos de (varias|muchas) cosas|hay (un|otro) tema [^.!?¿]*pendiente)`, "i");
+
+/** Quita las frases para cambiar de tema y deja la oración con mayúscula. */
+export function quitarConectores(texto: string): string {
+  return texto
+    .replace(ORACIONES_RELLENO, "")
+    .replace(CONECTORES, "")
+    .replace(/(^|[.!?]\s+)(¿?)([a-záéíóúñ])/g, (_m, a: string, q: string, c: string) => a + q + c.toUpperCase())
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/** Deja como máximo una oración antes de la pregunta (la última con "?"). */
+export function acortar(texto: string): string {
+  const oraciones = texto.split(/(?<=[.!?])\s+/).filter(Boolean);
+  const iq = oraciones.map((o) => o.includes("?")).lastIndexOf(true);
+  if (iq < 0) return oraciones.slice(0, 2).join(" ");
+  const antes = oraciones.slice(0, iq).filter((o) => o.split(/\s+/).length <= 14);
+  return [...antes.slice(0, 1), oraciones[iq]].join(" ");
+}
+
 /** Quita las oraciones que tienen una muletilla ("Eso también cabe aquí.") y deja el resto. */
 export function quitarMuletillas(texto: string): string {
   return texto
@@ -208,7 +235,8 @@ export function motivoRechazo(texto: string, terminar = false): string | null {
   if (terminar && t.includes("?")) return "cierra la plática pero deja una pregunta abierta";
   if (MULETILLAS.test(t)) return "usa una frase de muletilla (aquí cabe, es válido, se nota que…)";
   if (!t) return "vacío";
-  if (t.length > 420) return "muy largo (máximo 3 oraciones cortas)";
+  if (t.length > 240 || t.split(/\s+/).length > 38) return "muy largo: máximo 2 oraciones y unas 25 palabras";
+  if (HAY_CONECTOR.test(t)) return "usa una frase para cambiar de tema; ve directo a la pregunta";
   if ((t.match(/\?/g) ?? []).length > 2) return "más de una pregunta";
   if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";

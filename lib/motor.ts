@@ -552,6 +552,9 @@ export function preguntaCorta(g: Guion, inst: Instancia, estado: Estado, p: Paso
   const conPregunta = oraciones.filter((o) => o.includes("?"));
   let q = (conPregunta[conPregunta.length - 1] ?? textos[textos.length - 1] ?? "").trim();
   // Sólo se quitan arranques que no aportan ("Para empezar, ¿cuántos…?"); "Donde vives, ¿qué tanto…?" se queda entero.
+  // "Sobre redes: ¿qué tan…?" → "¿Qué tan…?" (lo que va antes de los dos puntos es sólo entrada).
+  const dosPuntos = q.match(/^[^¿]{1,40}:\s*(?=¿)/);
+  if (dosPuntos) q = "¿" + q.charAt(dosPuntos[0].length + 1).toUpperCase() + q.slice(dosPuntos[0].length + 2);
   const arranque = q.match(/^(para empezar|ahora|y|va|bueno),?\s+(?=¿)/i);
   if (arranque) q = "¿" + q.charAt(arranque[0].length + 1).toUpperCase() + q.slice(arranque[0].length + 2);
   return q || null;

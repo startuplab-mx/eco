@@ -173,7 +173,7 @@
   },
   "grupos": {
     "emociones": {
-      "texto": "Ahora quiero saber cómo te has sentido en las últimas dos semanas. No hay respuestas buenas ni malas."
+      "texto": "Ahora piensa en estas últimas dos semanas. No hay respuestas buenas ni malas."
     },
     "creencias": {
       "texto": "Ahora unas preguntas sobre lo que piensas. No hay respuestas buenas ni malas."
@@ -190,8 +190,8 @@
     "triste": "La tristeza aparece cuando algo nos importa. Gracias por decírmelo.",
     "enojado": "El enojo muchas veces aparece para protegerte. Está bien sentirlo.",
     "miedo": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
-    "preocupado": "Preocuparte es una forma de cuidarte. Tiene sentido si vives con cosas que asustan.",
-    "vacio": "Esa sensación de vacío aparece cuando llevas mucho tiempo aguantando. Le pasa a más gente de la que crees.",
+    "preocupado": "Preocuparte es una forma de cuidarte. Tiene sentido con lo que vives.",
+    "vacio": "Sentirse vacío le pasa a más gente de la que crees.",
     "solo": "La soledad duele, aunque haya gente alrededor. Aquí te escucho.",
     "avergonzado": "La vergüenza pesa mucho. Aquí nadie te va a juzgar.",
     "confundido": "No saber también es una respuesta. Vamos despacio.",
@@ -226,7 +226,7 @@
         "Pon una mano en tu pecho.",
         "Di en tu mente: esto es difícil y estoy haciendo lo mejor que puedo."
       ],
-      "para": "Sirve para tratarte con la misma paciencia con la que tratarías a alguien que quieres.",
+      "para": "Sirve para tratarte con cariño, como tratarías a alguien que quieres.",
       "como": "Vas a poner una mano en tu pecho y decirte por dentro una frase tranquila."
     },
     "anclaje": {
@@ -445,13 +445,13 @@
         {
           "id": "bi_hola",
           "tipo": "mensaje",
-          "texto": "¡Hola! Soy Eco, un espacio para platicar cómo te sientes. No te voy a pedir tu nombre ni nada que diga quién eres. Tampoco necesito saber de personas, lugares o cosas que hayan pasado: me interesa cómo estás tú."
+          "texto": "¡Hola! Soy Eco. Aquí puedes platicar cómo te sientes. No te voy a pedir tu nombre ni nada que diga quién eres: lo que me importa es cómo estás tú."
         },
         {
           "id": "bi_consentimiento",
           "tipo": "opcion",
           "variable": "consentimiento",
-          "texto": "Lo que platiquemos lo revisa un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Solo si me cuentas que estás en peligro te voy a dar teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir?",
+          "texto": "Lo que platiquemos lo ve un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Si me cuentas que estás en peligro, te doy teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir?",
           "opciones": [
             {
               "id": "si",
@@ -688,7 +688,7 @@
           "tipo": "multiple",
           "variable": "V20",
           "item": "V20.emocion",
-          "texto": "Ahora quiero saber cómo estás tú. ¿Cómo te sientes hoy? Escríbelo con tus palabras o elige una o varias.",
+          "texto": "¿Cómo te sientes hoy? Escríbelo como quieras o elige una o varias.",
           "opciones": [
             {
               "id": "tranquilo",
@@ -923,7 +923,7 @@
             "paso": "en_termometro",
             "gte": 4
           },
-          "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos?",
+          "texto": "Eso está muy fuerte. Cuando una emoción está así, el corazón se acelera y cuesta pensar. ¿Respiramos un minuto? Inhalas contando 4, aguantas 4 y sueltas el aire contando 6. Ayuda a que el cuerpo se calme.",
           "opciones": [
             {
               "id": "si",
@@ -952,7 +952,7 @@
           "tipo": "multiple",
           "variable": "V22",
           "item": "V22.zona",
-          "texto": "Lo que sentimos también se nota en el cuerpo. ¿En qué parte lo sientes?",
+          "texto": "¿En qué parte del cuerpo lo sientes?",
           "opciones": [
             {
               "id": "pecho",
@@ -1051,7 +1051,7 @@
           "tipo": "opcion",
           "variable": "ambito",
           "item": "ambito",
-          "texto": "¿Hay algo que te haga sentir así? Puede ser un lugar, alguien o algo que pasa. No tienes que contar qué pasó.",
+          "texto": "¿Qué crees que te hace sentir así? No tienes que contar qué pasó.",
           "opciones": [
             {
               "id": "escuela",
@@ -1189,7 +1189,7 @@
         {
           "id": "en_puente",
           "tipo": "mensaje",
-          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas sobre lo que vives. Si alguna no quieres contestarla, solo dímelo."
+          "texto": "Gracias por contarme. Ahora unas preguntas sobre lo que vives. Si alguna no quieres contestarla, solo dime."
         }
       ]
     },
@@ -1227,7 +1227,7 @@
           "tipo": "opcion",
           "variable": "V1",
           "item": "V1.indirecta",
-          "texto": "¿Te has enterado de que le pasó algo grave a alguien que conoces? No necesito saber qué.",
+          "texto": "¿Le ha pasado algo grave a alguien que conoces? No tienes que decirme qué.",
           "opciones": [
             {
               "id": "si",
@@ -1291,7 +1291,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.sueno",
-          "texto": "¿Qué tan seguido te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor?"
+          "texto": "¿Qué tan seguido te cuesta dormir por pensar en lo que pasa a tu alrededor?"
         }
       ]
     },
@@ -1345,7 +1345,7 @@
               "si": {
                 "gte": 3
               },
-              "texto": "El enojo así de fuerte también cansa. Es válido sentirlo."
+              "texto": "El enojo así de fuerte también cansa. Tiene sentido sentirlo."
             }
           ]
         }
@@ -1369,7 +1369,7 @@
               "si": {
                 "gte": 3
               },
-              "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
+              "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es."
             }
           ]
         },
@@ -1786,7 +1786,7 @@
         {
           "id": "mb_intro",
           "tipo": "mensaje",
-          "texto": "Ahora sobre tu casa. No necesito saber quién vive ahí ni a qué se dedican; solo cómo te sientes tú."
+          "texto": "Ahora sobre tu casa. Solo me importa cómo te sientes tú ahí."
         },
         {
           "id": "mb_carino",
@@ -1808,7 +1808,7 @@
               "si": {
                 "gte": 3
               },
-              "texto": "Vivir con esa tensión puede ser agotador. Tiene sentido que a veces sientas cansancio o el estómago apretado."
+              "texto": "Vivir con esa tensión cansa mucho."
             }
           ],
           "invertido": true
@@ -1857,7 +1857,7 @@
         {
           "id": "mc_entrar",
           "tipo": "opcion",
-          "texto": "El siguiente tema es sobre personas que has perdido o que ya no están contigo. Puede ser difícil. ¿Quieres seguir con este tema?",
+          "texto": "Ahora un tema que puede ser difícil: personas que perdiste o que ya no están contigo. ¿Quieres hablar de eso?",
           "opciones": [
             {
               "id": "si",
@@ -1870,7 +1870,7 @@
             }
           ],
           "sinEspejo": true,
-          "repetir": "¿Quieres seguir con el tema de personas que has perdido o que ya no están contigo?"
+          "repetir": "¿Quieres hablar de personas que perdiste o que ya no están contigo?"
         },
         {
           "id": "mc_perdida",
@@ -1935,7 +1935,7 @@
               "si"
             ]
           },
-          "texto": "A veces ayuda decir lo que no pudimos decir. Si quisieras decirle algo a esa persona, ¿qué le dirías? Recuerda, sin nombres.",
+          "texto": "Si pudieras decirle algo a esa persona, ¿qué le dirías? Sin nombres.",
           "rapidas": [
             {
               "id": "prefiero",
@@ -1972,7 +1972,7 @@
               "si": {
                 "lte": 1
               },
-              "texto": "Me da pena que te sientas así. Mucha gente con lo que vives se siente igual, y eso no define lo que vales."
+              "texto": "Me da pena que te sientas así. Eso no define lo que vales."
             }
           ]
         },
@@ -2059,7 +2059,7 @@
         {
           "id": "me_intro",
           "tipo": "mensaje",
-          "texto": "A veces, después de vivir o ver algo que asusta, el cuerpo y la mente se quedan en alerta. Te pregunto por eso."
+          "texto": "Cuando uno vive o ve algo que asusta, a veces el cuerpo se queda en alerta. Te pregunto por eso."
         },
         {
           "id": "me_imagenes",
@@ -2067,7 +2067,7 @@
           "escala": "E5",
           "variable": "V14",
           "item": "V14.intrusivos",
-          "texto": "¿Qué tan seguido te vienen a la mente imágenes o recuerdos feos sin que tú quieras?"
+          "texto": "¿Qué tan seguido te llegan a la mente recuerdos feos sin que tú quieras?"
         },
         {
           "id": "me_evito",
@@ -2101,7 +2101,7 @@
             },
             "min": 2
           },
-          "texto": "Lo que cuentas le pasa a mucha gente después de vivir cosas fuertes. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho. ¿Quieres saber dónde buscar ese apoyo?",
+          "texto": "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. ¿Quieres saber dónde buscar ese apoyo?",
           "opciones": [
             {
               "id": "como",
@@ -2138,7 +2138,7 @@
         {
           "id": "mf_intro",
           "tipo": "mensaje",
-          "texto": "Todas las personas buscamos formas de sentirnos mejor. Esta pregunta es solo sobre ti y nadie va a saber tu respuesta."
+          "texto": "Todos buscamos formas de sentirnos mejor. Nadie va a saber lo que contestes."
         },
         {
           "id": "mf_consumo",
@@ -2207,7 +2207,7 @@
           "escala": "E5",
           "variable": "V16",
           "item": "V16.consumo",
-          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o escuchas música que hablan de armas, dinero fácil o grupos criminales?"
+          "texto": "Sobre redes: ¿qué tan seguido ves videos o escuchas música de armas, dinero fácil o grupos criminales?"
         },
         {
           "id": "mg_sientes",
@@ -2327,7 +2327,7 @@
           "tipo": "abierta",
           "variable": "V8",
           "item": "V8.aspiracion",
-          "texto": "Si pudieras ser lo que quisieras en 10 años, sin que nada te detuviera, ¿qué serías?",
+          "texto": "Si pudieras ser lo que quisieras de grande, ¿qué serías?",
           "rapidas": [
             {
               "id": "prefiero",
@@ -2393,7 +2393,7 @@
           "tipo": "multiple",
           "variable": "V19",
           "item": "V19.confianza",
-          "texto": "Si necesitaras ayuda con algo serio, ¿a quién acudirías? Puedes elegir varias.",
+          "texto": "Si te pasara algo serio, ¿a quién le pedirías ayuda? Puedes elegir varias.",
           "opciones": [
             {
               "id": "familia",
@@ -2424,7 +2424,8 @@
               "label": "Nadie"
             }
           ],
-          "aceptaOtro": true
+          "aceptaOtro": true,
+          "repetir": "Si te pasara algo serio, ¿a quién le pedirías ayuda?"
         },
         {
           "id": "mi_impide",
@@ -2466,7 +2467,7 @@
                   "ubicar"
                 ]
               },
-              "texto": "Es un miedo muy entendible. Por eso existen líneas donde no te piden tu nombre. Al final te las comparto."
+              "texto": "Se entiende ese miedo. Hay líneas donde no te piden tu nombre; al final te las paso."
             }
           ],
           "aceptaOtro": true
