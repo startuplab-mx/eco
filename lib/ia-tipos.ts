@@ -258,7 +258,7 @@ function contar(t: string) {
 }
 
 /** Motivo para no usar el mensaje según el modo del turno, o null si está bien. */
-export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "responder", tipo = "responde"): string | null {
+export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "responder", tipo = "responde", maxPuente?: number): string | null {
   const t = texto.trim();
   if (modo === "seguir" && !t) return null; // sin puente: va directo a la pregunta
   const comun = motivoRechazo(t);
@@ -268,7 +268,7 @@ export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "respond
   const n = contar(t);
   if (modo === "seguir") {
     if (n.preguntas) return "el puente no lleva preguntas: la siguiente pregunta la pone el sistema";
-    const maxPalabras = ["pregunta", "privacidad", "pide_orientacion"].includes(tipo) ? 30 : 14;
+    const maxPalabras = ["pregunta", "privacidad", "pide_orientacion"].includes(tipo) ? 30 : maxPuente ?? 14;
     if (n.palabras > maxPalabras || n.oraciones > 2) return `el puente es muy largo: máximo ${maxPalabras} palabras`;
     if (tipo === "responde" && PERSONAS.test(t)) return "el puente menciona lugares o personas; habla sólo de cómo se siente";
   }

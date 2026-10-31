@@ -189,13 +189,18 @@ function textoSiguiente(sig: PedidoConversar["siguientes"]): string {
 
 type Propuesta = { modo: "seguir" | "escuchar"; mensaje: string; ejercicio: string | null; ofrecer: string | null; pideOferta: boolean };
 
-async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], forzado: Forzado, respiracion: boolean, sig: PedidoConversar["siguientes"]) {
+async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], forzado: Forzado, respiracion: boolean, sig: PedidoConversar["siguientes"], contestada = false) {
+  // Contestó con sus palabras y contó algo más: el puente puede ser un poco más largo para reconocerlo.
+  const conto = contestada && (p.texto ?? "").split(/\s+/).length > 6;
   const contenido = [
     `PREGUNTA QUE SE LE ACABA DE HACER: ${p.item ? `"${itemPorId(g, p.item)?.texto ?? p.item}"` : "(ninguna)"}`,
     textoSiguiente(sig),
     `Ejercicios ya hechos: ${p.ejercicios.join(", ") || "ninguno"}. Ejercicios ya ofrecidos: ${(p.ofrecidos ?? []).join(", ") || "ninguno"}${(p.ofrecidos ?? []).length >= 2 ? " (ya no ofrezcas más)" : ""}.`,
     extraidas.length ? `De su último mensaje quedó registrado: ${extraidas.join(", ")}.` : "",
-    instrucciones(p, tipo, forzado, respiracion, sig).map((x) => `INDICACIÓN: ${x}`).join("\n"),
+    [
+      ...instrucciones(p, tipo, forzado, respiracion, sig),
+      ...(conto ? ["Ya contestó la pregunta con sus palabras y contó un poco más. Modo seguir: en el puente reconoce lo que sintió, en una frase corta y cálida (máximo 18 palabras, sin preguntas). No le pidas que cuente más."] : []),
+    ].map((x) => `INDICACIÓN: ${x}`).join("\n"),
     `PLÁTICA HASTA AHORA:\n${p.historial.map((m) => `${m.quien === "eco" ? "Eco" : "Joven"}: ${m.texto}`).join("\n")}`,
   ].filter(Boolean).join("\n\n");
 
@@ -207,7 +212,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], f
     (!x.ofrecer && !x.ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(x.mensaje) && x.mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
       ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
       : null) ??
-    motivoModo(x.mensaje, x.ofrecer ? "seguir" : modoFinal(x), tipo);
+    motivoModo(x.mensaje, x.ofrecer ? "seguir" : modoFinal(x), tipo, conto ? 18 : undefined);
   const salida = (x: Propuesta) => ({ mensaje: x.mensaje, modo: modoFinal(x), ejercicio: x.ejercicio, ofrecer: x.ofrecer });
 
   const sistema = sistemaConducir();
@@ -285,10 +290,13 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
 
   // La pregunta del guion que sigue: la primera que no quedó contestada con lo que acaba de decir.
   const sig = (p.siguientes ?? []).filter((s) => !extraidas.includes(s.id));
-  const forzado: Forzado = respiracion ? "seguir" : MODOS_DESVIO.includes(tipo) && sinContestar ? "responder" : MODOS_DESVIO.includes(tipo) || tipo === "no_quiere" ? "seguir" : null;
+  // Si ya contestó la pregunta (aunque haya contado más), Eco sigue: reconoce lo que sintió y pasa a la siguiente.
+  // Sólo escucha (invita a seguir contando) cuando se abrió en lugar de contestar.
+  const contestada = !!p.item && !sinContestar;
+  const forzado: Forzado = respiracion ? "seguir" : MODOS_DESVIO.includes(tipo) && sinContestar ? "responder" : MODOS_DESVIO.includes(tipo) || tipo === "no_quiere" || contestada ? "seguir" : null;
 
   let c = null;
-  try { c = await conducir(p, tipo, extraidas, forzado, respiracion, sig); } catch (e) { registrarFalla("conducir", e); }
+  try { c = await conducir(p, tipo, extraidas, forzado, respiracion, sig, contestada); } catch (e) { registrarFalla("conducir", e); }
   // Termómetro en «Muy fuerte» (4): la respiración se ofrece sí o sí.
   if (respiracion && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion") && !c?.ofrecer) {
     const sinPregunta = (c?.mensaje ?? "").split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
@@ -306,4 +314,14 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
     respaldo: !c,
     ...(respiracion ? { respiracion: "ofrecida" } : {}),
   } as RespuestaConversar;
+}
+
+/** Pruebas: qué registra el vigilante con frases reales de jóvenes (sólo en versiones de prueba). */
+export async function probarLectura(casos: { item: string; texto: string }[]) {
+  return Promise.all(casos.map(async ({ item, texto }) => {
+    const p: PedidoConversar = { codigo: "PRUEBA", historial: [{ quien: "eco", texto: itemPorId(g, item)?.texto ?? "" }], texto, item, cubiertos: [], opcionales: [], turnos: 5, maxTurnos: 40, respiracion: "no", ejercicios: [] };
+    const { nucleo, opcionales } = disponibles(p);
+    const v = await vigilar(p, [...nucleo, ...opcionales]).catch(() => null);
+    return { item, texto, tipo: v?.tipo ?? null, registrada: v?.respuestas.find((r) => r.id === item)?.valor ?? null, otras: v?.respuestas.filter((r) => r.id !== item).map((r) => `${r.id}=${r.valor.join(",")}`) ?? [] };
+  }));
 }

@@ -143,6 +143,10 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
     ok(r.estado.ia?.item === null, "escuchar: segundo turno seguido");
     r = await turno(g, inst, r.estado, { texto: "y ya no sé qué hacer" }, ia, []);
     ok(!!r.estado.ia?.item && ia.pedidos.at(-1)?.puedeEscuchar === false, "a la tercera sigue con la siguiente pregunta");
+    // Si ya contestó la pregunta (aquí, tocando una emoción), no se queda escuchando aunque la IA lo pida.
+    e = await hastaIA(ia);
+    r = await turno(g, inst, e, { opciones: ["triste"] }, ia, []);
+    ok(r.estado.ia?.item === "en_termometro", "ya contestó: sigue con la siguiente pregunta, no se queda escuchando");
   }
   // Responder: una duda o un desvío no reimprime la pregunta; siguen sus botones.
   {

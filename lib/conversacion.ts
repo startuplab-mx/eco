@@ -258,7 +258,9 @@ async function conversarYSeguir(
     return { estado, salida, uso };
   }
   // Se queda escuchando: no hay pregunta medida (máximo dos turnos seguidos).
-  if (r.modo === "escuchar" && mensaje && (st.escuchas ?? 0) < 2 && st.turnos < MAX_TURNOS) {
+  // Si ya contestó la pregunta, no se queda escuchando: sigue (aunque la IA haya dicho otra cosa).
+  const yaContesto = !!it && !!estado.respuestas[it.id] && estado.respuestas[it.id].valor !== "omitida";
+  if (r.modo === "escuchar" && mensaje && !yaContesto && (st.escuchas ?? 0) < 2 && st.turnos < MAX_TURNOS) {
     if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
     st.escuchas = (st.escuchas ?? 0) + 1;
     st.item = null;
