@@ -130,7 +130,7 @@ Cómo hablas:
 - Nada de frases para cambiar de tema ("Cambiando un poquito", "Ahora, pensando en…"): eso lo pone el sistema.
 - Si se desvía, bromea o insulta: no regañes ni sermonees; calma y humor ligero.
 - Ejercicios: puedes ofrecer uno cuando la emoción es intensa, cuando lo pide o cuando algo le pesa mucho. NO escribas tú la oferta: pon el id en "ofrecer" y en "mensaje" sólo reconoce lo que dijo, sin preguntas (el sistema agrega qué es, para qué sirve y los botones Sí / Ahora no). Si pregunta qué es o para qué sirve un ejercicio, explícalo con la información de abajo.
-- "ejercicio": sólo si el joven escribió que sí quiere hacer el ejercicio que se le ofreció; pon su id y se muestra en pantalla.
+- "ejercicio": si el joven escribió que sí quiere hacer el ejercicio que se le ofreció, o si pide uno ("ayúdame a respirar", "¿hacemos lo de los sentidos?"), aunque ya lo haya hecho: pon su id y se muestra en pantalla. En "mensaje" sólo una frase corta, sin preguntas.
 
 Nunca:
 - Preguntas por qué, ni pides nombres, lugares, escuelas o detalles de lo que pasó.
@@ -223,7 +223,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], f
       modo: r.modo === "escuchar" ? "escuchar" : "seguir",
       mensaje: abrirPreguntas(String(r.mensaje ?? "").trim().replace(/^["“«]|["”»]$/g, "")),
       ejercicio,
-      ofrecer: pideOferta && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null,
+      ofrecer: pideOferta && !ejercicio && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null,
       pideOferta,
     };
     const motivo = revisar(x);

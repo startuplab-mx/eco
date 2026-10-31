@@ -24,6 +24,23 @@ export function textoOferta(g: Guion, id: string): string {
   return plantilla.replace("{como}", e?.como ?? "").replace("{para}", e?.para ?? "").replace(/\s+/g, " ").trim();
 }
 
+/** Pide un ejercicio para calmarse ("ayúdame a respirar", "¿podemos respirar?"). */
+const PIDE_RESPIRAR = /\b(ay[uú]da(me|rme|r)?|me ayudas?|quiero|quisiera|podemos|necesito|vamos|hagamos|otra vez)\b[^.?!]{0,25}\b(respirar|calmarme|tranquilizarme)\b|\bejercicio de respira/i;
+
+export function pideRespirar(texto: string | null | undefined): boolean {
+  return !!texto && PIDE_RESPIRAR.test(texto);
+}
+
+/** Muestra la respiración porque la pidió (aunque ya la haya hecho) y espera «Listo». */
+export function mostrarRespiracion(salida: Salida[], conListo = true): string {
+  salida.push({ tipo: "ejercicio", ejercicio: "respiracion" });
+  const t = conListo
+    ? "Va, respiremos un momento. Tómate tu tiempo; cuando termines, toca «Listo»."
+    : "Va, respiremos un momento. Tómate tu tiempo; cuando quieras, seguimos con la de arriba.";
+  salida.push({ tipo: "eco", texto: t });
+  return t;
+}
+
 export function enFaseIA(estado: Estado): boolean {
   return estado.modo === "ia" && estado.esperando?.paso.id === "_ia" && !!estado.ia;
 }
@@ -92,6 +109,19 @@ export async function turnoIA(
   // 2. Lista de alarma: lo inequívoco activa la crisis sin esperar a nadie.
   const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
   if (nivel === "segura") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
+
+  // Pidió respirar: se le muestra el ejercicio en ese momento, sin preguntarle nada más.
+  if (!nivel && pideRespirar(texto)) {
+    if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
+    const t = mostrarRespiracion(salida);
+    st.historial.push({ quien: "eco", texto: `[se mostró el ejercicio respiracion] ${t}` });
+    if (!st.ejercicios.includes("respiracion")) st.ejercicios.push("respiracion");
+    st.respiracion = "ofrecida";
+    st.oferta = "hecho";
+    st.item = null;
+    estado.esperando = esperaIA(g, null, t, OPC_LISTO);
+    return { estado, salida, uso };
+  }
 
   // Si se corrigió, la IA recibe la opción tal cual ("A veces"), no la palabra mal escrita.
   return conversarYSeguir(g, inst, estado, salida, uso, ia, corregida ? etiquetas : filtrado, texto, nivel);
@@ -167,12 +197,20 @@ async function conversarYSeguir(
   };
   decir(mensaje);
   if (r.tipo === "pide_orientacion") salida.push({ tipo: "directorio", excluir: ["denuncia"] });
-  if (r.ejercicio && !st.ejercicios.includes(r.ejercicio)) {
-    salida.push({ tipo: "ejercicio", ejercicio: r.ejercicio as never });
-    st.ejercicios.push(r.ejercicio);
-    if (r.ejercicio === "respiracion") st.respiracion = "ofrecida";
-  }
   st.historial = st.historial.slice(-30);
+  // Pidió o aceptó por escrito un ejercicio: se muestra (aunque ya lo haya hecho) y se espera «Listo».
+  if (r.ejercicio && g.ejercicios[r.ejercicio as EjercicioId]) {
+    if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
+    salida.push({ tipo: "ejercicio", ejercicio: r.ejercicio as EjercicioId });
+    if (!st.ejercicios.includes(r.ejercicio)) st.ejercicios.push(r.ejercicio);
+    if (r.ejercicio === "respiracion") st.respiracion = "ofrecida";
+    const t = "Aquí está. Tómate tu tiempo; cuando termines, toca «Listo» o cuéntame cómo te fue.";
+    decir(t);
+    st.oferta = "hecho";
+    st.item = null;
+    estado.esperando = esperaIA(g, null, t, OPC_LISTO);
+    return { estado, salida, uso };
+  }
 
   // Oferta de ejercicio: el texto aprobado y los botones Sí / Ahora no los pone el código.
   if (r.ofrecer && g.ejercicios[r.ofrecer as EjercicioId] && !st.ejercicios.includes(r.ofrecer)) {

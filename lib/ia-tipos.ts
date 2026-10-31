@@ -195,6 +195,9 @@ const PREGUNTA_DETALLE = new RegExp(
   "i",
 );
 
+/** Más adjetivos con género que se le escapan al modelo ("gracias por ser honesto", "no tienes que cargarlo solo"). */
+const GENERO_ECO = /\b(ser|tan|muy)\s+(honest|sincer|valient[e]?|abiert|cuidados)[oa]s?\b|\b(cargarlo|cargarla|cargar con (esto|eso|todo)|enfrentarlo|pasarlo|vivirlo|estar|est[aá]s|te quedes|quedarte)\s+sol[oa]\b/i;
+
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
 const MULETILLAS = /eso debe (ser|estar) (muy |bien )?(dif[ií]cil|duro)|es (muy |totalmente )?normal sentir|te valido|valido (lo que|tu)|aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
@@ -288,6 +291,6 @@ export function motivoRechazo(texto: string, terminar = false): string | null {
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
   if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
   if (/\bdel? \d+ al \d+|qu[eé] tan de acuerdo|en una escala/i.test(t)) return "usa una escala de números o de acuerdo; pregunta directo";
-  if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";
+  if (CON_GENERO.test(t) || GENERO_ECO.test(t)) return "usa adjetivos con género para el joven";
   return null;
 }

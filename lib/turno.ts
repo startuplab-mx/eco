@@ -4,8 +4,8 @@
 
 import type { Estado, Guion, Instancia, Salida } from "./tipos";
 import { responder, usarGuionCompleto, type Entrada } from "./motor";
-import { enFaseIA, turnoIA } from "./conversacion";
-import { filtrarIdentificadores, normalizar } from "./seguridad";
+import { enFaseIA, mostrarRespiracion, pideRespirar, turnoIA } from "./conversacion";
+import { filtrarIdentificadores, nivelAlarma, normalizar } from "./seguridad";
 import type { ServicioIA } from "./ia-tipos";
 
 export interface Mensaje {
@@ -35,6 +35,12 @@ export async function turno(
   const comando = texto && ["pausa", "salir"].includes(normalizar(texto));
   // Fase en que la IA conduce: otro flujo. "pausa" y "salir" los sigue manejando el motor.
   if (enFaseIA(estado) && !comando) return turnoIA(g, inst, estado, entrada, ia);
+  // En las partes del guion (módulo, cierre): si pide respirar, se le muestra el ejercicio y la pregunta sigue ahí.
+  if (esp && texto && !comando && !estado.rojo && !estado.pausa && esp.paso.tipo !== "ejercicio" && pideRespirar(texto) && !nivelAlarma(texto, g.alarma, g.alarmaRevisar)) {
+    const salida: Salida[] = [];
+    mostrarRespiracion(salida, false);
+    return { estado: structuredClone(estado), salida, uso };
+  }
   let final: Entrada = entrada;
 
   // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.

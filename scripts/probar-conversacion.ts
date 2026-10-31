@@ -287,6 +287,20 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   const trasNo = await turno(g, inst, r.estado, { opcion: "no" }, iaOferta, []);
   ok(!trasNo.salida.some((x) => x.tipo === "ejercicio") && textos(trasNo.salida)[0] === "¿Cómo te fue con eso?", "«Ahora no» sigue la plática sin ejercicio");
 
+  // Pide respirar: se le muestra la respiración en ese momento, en la plática con IA y en las partes del guion.
+  {
+    const ia = iaFalsa();
+    let e = await hastaIA(ia);
+    const n = ia.pedidos.length;
+    let r = await turno(g, inst, e, { texto: "ayudame a respirar porfa, me tiembla todo" }, ia, []);
+    ok(r.salida.some((x) => x.tipo === "ejercicio" && x.ejercicio === "respiracion") && r.estado.esperando?.opciones[0]?.label === "Listo" && ia.pedidos.length === n, "con IA: «ayúdame a respirar» muestra la respiración y espera «Listo»");
+    e = await hastaIA(null);
+    r = await turno(g, inst, e, { texto: "¿me puedes ayudar a respirar?" }, null, []);
+    ok(r.salida.some((x) => x.tipo === "ejercicio") && r.estado.esperando?.paso.id === e.esperando?.paso.id, "guion: muestra la respiración y la pregunta sigue ahí");
+  }
+  ok(!!motivoRechazo("Gracias por ser honesto."), "validador: rechaza «ser honesto»");
+  ok(!!motivoRechazo("No tienes que cargarlo solo."), "validador: rechaza «cargarlo solo»");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();
