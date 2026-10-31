@@ -1,5 +1,5 @@
 {
-  "version": "0.3",
+  "version": "0.4",
   "escalas": {
     "E5": [
       {
@@ -2852,6 +2852,88 @@
     "privacidad": "Eco no pide nombres ni ubicación; cada plática tiene un código al azar. Lo que escribes no se guarda completo: sólo números y temas. Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién es quién.",
     "proposito": "Eco es un espacio para platicar cómo te sientes. Lo que contestas ayuda a que el equipo de psicología entienda cómo están los jóvenes de tu escuela y pueda crear apoyos.",
     "rondaIntro": "Antes de terminar, unas preguntas rápidas. Puedes contestar con un toque.",
-    "ofertaEjercicio": "Te propongo un ejercicio de un minuto. {como} {para} ¿Quieres intentarlo? Si no te late, no pasa nada."
+    "ofertaEjercicio": "Te propongo un ejercicio de un minuto. {como} {para} ¿Quieres intentarlo? Si no te late, no pasa nada.",
+    "temas": [
+      {
+        "id": "hoy",
+        "nombre": "Cómo te sientes hoy",
+        "intro": "Listo. Ahora sí, platiquemos de ti.",
+        "items": [
+          "en_emociones",
+          "en_termometro",
+          "en_cuerpo",
+          "en_tiempo",
+          "en_ambito"
+        ]
+      },
+      {
+        "id": "dia",
+        "nombre": "Tu día a día",
+        "intro": "Ahora unas preguntas sobre cómo te sientes en tu colonia y en la escuela. No necesito saber qué pasa ahí, solo cómo estás tú.",
+        "items": [
+          "v1_colonia",
+          "v1_escuela",
+          "v1_enterado"
+        ]
+      },
+      {
+        "id": "afecta",
+        "nombre": "Cómo te afecta",
+        "intro": "A veces lo que vivimos se nos queda en el cuerpo y en la cabeza. Te pregunto cómo te afecta a ti.",
+        "items": [
+          "v2_miedo",
+          "v2_alerta",
+          "v2_dormir"
+        ]
+      },
+      {
+        "id": "dentro",
+        "nombre": "Por dentro",
+        "intro": "Ahora sobre cómo andas por dentro estas semanas. No hay respuestas buenas ni malas.",
+        "items": [
+          "v3_triste",
+          "v3_desesperanza",
+          "v4_enojo",
+          "v5_lealtad",
+          "v5_culpa"
+        ]
+      },
+      {
+        "id": "piensas",
+        "nombre": "Lo que piensas",
+        "intro": "Ahora unas preguntas sobre lo que piensas tú. No hay respuestas buenas ni malas, y nadie va a saber lo que contestes.",
+        "items": [
+          "v6_normal",
+          "v6_dinero",
+          "v7_presion",
+          "v7_libertad"
+        ]
+      },
+      {
+        "id": "futuro",
+        "nombre": "Tu futuro",
+        "intro": "Hablemos de lo que quieres para ti más adelante.",
+        "items": [
+          "v8_cinco",
+          "v8_cinco_txt",
+          "v8_escuela"
+        ]
+      },
+      {
+        "id": "cuentas",
+        "nombre": "Con quién cuentas",
+        "intro": "Por último, sobre con quién cuentas cuando algo se pone difícil.",
+        "items": [
+          "v9_adulto",
+          "v9_amigos",
+          "v9_estrategias"
+        ]
+      }
+    ],
+    "introModulos": {
+      "D": "Ahora hablemos de lo bueno que hay en ti.",
+      "H": "Ahora sobre lo que te inspira y lo que sueñas.",
+      "I": "Ahora sobre pedir ayuda cuando la necesitas."
+    }
   }
 }

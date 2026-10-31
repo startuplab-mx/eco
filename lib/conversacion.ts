@@ -3,9 +3,10 @@
 // - qué preguntas del núcleo faltan, el límite de turnos y la ronda rápida final;
 // - la escalera de desvíos (tercer desvío → "¿otro día?") y el directorio cuando pide orientación.
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
-import { activarRojo, esperaIA, ofrecerOtroDia, pendientesNucleo, porSinonimos, seguirGuion, type Entrada } from "./motor";
+import { activarRojo, esperaIA, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
+import { siguientePaso, siguientesPasos } from "./temas";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
-import { catalogo, itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
+import { itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
 import type { ServicioIA } from "./ia-tipos";
 
@@ -120,6 +121,9 @@ async function conversarYSeguir(
       respiracion: st.respiracion,
       ejercicios: st.ejercicios,
       ofrecidos: st.ofrecidos ?? [],
+      siguientes: siguientesPasos(g, estado, 3).map(({ id, texto, intro }) => ({ id, texto, intro })),
+      puedeEscuchar: (st.escuchas ?? 0) < 2,
+      puedeAclarar: !!it && it.tipo !== "abierta" && !estado.respuestas[it.id] && !(st.aclarados ?? []).includes(it.id),
     });
   }
 
@@ -153,19 +157,15 @@ async function conversarYSeguir(
   if (r.respiracion === "ofrecida") st.respiracion = "ofrecida";
   else if (st.respiracion === "no" && (estado.respuestas.en_termometro?.num ?? 0) >= 4) st.respiracion = "pendiente";
 
-  // 7. Lo que dice Eco. Si el servidor no logró un mensaje válido de la IA, el respaldo lo pone el código
-  // y nunca repite una pregunta que ya se hizo.
-  if (r.respaldo && !r.ofrecer) {
-    uso.respaldos++;
-    respaldoSinRepetir(g, inst, estado, salida, texto, filtrado);
-    return { estado, salida, uso };
-  }
+  // 7. Lo que dice Eco: su frase (puede ir vacía) y, si sigue, la intro del tema y la pregunta tal cual el guion.
   if (r.respaldo) uso.respaldos++; else uso.puentes++;
   const mensaje = r.mensaje ?? "";
-  if (mensaje) {
-    salida.push({ tipo: "eco", texto: mensaje });
-    st.historial.push({ quien: "eco", texto: mensaje });
-  }
+  const decir = (t: string) => {
+    if (!t) return;
+    salida.push({ tipo: "eco", texto: t });
+    st.historial.push({ quien: "eco", texto: t });
+  };
+  decir(mensaje);
   if (r.tipo === "pide_orientacion") salida.push({ tipo: "directorio", excluir: ["denuncia"] });
   if (r.ejercicio && !st.ejercicios.includes(r.ejercicio)) {
     salida.push({ tipo: "ejercicio", ejercicio: r.ejercicio as never });
@@ -174,17 +174,11 @@ async function conversarYSeguir(
   }
   st.historial = st.historial.slice(-30);
 
-  // 8. ¿Termina la plática con IA? Sigue la ronda rápida (si falta para el 80%) y el cierre.
-  const sinPendientes = pendientesNucleo(g, estado).length === 0;
-  if (r.terminar || st.turnos >= MAX_TURNOS || (sinPendientes && !r.item)) {
-    seguirGuion(g, inst, estado, salida);
-    return { estado, salida, uso };
-  }
   // Oferta de ejercicio: el texto aprobado y los botones Sí / Ahora no los pone el código.
   if (r.ofrecer && g.ejercicios[r.ofrecer as EjercicioId] && !st.ejercicios.includes(r.ofrecer)) {
+    if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
     const oferta = textoOferta(g, r.ofrecer);
-    salida.push({ tipo: "eco", texto: oferta });
-    st.historial.push({ quien: "eco", texto: oferta });
+    decir(oferta);
     st.oferta = r.ofrecer;
     st.ofrecidos = [...(st.ofrecidos ?? []), r.ofrecer];
     st.item = null;
@@ -192,10 +186,42 @@ async function conversarYSeguir(
     estado.esperando = esperaIA(g, null, oferta, OPC_OFERTA);
     return { estado, salida, uso };
   }
-  st.item = r.item && !estado.respuestas[r.item] ? r.item : null;
-  if (st.item) marcarPreguntado(st, st.item);
-  estado.esperando = esperaIA(g, st.item, mensaje);
+
+  // La pregunta en curso sigue en pantalla con sus botones (contestó una duda o se le pidió que elija).
+  if ((r.modo === "responder" || r.modo === "aclarar") && it && !estado.respuestas[it.id]) {
+    if (r.modo === "aclarar") st.aclarados = [...(st.aclarados ?? []), it.id];
+    estado.esperando = esperaIA(g, it.id, it.texto);
+    return { estado, salida, uso };
+  }
+  // Se queda escuchando: no hay pregunta medida (máximo dos turnos seguidos).
+  if (r.modo === "escuchar" && mensaje && (st.escuchas ?? 0) < 2 && st.turnos < MAX_TURNOS) {
+    if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
+    st.escuchas = (st.escuchas ?? 0) + 1;
+    st.item = null;
+    estado.esperando = esperaIA(g, null, mensaje);
+    return { estado, salida, uso };
+  }
+  st.escuchas = 0;
+  if (it && !estado.respuestas[it.id]) omitir(estado, it.id);
+  hacerSiguiente(g, inst, estado, salida);
   return { estado, salida, uso };
+}
+
+/** La siguiente pregunta del guion, tal cual, con la intro de su tema si es la primera de ese tema. */
+function hacerSiguiente(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): void {
+  const st = estado.ia!;
+  const sig = siguientePaso(g, estado);
+  if (!sig || st.turnos >= MAX_TURNOS) { seguirGuion(g, inst, estado, salida); return; }
+  if (sig.intro) {
+    salida.push({ tipo: "eco", texto: sig.intro });
+    st.historial.push({ quien: "eco", texto: sig.intro });
+    st.temas = [...new Set([...(st.temas ?? []), sig.tema])];
+  }
+  salida.push({ tipo: "eco", texto: sig.texto });
+  st.historial.push({ quien: "eco", texto: sig.texto });
+  st.item = sig.id;
+  marcarPreguntado(st, sig.id);
+  estado.esperando = esperaIA(g, sig.id, sig.texto);
 }
 
 function marcarPreguntado(st: NonNullable<Estado["ia"]>, id: string) {
@@ -207,7 +233,7 @@ function marcarPreguntado(st: NonNullable<Estado["ia"]>, id: string) {
  * 1. Lo que contestó a la pregunta en curso se lee con las reglas; si es una emoción con sus palabras, va como "otro".
  * 2. Si no se entendió una pregunta de botones, se pide UNA aclaración corta ("¿Cuál se parece más?") con los botones;
  *    si tampoco se entiende, se deja como saltada.
- * 3. Sigue con la primera pregunta obligatoria que todavía no se ha hecho.
+ * 3. Sigue con la siguiente pregunta del guion en orden, con la intro de su tema.
  */
 function respaldoSinRepetir(
   g: Guion, inst: Instancia, estado: Estado, salida: Salida[], texto: string | null, filtrado: string | null,
@@ -228,13 +254,5 @@ function respaldoSinRepetir(
       return;
     } else omitir(estado, cur.id);
   }
-  const hechas = new Set(st.preguntados ?? []);
-  const pend = new Set(pendientesNucleo(g, estado));
-  const sig = catalogo(g).find((x) => x.nucleo && pend.has(x.id) && !hechas.has(x.id));
-  if (!sig || st.turnos >= MAX_TURNOS) { seguirGuion(g, inst, estado, salida); return; }
-  salida.push({ tipo: "eco", texto: sig.texto });
-  st.historial.push({ quien: "eco", texto: sig.texto });
-  st.item = sig.id;
-  marcarPreguntado(st, sig.id);
-  estado.esperando = esperaIA(g, sig.id, sig.texto);
+  hacerSiguiente(g, inst, estado, salida);
 }

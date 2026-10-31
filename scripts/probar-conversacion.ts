@@ -16,9 +16,10 @@ let fallas = 0;
 const ok = (c: boolean, n: string) => { console.log(`${c ? "✓" : "✗"} ${n}`); if (!c) fallas++; };
 const textos = (s: Salida[]) => s.filter((x) => "texto" in x).map((x) => (x as { texto: string }).texto);
 
-/** IA simulada: contesta la siguiente pendiente obligatoria y registra lo que el "joven" tocó. */
-function iaFalsa(opc: { riesgo?: RegExp; tipo?: RespuestaConversar["tipo"]; terminarEn?: number; nada?: boolean } = {}): ServicioIA & { pedidos: PedidoConversar[] } {
+/** IA simulada: como el servidor, decide el modo; las preguntas las pone el código. */
+function iaFalsa(opc: { riesgo?: RegExp; tipo?: RespuestaConversar["tipo"]; modo?: RespuestaConversar["modo"]; nada?: boolean } = {}): ServicioIA & { pedidos: PedidoConversar[] } {
   const pedidos: PedidoConversar[] = [];
+  const desvio = ["sin_sentido", "groseria", "fuera_de_tema", "privacidad", "pide_orientacion"];
   return {
     pedidos,
     interpretar: async () => null,
@@ -26,14 +27,12 @@ function iaFalsa(opc: { riesgo?: RegExp; tipo?: RespuestaConversar["tipo"]; term
     conversar: async (p) => {
       pedidos.push(p);
       if (opc.nada) return null;
-      if (opc.riesgo && p.texto && opc.riesgo.test(p.texto)) return { riesgo: true, tipo: "responde", respuestas: [], mensaje: null, item: null, ejercicio: null, terminar: false };
-      const pend = catalogo(g).filter((x) => x.nucleo && !x.id.startsWith("ci_") && !p.cubiertos.includes(x.id));
-      const sig = pend[0];
-      return {
-        riesgo: false, tipo: opc.tipo ?? "responde", respuestas: [],
-        mensaje: sig ? `Pregunto: ${sig.texto}` : "Gracias.", item: sig?.id ?? null, ejercicio: null,
-        terminar: !sig || (opc.terminarEn !== undefined && p.turnos >= opc.terminarEn),
-      };
+      if (opc.riesgo && p.texto && opc.riesgo.test(p.texto)) return { riesgo: true, tipo: "responde", respuestas: [], mensaje: null, modo: "seguir", ejercicio: null };
+      const tipo = opc.tipo ?? "responde";
+      const sinContestar = !!p.item && !p.cubiertos.includes(p.item);
+      const modo = opc.modo ?? (desvio.includes(tipo) && sinContestar ? "responder" : "seguir");
+      const mensaje = modo === "escuchar" ? "Te escucho. ¿Cómo te sientes con eso?" : modo === "responder" ? "Va, sin bronca." : p.texto ? "Va." : "";
+      return { riesgo: false, tipo, respuestas: [], mensaje, modo, ejercicio: null };
     },
   };
 }
@@ -77,13 +76,75 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   const res = resumen(g, inst, fin.estado);
   ok(res.nivel !== "rojo" && Object.keys(res.indices).length >= 8 && res.consintio, "el resumen tiene índices y nivel");
 
-  // 4. La IA termina pronto: la ronda rápida completa hasta el 80%.
-  ia = iaFalsa({ terminarEn: 4 });
-  e = await hastaIA(ia);
-  const f2 = await hastaElFinal(e, ia);
-  const c2 = cobertura(g, f2.estado);
-  ok(textos(f2.todo).includes(g.ia!.rondaIntro), "si la IA termina antes, aparece la ronda rápida");
-  ok(c2.contestadas >= Math.ceil(0.8 * c2.total), `la ronda llega al 80% (${c2.contestadas}/${c2.total})`);
+  // 4. Orden por temas: las preguntas salen tal cual el guion, en el orden de los temas, y cada intro una sola vez.
+  {
+    const ia = iaFalsa();
+    let e = await hastaIA(ia);
+    const items: string[] = [];
+    const todo: Salida[] = [];
+    for (let k = 0; k < 80 && e.esperando && !e.terminada && e.modo === "ia"; k++) {
+      if (e.ia?.item) items.push(e.ia.item);
+      const x = e.esperando;
+      const r = await turno(g, inst, e, (x.opciones.length ? (x.multiple ? { opciones: [x.opciones[0].id] } : { opcion: x.opciones[0].id }) : { texto: "pues bien" }) as never, ia, []);
+      e = r.estado; todo.push(...r.salida);
+    }
+    const orden = g.ia!.temas!.flatMap((t) => t.items);
+    const posiciones = items.map((id) => orden.indexOf(id));
+    ok(posiciones.every((p, i) => p >= 0 && (i === 0 || p > posiciones[i - 1])), `las preguntas siguen el orden de los temas (${items.length})`);
+    const t = textos(todo);
+    const intros = g.ia!.temas!.slice(1).map((x) => x.intro);
+    ok(intros.every((i) => t.filter((x) => x === i).length === 1), "cada tema abre con su intro, una sola vez");
+    ok(items.slice(1).every((id) => t.includes(catalogo(g).find((c) => c.id === id)!.texto)), "las preguntas se muestran tal cual el guion");
+    const iIntro = t.indexOf(g.ia!.temas![1].intro);
+    ok(iIntro >= 0 && t[iIntro + 1] === catalogo(g).find((c) => c.id === "v1_colonia")!.texto, "la intro va justo antes de la primera pregunta de su tema");
+    // Después de los temas: ¿seguimos?, un módulo, lo libre y el cierre.
+    ok(e.esperando?.paso.id === "tr_seguir", "al terminar los temas pregunta si quiere seguir");
+    const f = await hastaElFinal(e, ia);
+    ok(f.estado.modulosHechos.length === 1 && f.estado.terminada && f.estado.completa, `luego un solo módulo (${f.estado.modulosHechos.join(",")}) y el cierre`);
+    ok(f.estado.respuestas.li_libre !== undefined, "antes del cierre, la pregunta libre");
+    ok(ia.pedidos.some((p) => p.siguientes?.[0]?.intro === g.ia!.temas![1].intro), "al servidor le llega lo que sigue, con la intro del tema");
+  }
+  // Límite de turnos: se pasa a la ronda rápida.
+  {
+    const ia = iaFalsa();
+    let e = await hastaIA(ia);
+    e.ia!.turnos = 39;
+    const r = await turno(g, inst, e, { opciones: ["triste"] }, ia, []);
+    ok(r.estado.modo === "guion" && textos(r.salida).includes(g.ia!.rondaIntro), "al llegar al límite de turnos sigue la ronda rápida");
+  }
+  // Escuchar: sin pregunta medida, máximo dos turnos seguidos.
+  {
+    const ia = iaFalsa({ modo: "escuchar" });
+    let e = await hastaIA(ia);
+    let r = await turno(g, inst, e, { texto: "pues no sé, ando con muchas cosas en la cabeza y no duermo" }, ia, []);
+    ok(r.estado.ia?.item === null && r.estado.esperando?.opciones.length === 0 && textos(r.salida).length === 1, "escuchar: sólo su frase, sin botones");
+    r = await turno(g, inst, r.estado, { texto: "es que todo se junta" }, ia, []);
+    ok(r.estado.ia?.item === null, "escuchar: segundo turno seguido");
+    r = await turno(g, inst, r.estado, { texto: "y ya no sé qué hacer" }, ia, []);
+    ok(!!r.estado.ia?.item && ia.pedidos.at(-1)?.puedeEscuchar === false, "a la tercera sigue con la siguiente pregunta");
+  }
+  // Responder: una duda o un desvío no reimprime la pregunta; siguen sus botones.
+  {
+    const ia = iaFalsa({ tipo: "privacidad" });
+    let e = await hastaIA(ia);
+    const r = await turno(g, inst, e, { texto: "¿quién lee esto?" }, ia, []);
+    ok(r.estado.ia?.item === "en_emociones" && r.estado.esperando!.opciones.length === 12 && textos(r.salida).length === 1, "responder: contesta y deja la misma pregunta con sus botones, sin repetirla");
+  }
+  // Aclarar: una sola vez por pregunta.
+  {
+    const ia: ServicioIA = {
+      interpretar: async () => null, redactar: async () => null,
+      conversar: async (p) => (p.texto === "depende" && p.puedeAclarar
+        ? { riesgo: false, tipo: "responde", respuestas: [], mensaje: "No te entendí bien. ¿Cuál de estas se parece más?", modo: "aclarar", ejercicio: null }
+        : { riesgo: false, tipo: "responde", respuestas: [], mensaje: "", modo: "seguir", ejercicio: null }),
+    };
+    let e = await hastaIA(ia);
+    e = (await turno(g, inst, e, { opciones: ["triste"] }, ia, [])).estado;
+    let r = await turno(g, inst, e, { texto: "depende" }, ia, []);
+    ok(r.estado.ia?.item === "en_termometro" && r.estado.ia?.aclarados?.includes("en_termometro") === true, "aclarar: deja la misma pregunta con botones");
+    r = await turno(g, inst, r.estado, { texto: "depende" }, ia, []);
+    ok(r.estado.respuestas.en_termometro?.valor === "omitida" && r.estado.ia?.item !== "en_termometro", "aclarar: a la segunda se salta y sigue");
+  }
 
   // 5. Riesgo: la lista local activa la crisis sin esperar al modelo; el vigilante también.
   ia = iaFalsa();
@@ -210,8 +271,8 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   const iaOferta: ServicioIA = {
     interpretar: async () => null, redactar: async () => null,
     conversar: async (p) => {
-      if (!ofrecido) { ofrecido = true; return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "Eso suena muy pesado.", item: null, ofrecer: "anclaje", ejercicio: null, terminar: false }; }
-      return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "¿Cómo te fue con eso?", item: null, ejercicio: null, terminar: false };
+      if (!ofrecido) { ofrecido = true; return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "Eso suena muy pesado.", modo: "seguir", ofrecer: "anclaje", ejercicio: null }; }
+      return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "¿Cómo te fue con eso?", modo: "escuchar", ejercicio: null };
     },
   };
   e = await hastaIA(iaOferta);

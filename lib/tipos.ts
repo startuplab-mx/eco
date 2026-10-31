@@ -102,7 +102,13 @@ export interface Guion {
   /** Preguntas que cuentan para la cobertura (el 80%), en orden de referencia. */
   nucleo?: string[];
   /** Información aprobada que la IA puede usar al responder preguntas del joven. */
-  ia?: { privacidad: string; proposito: string; rondaIntro: string; ofertaEjercicio?: string };
+  ia?: {
+    privacidad: string; proposito: string; rondaIntro: string; ofertaEjercicio?: string;
+    /** Temas de la plática con IA, en orden fijo: se termina uno antes de pasar al siguiente. */
+    temas?: { id: string; nombre: string; intro: string; items: string[] }[];
+    /** Introducción de los módulos que no la traen en su primer paso. */
+    introModulos?: Record<string, string>;
+  };
   ruta: {
     prioridad: string[];
     porEmocion: Record<string, string[]>;
@@ -216,6 +222,10 @@ export interface EstadoIA {
   ofrecidos?: string[];
   /** Preguntas medidas que Eco ya hizo: nunca se repiten. */
   preguntados?: string[];
+  /** Temas cuya introducción ya se mostró. */
+  temas?: string[];
+  /** Turnos seguidos en que Eco sólo escuchó (máximo 2). */
+  escuchas?: number;
   /** Preguntas en las que ya se pidió una aclaración corta ("¿Cuál se parece más?"). */
   aclarados?: string[];
   /** Ejercicio ofrecido que espera un sí o un no; "hecho": se mostró y espera "Listo". */

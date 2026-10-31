@@ -67,21 +67,34 @@ export interface PedidoConversar {
   ejercicios: string[];
   /** Ejercicios ya ofrecidos (aceptados o no). */
   ofrecidos?: string[];
+  /** Las siguientes preguntas del guion, en orden, con la introducción del tema donde toca. Las pone el sistema tal cual. */
+  siguientes?: { id: string; texto: string; intro: string | null }[];
+  /** Puede quedarse escuchando en este turno (máximo 2 turnos seguidos). */
+  puedeEscuchar?: boolean;
+  /** La pregunta en curso todavía admite una aclaración ("¿Cuál de estas se parece más?"). */
+  puedeAclarar?: boolean;
 }
+
+/**
+ * Qué hace Eco en este turno:
+ * - seguir: frase puente (puede ir vacía) y luego el sistema pone la intro del tema y la siguiente pregunta, tal cual;
+ * - escuchar: sólo escucha e invita a seguir contando; no hay pregunta medida;
+ * - responder: contesta una duda o redirige; la pregunta en curso sigue en pantalla con sus botones;
+ * - aclarar: no se entendió la respuesta a una pregunta de botones; se pide una sola vez que elija.
+ */
+export type ModoTurno = "seguir" | "escuchar" | "responder" | "aclarar";
 
 export interface RespuestaConversar {
   riesgo: boolean;
   tipo: TipoRespuesta;
   /** Respuestas que se desprenden de lo que escribió. */
   respuestas: { id: string; valor: string[] }[];
-  /** Lo que dice Eco (null en crisis). */
+  /** Lo que dice Eco antes de lo que pone el sistema (null en crisis; "" si no hace falta decir nada). */
   mensaje: string | null;
-  /** Pregunta medida que hace en este mensaje (sus opciones se muestran como etiquetas). */
-  item: string | null;
+  modo: ModoTurno;
   ejercicio: string | null;
   /** Ejercicio que se ofrece: el sistema agrega qué es, para qué sirve y los botones Sí / Ahora no. */
   ofrecer?: string | null;
-  terminar: boolean;
   /** El mensaje lo escribió el guion porque la IA no dio uno válido. */
   respaldo?: boolean;
   /** En este mensaje se ofreció la respiración por termómetro alto. */
@@ -228,6 +241,39 @@ export function quitarMuletillas(texto: string): string {
     .filter((o) => !MULETILLAS.test(o))
     .join(" ")
     .trim();
+}
+
+/** Lugares, personas o hechos: el puente sólo habla de cómo se siente. */
+const HECHOS =
+  /\b(colonia|escuela|secu|secundaria|prepa|sal[oó]n|casa|calle|barrio|cuadra|mam[aá]s?|pap[aá]s?|jefa|jefe|herman[oa]s?|t[ií][oa]s?|abuel[oa]s?|primos?|primas?|amig[oa]s?|compas?|novi[oa]|profes?|maestr[oa]s?|balazos?|balacera|balas?|disparos?|tiros|pelea|golpes?|muert[oa]s?|mataron|levantaron|robo|asalto|vecin[oa]s?)\b/i;
+
+function contar(t: string) {
+  return { palabras: t.split(/\s+/).filter(Boolean).length, oraciones: t.split(/(?<=[.!?])\s+/).filter((o) => o.trim()).length, preguntas: (t.match(/\?/g) ?? []).length };
+}
+
+/** Motivo para no usar el mensaje según el modo del turno, o null si está bien. */
+export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "responder", tipo = "responde"): string | null {
+  const t = texto.trim();
+  if (modo === "seguir" && !t) return null; // sin puente: va directo a la pregunta
+  const comun = motivoRechazo(t);
+  if (comun) return comun;
+  const n = contar(t);
+  if (modo === "seguir") {
+    if (n.preguntas) return "el puente no lleva preguntas: la siguiente pregunta la pone el sistema";
+    const maxPalabras = ["pregunta", "privacidad", "pide_orientacion"].includes(tipo) ? 30 : 14;
+    if (n.palabras > maxPalabras || n.oraciones > 2) return `el puente es muy largo: máximo ${maxPalabras} palabras`;
+    if (tipo === "responde" && HECHOS.test(t)) return "el puente menciona lugares, personas o hechos; habla sólo de cómo se siente";
+  }
+  if (modo === "escuchar") {
+    if (n.preguntas > 1) return "más de una pregunta";
+    if (n.palabras > 32 || n.oraciones > 3) return "muy largo: máximo 2 oraciones y unas 25 palabras";
+    if (/qu[eé] tan (seguido|fuerte)|qu[eé] tanto/i.test(t)) return "al escuchar no hagas preguntas del cuestionario; invita a seguir contando";
+  }
+  if (modo === "responder") {
+    if (n.preguntas) return "no hagas otra pregunta: la que le hiciste sigue en pantalla";
+    if (n.palabras > 40 || n.oraciones > 3) return "muy largo: máximo 2 oraciones";
+  }
+  return null;
 }
 
 export function motivoRechazo(texto: string, terminar = false): string | null {
