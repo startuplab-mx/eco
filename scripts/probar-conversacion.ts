@@ -4,7 +4,7 @@ import guionJson from "../data/guion.json";
 import instJson from "../config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { RespuestaConversar, ServicioIA, PedidoConversar } from "../lib/ia-tipos";
-import { motivoRechazo } from "../lib/ia-tipos";
+import { motivoRechazo, quitarMuletillas } from "../lib/ia-tipos";
 import { arrancar, crearEstado } from "../lib/motor";
 import { turno } from "../lib/turno";
 import { cobertura, catalogo } from "../lib/catalogo";
@@ -103,6 +103,40 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   r = await turno(g, inst, e, { texto: "me corto mucho" }, ia, []);
   ok(r.estado.rojo, "«me corto…» sin modelo: crisis");
 
+  // Nunca se repite una pregunta.
+  {
+    // «Chingón» se registra como «Con alegría» sin depender de la IA.
+    let ia = iaFalsa();
+    let e = await hastaIA(ia);
+    let r = await turno(g, inst, e, { texto: "Chingon" }, ia, []);
+    ok(JSON.stringify(r.estado.respuestas.en_emociones?.valor) === '["contento"]', "«Chingón» → Con alegría");
+
+    // Sin IA: una emoción con sus palabras va como «otro» y la siguiente pregunta NO es otra vez la de emociones.
+    ia = iaFalsa({ nada: true });
+    e = await hastaIA(ia);
+    r = await turno(g, inst, e, { texto: "me siento de la fregada" }, ia, []);
+    ok(JSON.stringify(r.estado.respuestas.en_emociones?.valor) === '["otro"]', "sin IA: emoción con sus palabras → «otro»");
+    ok(!textos(r.salida).some((t) => /cómo te sientes hoy/i.test(t)), "sin IA: no vuelve a preguntar cómo se siente");
+
+    // Sin IA: respuesta que no se entiende en una escala → UNA aclaración corta; a la segunda se salta. Nunca la pregunta completa otra vez.
+    e = r.estado;
+    const enCurso = e.ia!.item!;
+    r = await turno(g, inst, e, { texto: "xyz qwe" }, ia, []);
+    ok(textos(r.salida)[0] === "No te entendí bien. ¿Cuál de estas se parece más?" && r.estado.esperando!.opciones.length > 0, `sin IA: aclaración corta con botones (${enCurso})`);
+    r = await turno(g, inst, r.estado, { texto: "xyz qwe" }, ia, []);
+    ok(r.estado.respuestas[enCurso]?.valor === "omitida" && r.estado.ia!.item !== enCurso, "sin IA: a la segunda se deja como saltada y sigue con otra");
+
+    // A lo largo de toda una plática sin IA, ninguna pregunta se hace dos veces.
+    e = await hastaIA(ia);
+    const hechas: string[] = [];
+    for (let k = 0; k < 60 && e.esperando && !e.terminada && e.modo === "ia"; k++) {
+      if (e.ia?.item) hechas.push(e.ia.item);
+      e = (await turno(g, inst, e, { texto: k % 3 ? "pues no sé" : "a veces" }, ia, [])).estado;
+    }
+    const repetidas = hechas.filter((x, i) => hechas.indexOf(x) !== i && hechas[i - 1] !== x);
+    ok(repetidas.length === 0, `sin IA: ninguna pregunta se repite en toda la plática${repetidas.length ? ` (${repetidas.join(", ")})` : ""}`);
+  }
+
   // Faltas de ortografía en modo IA: «Aveces» se registra como «A veces» y la IA recibe la opción, no la palabra mal escrita.
   {
     const ia = iaFalsa();
@@ -126,6 +160,9 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   ok(!!motivoRechazo("Eso de cuidar a tu jefa dice mucho de cómo la quieres."), "validador: rechaza «dice mucho…»");
   ok(!!motivoRechazo("Mucho, eso dice bastante de ti."), "validador: rechaza «dice bastante de ti»");
   ok(!!motivoRechazo("Tienes de dónde agarrarte, y eso se nota."), "validador: rechaza «eso se nota»");
+  for (const m of ["Eso también cabe aquí. ¿Qué tan fuerte lo sientes?", "Todo cabe en este espacio.", "Es totalmente válido sentir eso.", "Es válido que te sientas así."])
+    ok(!!motivoRechazo(m), `validador: rechaza la muletilla «${m.slice(0, 30)}…»`);
+  ok(quitarMuletillas("Qué bueno. Eso también cabe aquí. ¿Qué tan fuerte sientes esa alegría ahorita?") === "Qué bueno. ¿Qué tan fuerte sientes esa alegría ahorita?", "reparación: se quita sólo la oración con muletilla");
   ok(motivoRechazo("Donde vives, ¿qué tanto se ve la violencia como algo normal?") === null, "validador: acepta «¿qué tanto…?»");
 
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.
@@ -139,6 +176,11 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   ok(e.esperando?.paso.id === "_otrodia", "tres desvíos: ofrece dejarlo para otro día");
   r = await turno(g, inst, e, { opcion: "seguir" }, ia, []);
   ok(r.estado.modo === "ia" && r.estado.esperando?.paso.id === "_ia" && r.estado.desvios === 0, "«Seguir» regresa a la plática con IA");
+  {
+    const antes = e.esperandoPrevio?.pregunta ?? "";
+    const t = textos(r.salida);
+    ok(t.length === 1 && /^Va, seguimos\. ¿/.test(t[0]) && t[0] !== `Va, seguimos. ${antes}` && !t[0].includes("Pregunto:"), "«Seguir»: retoma sólo con la pregunta, sin repetir el mensaje anterior");
+  }
 
   // 9. Pausa y salir funcionan en la fase con IA.
   ia = iaFalsa();

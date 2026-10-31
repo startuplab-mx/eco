@@ -6,7 +6,7 @@ import "server-only";
 import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
-import { abrirPreguntas, motivoRechazo, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
+import { abrirPreguntas, motivoRechazo, quitarMuletillas, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
 
 const g = guionJson as unknown as Guion;
@@ -15,7 +15,8 @@ const MAX_OPCIONALES = 2;
 // ---------- catálogo en texto para los modelos ----------
 
 function lineaItem(it: ItemCatalogo): string {
-  const ops = it.opciones.length ? ` | opciones: ${it.opciones.map((o) => `${o.id}=${o.label}`).join("; ")}` : "";
+  const lista = [...it.opciones.map((o) => `${o.id}=${o.label}`), ...(it.aceptaOtro ? ["otro=lo dijo con sus palabras y no se parece a ninguna"] : [])];
+  const ops = lista.length ? ` | opciones: ${lista.join("; ")}` : "";
   const tipo = it.tipo === "multiple" ? "varias" : it.tipo === "opcion" ? "una" : "abierta";
   return `- ${it.id} [${tipo}] (${it.tema}) "${it.texto}"${ops}`;
 }
@@ -53,7 +54,7 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 - Pregunta de una opción: exactamente un id. De varias: uno o más. Abierta: ["texto"] si contestó con sus palabras, o el id de la frase sugerida si eligió una.
 - Lee con faltas de ortografía y escritura de celular como lo que son: "aveces" = a veces, "nunka" = nunca, "masomenos" = más o menos, "kasi" = casi, "bastate" = bastante.
 - Termómetro (Muy poquito… Muy fuerte): "poquito" → t2, "muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
-- Una emoción que no está en la lista va como "otro" si la pregunta tiene esa opción; si no, no la registres.
+- Una emoción que no está en la lista va como "otro" si la pregunta tiene esa opción; si no, no la registres. Antes de usar "otro", fíjate si es una forma de decir una de la lista: "chingón", "chido", "poca madre", "bien", "feliz" = contento; "a gusto", "tranqui", "relax" = tranquilo; "de la fregada", "de la v…", "mal" sin más = no la adivines: "otro".
 - Si no es claro, no registres nada. Es mejor dejarla pendiente que adivinar.`;
 
 const ESQUEMA_VIGILAR = {
@@ -96,7 +97,7 @@ async function vigilar(p: PedidoConversar, lista: ItemCatalogo[]) {
     let valor = x.valor.map(String);
     if (it.tipo === "abierta") valor = [it.opciones.some((o) => o.id === valor[0]) ? valor[0] : "texto"];
     else {
-      valor = valor.filter((v) => it.opciones.some((o) => o.id === v));
+      valor = valor.filter((v) => it.opciones.some((o) => o.id === v) || (it.aceptaOtro && v === "otro"));
       if (!valor.length) continue;
       if (it.tipo === "opcion") valor = valor.slice(0, 1);
     }
@@ -167,7 +168,7 @@ function instrucciones(p: PedidoConversar, tipo: string, nucleo: ItemCatalogo[],
   const xs: string[] = [];
   if (respiracion)
     xs.push(
-      "El termómetro está en 9 o 10. En este mensaje reconoce que es muy intenso y que cuando una emoción está así de fuerte el cuerpo se acelera; sin preguntas. Pon ofrecer = \"respiracion\" e item null.",
+      "El termómetro está en «Muy fuerte». En este mensaje reconoce que es muy intenso y que cuando una emoción está así de fuerte el cuerpo se acelera; sin preguntas. Pon ofrecer = \"respiracion\" e item null.",
     );
   if (tipo === "privacidad") xs.push("Preguntó por su privacidad: contesta con la información de privacidad, en dos frases, y vuelve al tema.");
   if (tipo === "pide_orientacion") xs.push("Pidió orientación sobre algo serio: reconoce que es importante y dile que abajo le aparecen lugares donde lo pueden orientar. No des consejos. Luego vuelve al tema con suavidad.");
@@ -181,7 +182,11 @@ function instrucciones(p: PedidoConversar, tipo: string, nucleo: ItemCatalogo[],
 }
 
 async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], respiracion: boolean) {
-  const { nucleo, opcionales } = disponibles({ ...p, cubiertos: [...p.cubiertos, ...extraidas] });
+  // Las que ya se preguntaron no se le ofrecen otra vez a la IA, aunque no se hayan contestado.
+  const yaHechas = new Set(p.preguntados ?? []);
+  const libres = disponibles({ ...p, cubiertos: [...p.cubiertos, ...extraidas] });
+  const nucleo = libres.nucleo.filter((x) => !yaHechas.has(x.id));
+  const opcionales = libres.opcionales.filter((x) => !yaHechas.has(x.id));
   const contenido = [
     `PENDIENTES OBLIGATORIOS (${nucleo.length}):\n${nucleo.map(lineaItem).join("\n") || "(ninguno)"}`,
     `TEMAS OPCIONALES DISPONIBLES:\n${opcionales.map(lineaItem).join("\n") || "(ninguno)"}`,
@@ -192,30 +197,72 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
   ].filter(Boolean).join("\n\n");
 
   const sistema = sistemaConducir();
+  type Propuesta = { mensaje: string; item: string | null; ejercicio: string | null; ofrecer: string | null; terminar: boolean; pideOferta: boolean };
+  const revisar = (x: Propuesta): string | null =>
+    (x.pideOferta && !x.ofrecer ? "ya se ofrecieron suficientes ejercicios o ése ya se ofreció; no ofrezcas otro y sigue con la plática" : null) ??
+    motivoRechazo(x.mensaje, x.terminar || !!x.ofrecer) ??
+    (!x.ofrecer && !x.ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(x.mensaje) && x.mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
+      ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
+      : null) ??
+    (x.item && !x.ofrecer && !x.terminar && !x.mensaje.includes("?") ? "marca un item pero no hace la pregunta; el mensaje debe terminar con esa pregunta, con signos ¿?" : null) ??
+    (x.item && !itemPorId(g, x.item) ? `el item ${x.item} no existe` : null) ??
+    (x.item && (p.cubiertos.includes(x.item) || extraidas.includes(x.item)) ? `el item ${x.item} ya está contestado` : null) ??
+    (x.item && yaHechas.has(x.item) ? `ya hiciste la pregunta ${x.item}; no la repitas, aunque no te haya contestado: sigue con otra` : null);
+  const salida = (x: Propuesta) => ({ mensaje: x.mensaje, item: x.ofrecer ? null : x.item, ejercicio: x.ejercicio, ofrecer: x.ofrecer, terminar: !x.ofrecer && x.terminar });
+
+  const propuestas: Propuesta[] = [];
   let nota = "";
   for (let intento = 0; intento < 2; intento++) {
     const r = await pedirJSON(MODELO_ESCRITURA, sistema, contenido + nota, ESQUEMA_CONDUCIR, 700, 14000);
-    if (!r) return null;
-    const mensaje = abrirPreguntas(String(r.mensaje ?? "").trim());
-    const item = typeof r.item === "string" && r.item ? r.item : null;
+    if (!r) break;
     const ejercicio = typeof r.ejercicio === "string" && r.ejercicio in g.ejercicios ? r.ejercicio : null;
     const ofrecidos = p.ofrecidos ?? [];
     const pideOferta = typeof r.ofrecer === "string" && r.ofrecer in g.ejercicios && !ejercicio;
-    const ofrecer = pideOferta && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null;
-    const motivo =
-      (pideOferta && !ofrecer ? "ya se ofrecieron suficientes ejercicios o ése ya se ofreció; no ofrezcas otro y sigue con la plática" : null) ??
-      motivoRechazo(mensaje, r.terminar === true || !!ofrecer) ??
-      (!ofrecer && !ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(mensaje) && mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
-        ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
-        : null) ??
-      (item && !ofrecer && r.terminar !== true && !mensaje.includes("?") ? "marca un item pero no hace la pregunta; el mensaje debe terminar con esa pregunta, con signos ¿?" : null) ??
-      (item && !itemPorId(g, item) ? `el item ${item} no existe` : null) ??
-      (item && (p.cubiertos.includes(item) || extraidas.includes(item)) ? `el item ${item} ya está contestado` : null);
-    if (!motivo) return { mensaje, item: ofrecer ? null : item, ejercicio, ofrecer, terminar: !ofrecer && r.terminar === true };
+    const x: Propuesta = {
+      mensaje: abrirPreguntas(String(r.mensaje ?? "").trim()),
+      item: typeof r.item === "string" && r.item ? r.item : null,
+      ejercicio,
+      ofrecer: pideOferta && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null,
+      terminar: r.terminar === true,
+      pideOferta,
+    };
+    const motivo = revisar(x);
+    if (!motivo) return salida(x);
+    propuestas.push(x);
     registrarFalla("conducir", new Error(`rechazado: ${motivo}`));
     nota = `\n\nTu respuesta anterior no se pudo usar porque ${motivo}. Escríbela de nuevo cumpliendo las reglas.`;
   }
+  // Dos rechazos: antes de caer al guion, se repara la propuesta (la última primero) y se vuelve a revisar.
+  for (const x of propuestas.reverse()) {
+    const arreglada = repararPropuesta(x);
+    if (arreglada && !revisar(arreglada)) {
+      registrarFalla("conducir", new Error("reparado"));
+      return salida(arreglada);
+    }
+  }
   return null;
+}
+
+/**
+ * Arreglos seguros a un mensaje rechazado: quita las oraciones con muletillas y, si marcó una pregunta
+ * pero no la escribió, le agrega la del guion al final.
+ */
+function repararPropuesta<T extends { mensaje: string; item: string | null; ofrecer: string | null; terminar: boolean }>(x: T): T | null {
+  let mensaje = quitarMuletillas(x.mensaje);
+  if (x.item && !x.ofrecer && !x.terminar && !mensaje.includes("?")) {
+    const it = itemPorId(g, x.item);
+    const pregunta = it ? preguntaDelItem(it.texto) : null;
+    if (!pregunta) return null;
+    mensaje = `${mensaje} ${pregunta}`.trim();
+  }
+  return mensaje && mensaje !== x.mensaje ? { ...x, mensaje } : null;
+}
+
+/** La última oración con pregunta del texto del guion ("Lo que sentimos… ¿En qué parte lo sientes?" → "¿En qué parte lo sientes?"). */
+function preguntaDelItem(texto: string): string | null {
+  const oraciones = texto.split(/(?<=[.?!])\s+(?=[¿A-ZÁÉÍÓÚÑ"])/).filter((o) => o.includes("?"));
+  const q = oraciones[oraciones.length - 1]?.trim();
+  return q || null;
 }
 
 /** Mensaje de respaldo: la siguiente pregunta obligatoria tal como está en el guion. */

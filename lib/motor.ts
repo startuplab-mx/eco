@@ -373,9 +373,12 @@ export function pendientesNucleo(g: Guion, estado: Estado): string[] {
 /** Cuántas del núcleo faltan para llegar al 80% (contando las dos del cierre como hechas). */
 export function pendientesRonda(g: Guion, estado: Estado, meta = 0.8, todas = false): string[] {
   const nucleo = (g.nucleo ?? []).filter((id) => !noAplica(g, estado, id));
-  const pend = pendientesNucleo(g, estado);
+  const todasPend = pendientesNucleo(g, estado);
+  const cubiertas = nucleo.length - todasPend.length; // incluye las del cierre, que siempre se hacen
+  // Nunca se repite una pregunta que Eco ya hizo en la plática, aunque no se haya entendido la respuesta.
+  const yaHechas = new Set(estado.ia?.preguntados ?? []);
+  const pend = todasPend.filter((id) => !yaHechas.has(id));
   if (todas) return pend;
-  const cubiertas = nucleo.length - pend.length; // incluye las del cierre, que siempre se hacen
   // Se piden de más las que dependen de otra (podrían no aplicar cuando llegue su turno).
   const condicionadas = pend.filter((id) => Object.values(g.bloques).flatMap((b) => b.pasos).find((p) => p.id === id)?.si).length;
   const faltan = Math.max(0, Math.ceil(meta * nucleo.length) - cubiertas);
@@ -386,7 +389,7 @@ export function pendientesRonda(g: Guion, estado: Estado, meta = 0.8, todas = fa
 function entrarIA(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
   estado.modo = "ia";
   estado.bloque = null;
-  estado.ia = { turnos: 0, item: "en_emociones", historial: [], opcionales: [], respiracion: "no", ejercicios: [] };
+  estado.ia = { turnos: 0, item: "en_emociones", historial: [], opcionales: [], respiracion: "no", ejercicios: [], preguntados: ["en_emociones"] };
   const p = g.bloques.entrada.pasos.find((x) => x.id === "en_emociones")!;
   const texto = resolverTexto(g, inst, estado, String(p.texto));
   salida.push({ tipo: "eco", texto });
@@ -468,7 +471,7 @@ export function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: S
  * marcadas con * ("trist*" → triste, tristeza). Ignora lo negado ("no mucho", "no estoy triste").
  * "nose" sólo si nada más coincide.
  */
-function porSinonimos(opciones: Opcion[], texto: string): string[] {
+export function porSinonimos(opciones: Opcion[], texto: string): string[] {
   const t = ` ${normalizar(texto).replace(/[^a-z0-9ñ ]/g, " ").replace(/\s+/g, " ").trim()} `;
   const coincide = (s: string) => {
     const raiz = s.endsWith("*");
@@ -655,8 +658,13 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const previo = estado.esperandoPrevio!;
       estado.esperando = previo;
       delete estado.esperandoPrevio;
-      salida.push({ tipo: "eco", texto: "Va, seguimos." });
-      emitirTextos(g, inst, estado, previo.paso, salida);
+      // Se retoma sólo con la pregunta, en la misma burbuja: nunca se repite el mensaje anterior completo.
+      const pregunta = previo.paso.tipo === "ejercicio" ? null : preguntaCorta(g, inst, estado, { ...previo.paso, texto: previo.pregunta ?? previo.paso.texto });
+      if (pregunta) salida.push({ tipo: "eco", texto: `Va, seguimos. ${pregunta}` });
+      else {
+        salida.push({ tipo: "eco", texto: "Va, seguimos." });
+        emitirTextos(g, inst, estado, previo.paso, salida);
+      }
       if (previo.paso.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, previo.paso.ejercicio ?? "respiracion") });
       return { estado, salida };
     }

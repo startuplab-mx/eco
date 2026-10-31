@@ -214,6 +214,10 @@ export interface EstadoIA {
   ejercicios: string[];
   /** Ejercicios ofrecidos (aceptados o no). Máximo dos por plática. */
   ofrecidos?: string[];
+  /** Preguntas medidas que Eco ya hizo: nunca se repiten. */
+  preguntados?: string[];
+  /** Preguntas en las que ya se pidió una aclaración corta ("¿Cuál se parece más?"). */
+  aclarados?: string[];
   /** Ejercicio ofrecido que espera un sí o un no; "hecho": se mostró y espera "Listo". */
   oferta?: string | null;
 }
