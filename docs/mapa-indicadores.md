@@ -124,3 +124,18 @@ Mayor = más de lo que mide la variable. Las variables sin escala se reportan co
 5. **Sesiones abandonadas.** Si el joven cierra la pestaña a la mitad, hoy no queda nada. Para medir dónde
    se quedan, en la etapa 4 propongo guardar lo avanzado al cerrar la página (sin texto, sólo números),
    marcado como incompleto.
+
+## Dónde se guarda (etapa 4)
+
+Base de Airtable **Eco** (`appMB7HAbDoIEVusW`), espacio de trabajo "Work".
+
+| Tabla | Una fila por | Qué guarda |
+|---|---|---|
+| Escuelas | escuela | código del QR, nombre, orientador, lugar, horario |
+| Sesiones | sesión verde o amarilla con consentimiento | día (sin hora), semana, datos generales, emociones, termómetro, ámbito, nivel y motivos, índices V1–V18, temas, calidad y respuestas en códigos |
+| Sesiones rojas | sesión roja | sólo escuela y semana |
+
+- Se guarda al terminar, o lo que haya si cierra la página a la mitad (misma fila, se actualiza por código).
+- Sin consentimiento no se guarda nada. Si una sesión se vuelve roja, se borra lo parcial y sólo queda la fila en Sesiones rojas.
+- Ningún texto escrito por el joven sale del navegador hacia Airtable.
+- Variables en Vercel: `AIRTABLE_TOKEN` (llave con permiso `data.records:write` sólo sobre la base Eco) y `AIRTABLE_BASE`.

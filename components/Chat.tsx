@@ -8,6 +8,7 @@ import { arrancar, crearEstado, registrarRecurso, type Entrada } from "@/lib/mot
 import { turno, iaPorHTTP, fallasIA, type Mensaje } from "@/lib/turno";
 import type { ServicioIA } from "@/lib/ia-tipos";
 import { resumen } from "@/lib/indices";
+import { guardarSiToca, guardadoNuevo } from "@/lib/guardado";
 import Ejercicio from "./Ejercicio";
 import Directorio from "./Directorio";
 
@@ -41,9 +42,13 @@ export default function Chat() {
   const [ia, setIa] = useState<ServicioIA | null>(null);
   const [uso, setUso] = useState({ llamadas: 0, respaldos: 0, puentes: 0 });
   const llave = useRef(0);
+  const guardado = useRef(guardadoNuevo());
+  const estadoActual = useRef<Estado | null>(null);
+  useEffect(() => { estadoActual.current = estado; }, [estado]);
 
   const iniciar = useCallback(() => {
     const r = nuevaSesion();
+    guardado.current = guardadoNuevo();
     setItems([]);
     setSeleccion([]);
     setTexto("");
@@ -62,6 +67,13 @@ export default function Chat() {
         .catch(() => {});
     }
     iniciar();
+    // Si cierra la página o cambia de app a la mitad, se guarda lo que haya (si aceptó participar).
+    const alOcultar = () => {
+      if (document.visibilityState === "hidden" && estadoActual.current)
+        void guardarSiToca(guion, instancia, estadoActual.current, guardado.current, "cierre");
+    };
+    document.addEventListener("visibilitychange", alOcultar);
+    return () => document.removeEventListener("visibilitychange", alOcultar);
   }, [iniciar]);
 
   // Muestra las burbujas de Eco una por una, con un respiro entre ellas.
@@ -102,6 +114,8 @@ export default function Chat() {
     try {
       const r = await turno(guion, instancia, estado, entrada, ia, historial);
       setEstado(r.estado);
+      estadoActual.current = r.estado;
+      void guardarSiToca(guion, instancia, r.estado, guardado.current, "turno");
       setCola((c) => [...c, ...r.salida]);
       setUso((u) => ({
         llamadas: u.llamadas + r.uso.llamadas,
@@ -227,7 +241,7 @@ export default function Chat() {
         )}
         {!escribiendo && terminada && (
           <button className="borrar" onClick={iniciar}>
-            Cerrar y borrar esta plática
+            Cerrar y limpiar la pantalla
           </button>
         )}
       </footer>

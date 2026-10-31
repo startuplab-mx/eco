@@ -133,3 +133,4 @@ emojis e insultos directos. Los textos son fijos y están en `desvios` del guion
 - Concordancia y claridad: en_cuerpo ("¿En qué parte del cuerpo lo sientes?"), en_voz ("elige la frase que más se parezca"), v5_lealtad (escala de frecuencia: "¿Qué tan seguido te pasa a ti?"), v7_libertad (dice a qué se puede decir que no), v2_dormir, mf_motivo, mg_sientes, md_bien_ayuda, v8_cinco_txt, tr_descanso.
 - en_emociones: "Ahora quiero saber cómo estás tú" (ya no "Antes de cualquier otra cosa", porque va después de edad y género).
 - Campo `repetir`: versión completa de la pregunta para los pasos que dependen de la oración anterior.
+- Botón final: "Cerrar y limpiar la pantalla" (antes "Cerrar y borrar esta plática"): sólo limpia la pantalla; las respuestas ya se guardaron.
