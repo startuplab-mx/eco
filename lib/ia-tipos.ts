@@ -158,17 +158,44 @@ export function validarFrase(texto: unknown): string | null {
 // ---------- validación del mensaje cuando la IA conduce ----------
 
 /** Preguntas que Eco nunca hace: detalles que identifican, qué pasó, por qué. */
-const PREGUNTA_DETALLE =
-  /¿[^?]*\b(por\s?qu[eé]|qui[eé]n(es)?|c[oó]mo se llama|d[oó]nde (vives|est[aá]s|queda|fue|pas[oó])|qu[eé] (te )?pas[oó]|en qu[eé] (escuela|colonia|calle)|cu[aá]l es tu (nombre|escuela))\b[^?]*\?/i;
+// "porque" (causal, sin espacio) sí se permite; "¿por qué…?" no. "¿A quién admiras?" sí; "¿Quién te hizo…?" no.
 const TEMAS_FUERA = /denunci|\b089\b|polic[ií]a|c[aá]rtel|narco|delito|crimen|diagn[oó]stic|depresi[oó]n|trastorno|https?:|@|\[|\]|\/a\b|\/o\b/i;
+const FIN = "(?![a-záéíóúñü])";
+const PREGUNTA_DETALLE = new RegExp(
+  "¿[^?]*(" +
+    [
+      `por\\s+qu[eé]${FIN}`,
+      `quién(es)?\\s+(te|le|les|fue|fueron|es|son|era|eran|lo|la|los|las)${FIN}`,
+      `c[oó]mo se llama`,
+      `d[oó]nde (vives|est[aá]s|queda|fue|pas[oó])${FIN}`,
+      `qu[eé] te pas[oó]${FIN}`,
+      `en qu[eé] (escuela|colonia|calle)`,
+      `cu[aá]l es tu (nombre|escuela)`,
+    ].join("|") +
+    ")[^?]*\\?",
+  "i",
+);
+
+/** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
+const MULETILLAS = /aqu[ií] cabe|es (muy )?v[aá]lido|qu[eé] valioso|se nota que|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+
+/** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
+export function abrirPreguntas(texto: string): string {
+  return texto
+    .split(/(?<=[.!?])\s+/)
+    .map((o) => (o.endsWith("?") && !o.includes("¿") ? "¿" + o.charAt(0).toUpperCase() + o.slice(1) : o))
+    .join(" ");
+}
 
 /** Devuelve el motivo si el mensaje no se puede mostrar, o null si está bien. */
-export function motivoRechazo(texto: string): string | null {
+export function motivoRechazo(texto: string, terminar = false): string | null {
   const t = texto.trim();
+  if (terminar && t.includes("?")) return "cierra la plática pero deja una pregunta abierta";
+  if (MULETILLAS.test(t)) return "usa una frase de muletilla (aquí cabe, es válido, se nota que…)";
   if (!t) return "vacío";
   if (t.length > 420) return "muy largo (máximo 3 oraciones cortas)";
   if ((t.match(/\?/g) ?? []).length > 2) return "más de una pregunta";
-  if (PREGUNTA_DETALLE.test(t)) return "pide detalles que identifican o pregunta por qué";
+  if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
   if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
   if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";

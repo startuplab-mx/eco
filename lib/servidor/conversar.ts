@@ -6,7 +6,7 @@ import "server-only";
 import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
-import { motivoRechazo, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
+import { abrirPreguntas, motivoRechazo, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
 
 const g = guionJson as unknown as Guion;
@@ -113,8 +113,10 @@ function sistemaConducir(): string {
 Ahora conduces la plática. Tu meta es doble: que el joven se sienta escuchado y que, de forma natural, la plática pase por los temas pendientes de la lista. Es una plática, no un cuestionario.
 
 Cómo escribes cada mensaje:
-- De 1 a 3 oraciones cortas. Una sola pregunta por mensaje, al final.
+- De 1 a 3 oraciones cortas, máximo unas 35 palabras: se lee en un celular. Una sola pregunta por mensaje, al final.
 - Primero reconoce lo que dijo, en sus términos y sin exagerar. Luego conecta con el siguiente tema.
+- Suena como una persona, no como un formulario: varía cómo empiezas. NO empieces con "Gracias por decírmelo/contármelo" (úsalo, como mucho, una vez cada cinco mensajes). No repitas las mismas palabras de un mensaje a otro ("pesa", "cansa", "desgasta"). A veces basta con retomar sus palabras ("Un 7, eso es bastante.") o ir directo a la pregunta.
+- Si contestó tocando un botón, no hace falta comentar mucho: un reconocimiento breve o ninguno, y sigue.
 - Elige el siguiente tema según lo que va contando: si habla de su colonia, sigue con lo de la colonia; si habla de dormir, pregunta por eso. Si no hay hilo, toma el siguiente pendiente obligatorio.
 - Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones (si las opciones son de frecuencia, pregunta "qué tan seguido"). Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
 - Para preguntas abiertas, marca su id en "item" también.
@@ -187,11 +189,11 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
   for (let intento = 0; intento < 2; intento++) {
     const r = await pedirJSON(MODELO_ESCRITURA, sistema, contenido + nota, ESQUEMA_CONDUCIR, 700, 14000);
     if (!r) return null;
-    const mensaje = String(r.mensaje ?? "").trim();
+    const mensaje = abrirPreguntas(String(r.mensaje ?? "").trim());
     const item = typeof r.item === "string" && r.item ? r.item : null;
     const ejercicio = typeof r.ejercicio === "string" && r.ejercicio in g.ejercicios ? r.ejercicio : null;
     const motivo =
-      motivoRechazo(mensaje) ??
+      motivoRechazo(mensaje, r.terminar === true) ??
       (item && !itemPorId(g, item) ? `el item ${item} no existe` : null) ??
       (item && (p.cubiertos.includes(item) || extraidas.includes(item)) ? `el item ${item} ya está contestado` : null);
     if (!motivo) return { mensaje, item, ejercicio, terminar: r.terminar === true };
