@@ -273,3 +273,42 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 | intro emociones | Ahora quiero saber cómo te has sentido en las últimas dos semanas. No hay respuestas buenas ni malas. | Ahora piensa en estas últimas dos semanas. No hay respuestas buenas ni malas. |
 
 Las preguntas medidas que cambian (v1_enterado, v2_dormir, me_imagenes, mg_contenido, mi_acudir) sólo se acortan: preguntan lo mismo.
+
+## Plática por temas: las preguntas tal cual, con su intro (31 oct 2026)
+
+Meta: que el joven se sienta escuchado y pueda sacar lo que trae dentro, y que todos contesten las mismas preguntas.
+
+**Antes → ahora**
+
+| | Antes | Ahora |
+|---|---|---|
+| Quién escribe la pregunta | La IA la decía con sus palabras ("Cuando cuentas lo que pasa en tu colonia ¿qué tan seguido…?") | El sistema la muestra tal cual el guion, igual para todos |
+| Orden | La IA escogía el siguiente tema según el hilo | Siete temas en orden fijo; se termina un tema antes de pasar al otro |
+| Cambio de tema | Sin aviso (de la edad a "¿cuándo sientes miedo?") | Cada tema abre con una intro corta, una sola vez |
+| Qué hace la IA | Escribía puente + pregunta | Decide **escuchar** (se abrió o algo le pesa: retoma lo que dijo e invita a seguir contando, sin pregunta del cuestionario, máximo 2 turnos seguidos) o **seguir** (frase corta y cálida, sin preguntas, sin mencionar lugares, personas ni hechos) |
+| Dudas y desvíos | La IA contestaba y volvía a preguntar | Contesta o regresa con calma; la pregunta sigue en pantalla con sus botones, sin repetirla |
+| Respuesta que no se entiende | Aclaración sólo sin IA | Una sola aclaración ("No te entendí bien. ¿Cuál de estas se parece más?") y luego se salta |
+| Pide respirar | Dependía de que la IA lo ofreciera | Se le muestra la respiración en ese momento, en cualquier parte de la plática |
+| Después de los temas | Ronda rápida y cierre | ¿Seguimos?, un módulo (el que más tiene que ver con lo que contó), la pregunta libre y el cierre |
+
+**Temas e intros** (para revisión del equipo psicológico)
+
+| # | Tema | Intro | Preguntas |
+|---|---|---|---|
+| 1 | Cómo te sientes hoy | Listo. Ahora sí, platiquemos de ti. | emociones, termómetro, cuerpo, desde cuándo, qué crees que te hace sentir así |
+| 2 | Tu día a día | Ahora unas preguntas sobre cómo te sientes en tu colonia y en la escuela. No necesito saber qué pasa ahí, solo cómo estás tú. | V1 |
+| 3 | Cómo te afecta | A veces lo que vivimos se nos queda en el cuerpo y en la cabeza. Te pregunto cómo te afecta a ti. | V2 |
+| 4 | Por dentro | Ahora sobre cómo andas por dentro estas semanas. No hay respuestas buenas ni malas. | V3, V4, V5 |
+| 5 | Lo que piensas | Ahora unas preguntas sobre lo que piensas tú. No hay respuestas buenas ni malas, y nadie va a saber lo que contestes. | V6, V7 |
+| 6 | Tu futuro | Hablemos de lo que quieres para ti más adelante. | V8 (con "¿Me cuentas cómo te imaginas?" si dice que sí) |
+| 7 | Con quién cuentas | Por último, sobre con quién cuentas cuando algo se pone difícil. | V9 |
+
+Las intros 3 y 7 quedaron sin signo de pregunta para que no haya dos preguntas seguidas.
+
+**Después de los temas:** "Vas muy bien. ¿Seguimos con otro tema o prefieres terminar aquí?" (Seguimos / Un descanso / Terminar). Si sigue, un solo módulo, dentro de la misma plática (Eco escucha igual que en los temas): se elige primero por lo que cree que le hace sentir así (escuela → A, casa → B, alguien que extraña → C, algo que vio → E, redes → G, futuro → H) y luego por su emoción principal; si no hay pista, D (lo bueno de ti). Si el módulo es C (pérdidas), en lugar de esa pregunta va su propia entrada: "Ahora un tema que puede ser difícil… ¿Quieres hablar de eso?" (Sí, sigamos / Prefiero saltarlo). Después, la pregunta libre y el cierre.
+
+Textos nuevos para revisión:
+- Intros de módulo que no tenían: D "Ahora hablemos de lo bueno que hay en ti.", H "Ahora sobre lo que te inspira y lo que sueñas.", I "Ahora sobre pedir ayuda cuando la necesitas."
+- Al terminar E, si hay señales de estrés después de algo fuerte (la misma condición de antes): "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. Al final te dejo dónde buscar ese apoyo." (antes era una pregunta; el directorio del cierre ya lo muestra).
+- Al terminar F: el mismo texto de antes ("Gracias por contarme. Aquí nadie te juzga…").
+- Si pide respirar: "Va, respiremos un momento. Tómate tu tiempo; cuando termines, toca «Listo»."

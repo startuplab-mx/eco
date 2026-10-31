@@ -241,7 +241,7 @@ export function crearEstado(rand: () => number = Math.random, fecha: Date = new 
   return {
     codigo: codigoAleatorio(rand),
     semana: semanaISO(fecha),
-    cola: conIA ? ["bienvenida", "datos", "@ia", "@ronda", "@modulos", "libre", "cierre"] : ["bienvenida", "datos", "entrada", "@ruta"],
+    cola: conIA ? ["bienvenida", "datos", "@ia", "@ronda", "libre", "cierre"] : ["bienvenida", "datos", "entrada", "@ruta"],
     bloque: null,
     indice: 0,
     respuestas: {},
@@ -297,7 +297,6 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
       if (estado.rojo && !TRAS_CRISIS.includes(id)) continue;
       if (id === "@ruta") { estado.cola.unshift(...calcularRuta(g, estado)); continue; }
       if (id === "@ia") { entrarIA(g, inst, estado, salida); return; }
-      if (id === "@modulos") { estado.cola.unshift(...moduloTrasIA(g, estado)); continue; }
       if (id === "@ronda" || id === "@ronda-todas") {
         estado.ronda = pendientesRonda(g, estado, 0.8, id === "@ronda-todas");
         if (!estado.ronda.length) continue;
@@ -307,11 +306,7 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
         continue;
       }
       const b: Bloque = g.bloques[id];
-      if (b.clase === "modulo") {
-        estado.modulosHechos.push(id);
-        const intro = g.ia?.introModulos?.[id];
-        if (intro && estado.ia) salida.push({ tipo: "eco", texto: intro });
-      }
+      if (b.clase === "modulo") estado.modulosHechos.push(id);
       if (b.grupo && !estado.gruposMostrados.includes(b.grupo)) {
         estado.gruposMostrados.push(b.grupo);
         const grupo = g.grupos[b.grupo];
@@ -388,28 +383,6 @@ export function pendientesRonda(g: Guion, estado: Estado, meta = 0.8, todas = fa
   const condicionadas = pend.filter((id) => Object.values(g.bloques).flatMap((b) => b.pasos).find((p) => p.id === id)?.si).length;
   const faltan = Math.max(0, Math.ceil(meta * nucleo.length) - cubiertas);
   return faltan ? pend.slice(0, faltan + condicionadas) : [];
-}
-
-/**
- * Después de la plática con IA: un solo módulo, el que más tiene que ver con lo que contó.
- * Primero por lo que cree que le hace sentir así (en_ambito), luego por su emoción principal.
- * Antes, la pregunta de si quiere seguir. Si no hay ninguno, se pasa directo a lo libre y el cierre.
- */
-export function moduloTrasIA(g: Guion, estado: Estado): string[] {
-  if (estado.rojo) return [];
-  const esModulo = (x: string) => g.bloques[x]?.clase === "modulo" && !estado.modulosHechos.includes(x);
-  const ambito = estado.respuestas["en_ambito"]?.valor as string | undefined;
-  const elegidas = g.ruta.prioridad.filter((e) => emocionesElegidas(estado).includes(e));
-  const candidatos = [
-    ...(ambito ? g.ruta.porAmbito[ambito] ?? [] : []),
-    ...elegidas.flatMap((e) => g.ruta.porEmocion[e] ?? []),
-    // Sin pista: lo bueno de ti y lo que sueñas (pedir ayuda ya se platicó en «Con quién cuentas»).
-    "D", "H",
-  ];
-  const m = candidatos.find(esModulo);
-  if (!m) return [];
-  estado.modulosEnRuta = [m];
-  return ["transicion", m];
 }
 
 /** Primera pregunta de la fase con IA: la emoción, con sus etiquetas. La IA conduce desde la respuesta. */

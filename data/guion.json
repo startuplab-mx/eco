@@ -2934,6 +2934,25 @@
       "D": "Ahora hablemos de lo bueno que hay en ti.",
       "H": "Ahora sobre lo que te inspira y lo que sueñas.",
       "I": "Ahora sobre pedir ayuda cuando la necesitas."
+    },
+    "cierreModulos": {
+      "E": {
+        "texto": "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. Al final te dejo dónde buscar ese apoyo.",
+        "si": {
+          "cuenta": {
+            "pasos": [
+              "me_imagenes",
+              "me_evito",
+              "me_sobresalto"
+            ],
+            "gte": 3
+          },
+          "min": 2
+        }
+      },
+      "F": {
+        "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres que alguien te oriente, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
+      }
     }
   }
 }

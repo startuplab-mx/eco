@@ -3,8 +3,8 @@
 // - qué preguntas del núcleo faltan, el límite de turnos y la ronda rápida final;
 // - la escalera de desvíos (tercer desvío → "¿otro día?") y el directorio cuando pide orientación.
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
-import { activarRojo, esperaIA, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
-import { siguientePaso, siguientesPasos } from "./temas";
+import { activarRojo, esperaIA, evaluar, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
+import { elegirModulo, siguientePaso, siguientesPasos } from "./temas";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
 import { itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
@@ -57,7 +57,33 @@ export async function turnoIA(
   const filtrado = texto ? filtrarIdentificadores(texto).texto : null;
   const item = st.item;
 
-  // 0. Oferta de ejercicio: el sí, el no y el "Listo" los resuelve el código.
+  // 0a. ¿Seguimos con un tema más? Lo resuelve el código.
+  if (st.oferta === "continuar" && entrada.opcion && !texto) {
+    st.oferta = null;
+    const etiqueta = estado.esperando?.opciones.find((o) => o.id === entrada.opcion)?.label ?? entrada.opcion;
+    st.historial.push({ quien: "joven", texto: etiqueta });
+    if (st.modulo === "C") estado.respuestas.mc_entrar = { valor: entrada.opcion === "terminar" ? "saltar" : "si" };
+    if (entrada.opcion === "terminar") {
+      st.continuar = false;
+      // «Terminar» va directo al cierre; «Prefiero saltarlo» (tema difícil) pasa a lo libre y el cierre.
+      if (st.modulo !== "C") estado.cola = ["cierre"];
+      seguirGuion(g, inst, estado, salida);
+      return { estado, salida, uso };
+    }
+    st.continuar = true;
+    if (entrada.opcion === "descanso") {
+      const t = mostrarRespiracion(salida);
+      st.historial.push({ quien: "eco", texto: `[se mostró el ejercicio respiracion] ${t}` });
+      st.oferta = "hecho";
+      estado.esperando = esperaIA(g, null, t, OPC_LISTO);
+      return { estado, salida, uso };
+    }
+    hacerSiguiente(g, inst, estado, salida);
+    return { estado, salida, uso };
+  }
+  if (st.oferta === "continuar") { st.continuar = true; st.oferta = null; }
+
+  // 0b. Oferta de ejercicio: el sí, el no y el "Listo" los resuelve el código.
   if (st.oferta && entrada.opcion && !texto) {
     if (st.oferta === "hecho") {
       st.historial.push({ quien: "joven", texto: "Listo, hice el ejercicio." });
@@ -249,7 +275,20 @@ async function conversarYSeguir(
 function hacerSiguiente(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): void {
   const st = estado.ia!;
   const sig = siguientePaso(g, estado);
-  if (!sig || st.turnos >= MAX_TURNOS) { seguirGuion(g, inst, estado, salida); return; }
+  // Terminaron los temas: ¿seguimos con uno más? (el módulo que más tiene que ver con lo que contó).
+  if (!sig && st.modulo === undefined && st.turnos < MAX_TURNOS) {
+    st.modulo = elegirModulo(g, estado);
+    if (st.modulo) { preguntarSiSigue(g, estado, salida, st.modulo); return; }
+  }
+  if (!sig || st.turnos >= MAX_TURNOS) {
+    cerrarModulo(g, estado, salida);
+    seguirGuion(g, inst, estado, salida);
+    return;
+  }
+  if (st.modulo && sig.tema === `mod_${st.modulo}` && !estado.modulosHechos.includes(st.modulo)) {
+    estado.modulosHechos.push(st.modulo);
+    estado.modulosEnRuta = [st.modulo];
+  }
   if (sig.intro) {
     salida.push({ tipo: "eco", texto: sig.intro });
     st.historial.push({ quien: "eco", texto: sig.intro });
@@ -260,6 +299,30 @@ function hacerSiguiente(g: Guion, inst: Instancia, estado: Estado, salida: Salid
   st.item = sig.id;
   marcarPreguntado(st, sig.id);
   estado.esperando = esperaIA(g, sig.id, sig.texto);
+}
+
+/** La pregunta de si sigue: para un tema difícil (C), su propia entrada; si no, la del guion. */
+function preguntarSiSigue(g: Guion, estado: Estado, salida: Salida[], m: string): void {
+  const st = estado.ia!;
+  const paso = (id: string) => Object.values(g.bloques).flatMap((b) => b.pasos).find((p) => p.id === id);
+  const p = paso(m === "C" ? "mc_entrar" : "tr_seguir");
+  const t = String(p?.texto ?? "¿Seguimos con otro tema o prefieres terminar aquí?");
+  const opciones = m === "C"
+    ? [{ id: "si", label: "Sí, sigamos" }, { id: "terminar", label: "Prefiero saltarlo" }]
+    : [{ id: "si", label: "Seguimos" }, { id: "descanso", label: "Un descanso" }, { id: "terminar", label: "Terminar" }];
+  salida.push({ tipo: "eco", texto: t });
+  st.historial.push({ quien: "eco", texto: t });
+  st.oferta = "continuar";
+  st.item = null;
+  estado.esperando = esperaIA(g, null, t, opciones);
+}
+
+/** Al terminar el módulo: su mensaje de cierre aprobado, si aplica (p. ej. dónde buscar apoyo). */
+function cerrarModulo(g: Guion, estado: Estado, salida: Salida[]): void {
+  const m = estado.ia?.modulo;
+  const fin = m && estado.ia?.continuar ? g.ia?.cierreModulos?.[m] : undefined;
+  if (!fin || (fin.si && !evaluar(g, estado, fin.si))) return;
+  salida.push({ tipo: "eco", texto: fin.texto });
 }
 
 function marcarPreguntado(st: NonNullable<Estado["ia"]>, id: string) {

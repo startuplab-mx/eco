@@ -199,7 +199,7 @@ const PREGUNTA_DETALLE = new RegExp(
 const GENERO_ECO = /\b(ser|tan|muy)\s+(honest|sincer|valient[e]?|abiert|cuidados)[oa]s?\b|\b(cargarlo|cargarla|cargar con (esto|eso|todo)|enfrentarlo|pasarlo|vivirlo|estar|est[aá]s|te quedes|quedarte)\s+sol[oa]\b/i;
 
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /eso debe (ser|estar) (muy |bien )?(dif[ií]cil|duro)|es (muy |totalmente )?normal sentir|te valido|valido (lo que|tu)|aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /eso debe (ser|estar) (muy |bien )?(dif[ií]cil|duro)|es (muy |totalmente )?normal sentir|te valido|valido (lo que|tu)|aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en| cu[aá]nto|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
@@ -246,9 +246,12 @@ export function quitarMuletillas(texto: string): string {
     .trim();
 }
 
-/** Lugares, personas o hechos: el puente sólo habla de cómo se siente. */
+/** Lugares y hechos de violencia: ni el puente ni la escucha los repiten (se habla de cómo se siente). */
 const HECHOS =
-  /\b(colonia|escuela|secu|secundaria|prepa|sal[oó]n|casa|calle|barrio|cuadra|mam[aá]s?|pap[aá]s?|jefa|jefe|herman[oa]s?|t[ií][oa]s?|abuel[oa]s?|primos?|primas?|amig[oa]s?|compas?|novi[oa]|profes?|maestr[oa]s?|balazos?|balacera|balas?|disparos?|tiros|pelea|golpes?|muert[oa]s?|mataron|levantaron|robo|asalto|vecin[oa]s?)\b/i;
+  /\b(colonia|cuadra|calle|barrio|balazos?|balacera|balas?|disparos?|tiros|mataron|matar|muert[oa]s?|levantaron|robo|asalto|vato|pelea|golpes?)(?![a-záéíóúñü])/i;
+/** Personas y lugares de todos los días: el puente no los menciona (la escucha sí puede: "tu mamá"). */
+const PERSONAS =
+  /\b(escuela|secu|secundaria|prepa|sal[oó]n|casa|mam[aá]s?|pap[aá]s?|ap[aá]|am[aá]|jefa|jefe|herman[oa]s?|t[ií][oa]s?|abuel[oa]s?|primos?|primas?|amig[oa]s?|compas?|novi[oa]|profes?|maestr[oa]s?|vecin[oa]s?)(?![a-záéíóúñü])/i;
 
 function contar(t: string) {
   return { palabras: t.split(/\s+/).filter(Boolean).length, oraciones: t.split(/(?<=[.!?])\s+/).filter((o) => o.trim()).length, preguntas: (t.match(/\?/g) ?? []).length };
@@ -260,12 +263,14 @@ export function motivoModo(texto: string, modo: "seguir" | "escuchar" | "respond
   if (modo === "seguir" && !t) return null; // sin puente: va directo a la pregunta
   const comun = motivoRechazo(t);
   if (comun) return comun;
+  if (GENERO_SUELTO.test(t) || /\bdespiert[oa]s?\b/i.test(t)) return "usa adjetivos con género; usa sustantivos (el cansancio, la soledad)";
+  if (modo !== "responder" && tipo === "responde" && HECHOS.test(t)) return "repite lugares o hechos de lo que contó; habla sólo de cómo se siente";
   const n = contar(t);
   if (modo === "seguir") {
     if (n.preguntas) return "el puente no lleva preguntas: la siguiente pregunta la pone el sistema";
     const maxPalabras = ["pregunta", "privacidad", "pide_orientacion"].includes(tipo) ? 30 : 14;
     if (n.palabras > maxPalabras || n.oraciones > 2) return `el puente es muy largo: máximo ${maxPalabras} palabras`;
-    if (tipo === "responde" && HECHOS.test(t)) return "el puente menciona lugares, personas o hechos; habla sólo de cómo se siente";
+    if (tipo === "responde" && PERSONAS.test(t)) return "el puente menciona lugares o personas; habla sólo de cómo se siente";
   }
   if (modo === "escuchar") {
     if (n.preguntas > 1) return "más de una pregunta";

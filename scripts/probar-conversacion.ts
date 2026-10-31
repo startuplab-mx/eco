@@ -82,7 +82,8 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
     let e = await hastaIA(ia);
     const items: string[] = [];
     const todo: Salida[] = [];
-    for (let k = 0; k < 80 && e.esperando && !e.terminada && e.modo === "ia"; k++) {
+    const pideSeguir = (x: Estado) => !!x.esperando?.opciones.some((o) => o.label === "Seguimos" || o.label === "Sí, sigamos");
+    for (let k = 0; k < 80 && e.esperando && !e.terminada && e.modo === "ia" && !pideSeguir(e); k++) {
       if (e.ia?.item) items.push(e.ia.item);
       const x = e.esperando;
       const r = await turno(g, inst, e, (x.opciones.length ? (x.multiple ? { opciones: [x.opciones[0].id] } : { opcion: x.opciones[0].id }) : { texto: "pues bien" }) as never, ia, []);
@@ -98,11 +99,31 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
     const iIntro = t.indexOf(g.ia!.temas![1].intro);
     ok(iIntro >= 0 && t[iIntro + 1] === catalogo(g).find((c) => c.id === "v1_colonia")!.texto, "la intro va justo antes de la primera pregunta de su tema");
     // Después de los temas: ¿seguimos?, un módulo, lo libre y el cierre.
-    ok(e.esperando?.paso.id === "tr_seguir", "al terminar los temas pregunta si quiere seguir");
-    const f = await hastaElFinal(e, ia);
+    ok(pideSeguir(e) && e.modo === "ia", "al terminar los temas pregunta si quiere seguir");
+    const m = e.ia!.modulo!;
+    let r = await turno(g, inst, e, { opcion: "si" }, ia, []);
+    const primera = catalogo(g).find((c) => c.bloque === m)!;
+    ok(r.estado.modo === "ia" && r.estado.ia?.item === primera.id, `«Seguimos»: el módulo ${m} sigue en la plática con IA, desde su primera pregunta`);
+    const f = await hastaElFinal(r.estado, ia);
     ok(f.estado.modulosHechos.length === 1 && f.estado.terminada && f.estado.completa, `luego un solo módulo (${f.estado.modulosHechos.join(",")}) y el cierre`);
+    // «Terminar» va directo al cierre.
+    r = await turno(g, inst, e, { opcion: "terminar" }, ia, []);
+    ok(r.estado.modo === "guion" && r.estado.esperando?.paso.id === "ci_termometro", "«Terminar»: directo al cierre");
     ok(f.estado.respuestas.li_libre !== undefined, "antes del cierre, la pregunta libre");
     ok(ia.pedidos.some((p) => p.siguientes?.[0]?.intro === g.ia!.temas![1].intro), "al servidor le llega lo que sigue, con la intro del tema");
+  }
+  // Tema difícil (C): se le pregunta con su propia entrada; «Prefiero saltarlo» pasa a lo libre y el cierre.
+  {
+    const ia = iaFalsa();
+    let e = await hastaIA(ia);
+    for (let k = 0; k < 80 && e.modo === "ia" && e.ia?.oferta !== "continuar"; k++) {
+      const x = e.esperando!;
+      const ent = e.ia?.item === "en_ambito" ? { opcion: "extrano" } : x.opciones.length ? (x.multiple ? { opciones: [x.opciones[0].id] } : { opcion: x.opciones[0].id }) : { texto: "pues bien" };
+      e = (await turno(g, inst, e, ent as never, ia, [])).estado;
+    }
+    ok(e.ia?.modulo === "C" && /tema que puede ser difícil/.test(e.esperando?.pregunta ?? ""), "lo que le hace sentir así es alguien que ya no está → tema C, con su pregunta de entrada");
+    const r = await turno(g, inst, e, { opcion: "terminar" }, ia, []);
+    ok(r.estado.esperando?.paso.id === "li_libre" && r.estado.respuestas.mc_entrar?.valor === "saltar", "«Prefiero saltarlo»: pasa a la pregunta libre y queda registrado");
   }
   // Límite de turnos: se pasa a la ronda rápida.
   {
