@@ -95,7 +95,7 @@
     "T10": [
       {
         "id": "t1",
-        "label": "1–2 Muy leve",
+        "label": "1–2 Muy poquito",
         "valor": 1.5
       },
       {
@@ -122,10 +122,10 @@
   },
   "grupos": {
     "emociones": {
-      "texto": "Ahora quiero saber cómo te has sentido estas dos semanas. No hay respuestas buenas ni malas."
+      "texto": "Ahora quiero saber cómo te has sentido en las últimas dos semanas. No hay respuestas buenas ni malas."
     },
     "creencias": {
-      "texto": "Te voy a mostrar unas frases. Dime qué tanto estás de acuerdo, sin pensarlo mucho."
+      "texto": "Te voy a mostrar unas frases. Dime qué tan de acuerdo estás, sin pensarlo mucho."
     },
     "futuro": {
       "texto": "Cambiemos de tema.",
@@ -137,9 +137,9 @@
     "contento": "Qué bueno. Me gustaría saber qué te ayuda a sentirte así.",
     "cansado": "El cansancio también es una señal. A veces es el cuerpo, a veces es todo lo que cargas.",
     "triste": "La tristeza aparece cuando algo nos importa. Gracias por decírmelo.",
-    "enojado": "El enojo muchas veces protege algo. Es válido sentirlo.",
+    "enojado": "El enojo muchas veces aparece para protegerte. Está bien sentirlo.",
     "miedo": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
-    "preocupado": "El miedo es tu forma de cuidarte. Tiene sentido sentirlo si vives con cosas que asustan.",
+    "preocupado": "Preocuparte es una forma de cuidarte. Tiene sentido si vives con cosas que asustan.",
     "vacio": "Esa sensación de vacío aparece cuando llevas mucho tiempo aguantando. Le pasa a más gente de la que crees.",
     "solo": "La soledad duele, aunque haya gente alrededor. Aquí te escucho.",
     "avergonzado": "La vergüenza pesa mucho. Aquí nadie te va a juzgar.",
@@ -156,7 +156,8 @@
         "Suéltalo despacio contando 6.",
         "Repite durante un minuto."
       ],
-      "para": "Respirar lento le avisa a tu cuerpo que puede bajar la alerta: el corazón se calma y la cabeza se aclara."
+      "para": "Respirar lento le avisa a tu cuerpo que puede bajar la alerta: el corazón se calma y la cabeza se aclara.",
+      "como": "Vas a inhalar contando 4, aguantar el aire contando 4 y soltarlo despacio contando 6, varias veces."
     },
     "punos": {
       "titulo": "Soltar el enojo",
@@ -165,7 +166,8 @@
         "Suelta.",
         "Repite tres veces."
       ],
-      "para": "Apretar y soltar saca la tensión que el enojo deja en el cuerpo."
+      "para": "Apretar y soltar ayuda a sacar la tensión que el enojo deja en el cuerpo.",
+      "como": "Vas a apretar los puños fuerte 5 segundos y luego soltarlos, tres veces."
     },
     "mano": {
       "titulo": "Una mano en el pecho",
@@ -173,7 +175,8 @@
         "Pon una mano en tu pecho.",
         "Di en tu mente: esto es difícil y estoy haciendo lo mejor que puedo."
       ],
-      "para": "Te ayuda a tratarte con la paciencia con la que tratarías a alguien que quieres."
+      "para": "Sirve para tratarte con la misma paciencia con la que tratarías a alguien que quieres.",
+      "como": "Vas a poner una mano en tu pecho y decirte por dentro una frase tranquila."
     },
     "anclaje": {
       "titulo": "Anclaje 5-4-3-2-1",
@@ -184,7 +187,8 @@
         "2 cosas que hueles.",
         "1 cosa que saboreas."
       ],
-      "para": "Usar tus sentidos regresa tu atención al presente cuando la mente va muy rápido o hay miedo."
+      "para": "Fijarte en lo que tienes alrededor regresa tu atención al aquí y ahora cuando la mente va muy rápido o hay miedo.",
+      "como": "Vas a fijarte en 5 cosas que ves, 4 que puedes tocar, 3 que oyes, 2 que hueles y 1 que saboreas."
     }
   },
   "ruta": {
@@ -396,7 +400,7 @@
           "id": "bi_consentimiento",
           "tipo": "opcion",
           "variable": "consentimiento",
-          "texto": "Lo que respondas lo lee un equipo de psicología, sin saber quién eres, para crear apoyos en la escuela. Solo si me cuentas que estás en peligro te voy a ofrecer ayuda directa. ¿Quieres seguir?",
+          "texto": "Lo que platiquemos lo revisa un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Solo si me cuentas que estás en peligro te voy a dar teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir?",
           "opciones": [
             {
               "id": "si",
@@ -446,8 +450,8 @@
           },
           "texto": [
             "Te explico. Aquí no hay nombres: cada plática tiene un código al azar.",
-            "Tus respuestas se guardan como números y temas, no como tu texto completo.",
-            "Lo que escribes lo lee un sistema de inteligencia artificial para entenderte mejor, sin datos que digan quién eres.",
+            "Lo que contestas se guarda como números y temas; lo que escribes no se guarda completo.",
+            "Lo que escribes lo lee una inteligencia artificial (un programa de computadora) para entenderte mejor, sin saber quién eres.",
             "Un equipo de psicología las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
             "Si alguna pregunta no quieres contestarla, sólo dímelo. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
           ]
@@ -817,7 +821,7 @@
               "nose"
             ]
           },
-          "texto": "Está bien, a veces es difícil ponerle nombre. ¿Se parece más a algo pesado, a algo que quema o a algo que aprieta?",
+          "texto": "Está bien, a veces cuesta ponerle nombre. ¿Se siente más como algo pesado, algo que quema o algo que aprieta?",
           "opciones": [
             {
               "id": "pesado",
@@ -833,7 +837,7 @@
             },
             {
               "id": "apagado",
-              "label": "Nada, como sin energía"
+              "label": "Como sin energía"
             }
           ],
           "aceptaOtro": true,
@@ -845,7 +849,7 @@
           "escala": "T10",
           "variable": "V21",
           "item": "V21.inicial",
-          "texto": "Si {emocion} fuera un termómetro del 1 al 10, ¿qué tan fuerte está ahora?"
+          "texto": "Del 1 al 10, ¿qué tan fuerte sientes eso ahorita? 1 es muy poquito y 10 es lo más fuerte."
         },
         {
           "id": "en_respirar",
@@ -854,7 +858,7 @@
             "paso": "en_termometro",
             "gte": 9
           },
-          "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Respirar lento le avisa al cuerpo que puede bajar la alerta. ¿Quieres que respiremos juntos un minuto antes de seguir?",
+          "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos?",
           "opciones": [
             {
               "id": "si",
@@ -883,7 +887,7 @@
           "tipo": "multiple",
           "variable": "V22",
           "item": "V22.zona",
-          "texto": "Las emociones también se sienten en el cuerpo. ¿En qué parte del cuerpo lo sientes?",
+          "texto": "Lo que sentimos también se nota en el cuerpo. ¿En qué parte lo sientes?",
           "opciones": [
             {
               "id": "pecho",
@@ -911,7 +915,7 @@
             },
             {
               "id": "ninguna",
-              "label": "No la noto en el cuerpo"
+              "label": "En ninguna parte"
             }
           ],
           "aceptaOtro": true
@@ -1098,7 +1102,7 @@
               }
             ]
           },
-          "texto": "Tengo un ejercicio de un minuto que puede ayudarte con lo que sientes. Se llama {ejercicio}: {ejercicioPara} ¿Quieres hacerlo antes de seguir?",
+          "texto": "Te propongo un ejercicio de un minuto antes de seguir. {ejercicioComo} {ejercicioPara} ¿Quieres intentarlo?",
           "opciones": [
             {
               "id": "si",
@@ -1125,7 +1129,7 @@
         {
           "id": "en_puente",
           "tipo": "mensaje",
-          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas que tienen que ver con eso, para entender mejor lo que vives. Si alguna no quieres contestarla, sólo dímelo."
+          "texto": "Gracias por contarme cómo estás. Ahora te voy a hacer unas preguntas sobre lo que vives. Si alguna no quieres contestarla, solo dímelo."
         }
       ]
     },
@@ -1140,7 +1144,7 @@
           "escala": "E5",
           "variable": "V1",
           "item": "V1.comunitaria",
-          "texto": "Hay lugares donde pasan cosas que dan miedo y la gente se acostumbra a vivir así. ¿Qué tan seguido sientes que en tu colonia pasan cosas que dan miedo?",
+          "texto": "¿Qué tan seguido pasan cosas que dan miedo en tu colonia?",
           "reacciones": [
             {
               "si": {
@@ -1156,7 +1160,7 @@
           "escala": "E5",
           "variable": "V1",
           "item": "V1.escolar",
-          "texto": "¿Qué tan seguido sientes inseguridad en la escuela o en el camino?"
+          "texto": "¿Qué tan seguido sientes que no estás a salvo en la escuela o en el camino a la escuela?"
         },
         {
           "id": "v1_enterado",
@@ -1203,7 +1207,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.miedo",
-          "texto": "¿Qué tan seguido sientes miedo de que te pase algo a ti o a tu familia?",
+          "texto": "¿Qué tan seguido te da miedo que te pase algo a ti o a tu familia?",
           "reacciones": [
             {
               "si": {
@@ -1219,7 +1223,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.hipervigilancia",
-          "texto": "¿Te cuesta relajarte, como si siempre tuvieras que estar alerta?"
+          "texto": "¿Qué tan seguido te cuesta relajarte, como si tuvieras que estar siempre alerta?"
         },
         {
           "id": "v2_dormir",
@@ -1227,7 +1231,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.sueno",
-          "texto": "¿Te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor?"
+          "texto": "¿Qué tan seguido te cuesta dormir por estar pensando en lo que pasa a tu alrededor?"
         }
       ]
     },
@@ -1243,7 +1247,7 @@
           "escala": "E5",
           "variable": "V3",
           "item": "V3.animo",
-          "texto": "¿Te has sentido triste o sin ganas de hacer cosas?"
+          "texto": "¿Qué tan seguido te has sentido triste o sin ganas de hacer nada?"
         },
         {
           "id": "v3_desesperanza",
@@ -1251,7 +1255,7 @@
           "escala": "E5",
           "variable": "V3",
           "item": "V3.desesperanza",
-          "texto": "¿Sientes que no importa lo que hagas, las cosas no van a mejorar?",
+          "texto": "¿Qué tan seguido sientes que, hagas lo que hagas, las cosas no van a mejorar?",
           "reacciones": [
             {
               "si": {
@@ -1275,7 +1279,7 @@
           "escala": "E5",
           "variable": "V4",
           "item": "V4.enojo",
-          "texto": "¿Te enojas tan fuerte que sientes que podrías explotar?",
+          "texto": "¿Qué tan seguido te enojas tanto que sientes que vas a explotar?",
           "reacciones": [
             {
               "si": {
@@ -1299,7 +1303,7 @@
           "escala": "E5",
           "variable": "V5",
           "item": "V5.lealtad",
-          "texto": "A veces una persona siente que tiene que callar o hacer cosas para proteger a alguien. ¿Qué tan seguido te pasa a ti?",
+          "texto": "A veces una persona siente que tiene que quedarse callada o hacer cosas para proteger a alguien. ¿Qué tan seguido te pasa a ti?",
           "reacciones": [
             {
               "si": {
@@ -1308,7 +1312,7 @@
               "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
             }
           ],
-          "repetir": "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?"
+          "repetir": "¿Qué tan seguido sientes que tienes que quedarte callado o callada, o hacer cosas, para proteger a alguien?"
         },
         {
           "id": "v5_culpa",
@@ -1316,7 +1320,7 @@
           "escala": "E5",
           "variable": "V5",
           "item": "V5.culpa",
-          "texto": "¿Cargas con sentimientos de culpa que no puedes platicar con nadie?",
+          "texto": "¿Qué tan seguido sientes culpa por algo que no puedes platicar con nadie?",
           "reacciones": [
             {
               "si": {
@@ -1340,7 +1344,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.aceptacion",
-          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Aquí la violencia es algo normal\"?"
+          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Aquí la violencia es algo normal\"?"
         },
         {
           "id": "v6_dinero",
@@ -1348,7 +1352,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.atractivo",
-          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Tener poder o dinero rápido vale el riesgo\"?"
+          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Ganar dinero rápido o tener poder vale la pena, aunque sea peligroso\"?"
         }
       ]
     },
@@ -1363,7 +1367,7 @@
           "escala": "E5",
           "variable": "V7",
           "item": "V7.presion",
-          "texto": "¿Has sentido presión para hacer cosas que te ponen en riesgo?",
+          "texto": "¿Qué tan seguido sientes que te presionan para hacer cosas que te ponen en peligro?",
           "reacciones": [
             {
               "texto": "No necesito saber de qué se trata. Si algún día quieres hablarlo con alguien, te puedo decir cómo."
@@ -1418,7 +1422,7 @@
           "tipo": "opcion",
           "variable": "V8",
           "item": "V8.metas",
-          "texto": "¿Te imaginas cómo te gustaría estar en 5 años?",
+          "texto": "¿Te imaginas cómo te gustaría estar dentro de 5 años?",
           "opciones": [
             {
               "id": "si",
@@ -1462,7 +1466,7 @@
           "escala": "A5",
           "variable": "V8",
           "item": "V8.escuela",
-          "texto": "¿Qué tan importante es para ti terminar la escuela?"
+          "texto": "Del 1 al 5, ¿qué tan importante es para ti terminar la escuela?"
         }
       ]
     },
@@ -1498,7 +1502,7 @@
           "tipo": "opcion",
           "variable": "V9",
           "item": "V9.pares",
-          "texto": "¿Tienes amistades con quienes sientes seguridad?",
+          "texto": "¿Tienes amigos o amigas con quienes te sientas en confianza y a salvo?",
           "opciones": [
             {
               "id": "si",
@@ -1535,7 +1539,7 @@
             },
             {
               "id": "consumir",
-              "label": "Consumir algo"
+              "label": "Tomar, fumar o vapear"
             },
             {
               "id": "pelear",
@@ -1543,7 +1547,7 @@
             },
             {
               "id": "otra",
-              "label": "Otra"
+              "label": "Otra cosa"
             }
           ],
           "aceptaOtro": true
@@ -1584,7 +1588,7 @@
               "descanso"
             ]
           },
-          "texto": "Respira hondo: inhala en 4, sostén 4, suelta en 6. ¿Seguimos con las preguntas?",
+          "texto": "Respira hondo: inhala contando 4, aguanta 4 y suelta el aire contando 6. ¿Seguimos con las preguntas?",
           "opciones": [
             {
               "id": "seguir",
@@ -1610,7 +1614,7 @@
           "escala": "A5",
           "variable": "V11",
           "item": "V11.pertenencia",
-          "texto": "Hablemos de la escuela. ¿Qué tanto estás de acuerdo con esto: \"Me siento parte de esta escuela\"?"
+          "texto": "Hablemos de la escuela. Del 1 al 5, ¿qué tanto sientes que eres parte de tu escuela?"
         },
         {
           "id": "ma_maestro",
@@ -1669,7 +1673,7 @@
           "tipo": "opcion",
           "variable": "V11",
           "item": "V11.cambio",
-          "texto": "¿Y qué cambiarías para sentirte mejor aquí?",
+          "texto": "¿Qué cambiarías de tu escuela para sentirte mejor ahí?",
           "opciones": [
             {
               "id": "deporte_arte",
@@ -1742,7 +1746,7 @@
           "escala": "E5",
           "variable": "V12",
           "item": "V12.tension",
-          "texto": "¿Qué tan seguido hay un ambiente tenso o de preocupación?",
+          "texto": "¿Qué tan seguido se siente tenso el ambiente en tu casa?",
           "reacciones": [
             {
               "si": {
@@ -1758,7 +1762,7 @@
           "tipo": "opcion",
           "variable": "V12",
           "item": "V12.comunicacion",
-          "texto": "¿Puedes hablar en casa de lo que sientes?",
+          "texto": "¿Puedes platicar en tu casa de lo que sientes?",
           "opciones": [
             {
               "id": "si",
@@ -1820,7 +1824,7 @@
           "tipo": "opcion",
           "variable": "V10",
           "item": "V10.perdida",
-          "texto": "¿Has perdido a alguien importante para ti, o alguien se fue y no sabes de él o ella?",
+          "texto": "¿Ha muerto alguien importante para ti, o alguien se fue y ya no sabes de esa persona?",
           "opciones": [
             {
               "id": "si",
@@ -1847,7 +1851,7 @@
               "si"
             ]
           },
-          "texto": "Lo siento mucho. ¿Qué tanto sigues pensando en esa persona y te duele?",
+          "texto": "Lo siento mucho. ¿Qué tanto te sigue doliendo?",
           "opciones": [
             {
               "id": "casi_nada",
@@ -1913,7 +1917,7 @@
           "escala": "A5",
           "variable": "V13",
           "item": "V13.autovaloracion",
-          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Siento que soy una persona valiosa\"?",
+          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Siento que soy una persona valiosa\"?",
           "reacciones": [
             {
               "si": {
@@ -1981,7 +1985,7 @@
           "escala": "A5",
           "variable": "V18",
           "item": "V18.recuperacion",
-          "texto": "¿Qué tanto estás de acuerdo con esta frase: \"Cuando me pasa algo difícil, logro salir adelante\"?"
+          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Cuando me pasa algo difícil, logro salir adelante\"?"
         },
         {
           "id": "md_fuerza",
@@ -2014,7 +2018,7 @@
           "escala": "E5",
           "variable": "V14",
           "item": "V14.intrusivos",
-          "texto": "¿Te vienen imágenes o recuerdos feos sin que quieras?"
+          "texto": "¿Qué tan seguido te vienen a la mente imágenes o recuerdos feos sin que tú quieras?"
         },
         {
           "id": "me_evito",
@@ -2022,7 +2026,7 @@
           "escala": "E5",
           "variable": "V14",
           "item": "V14.evitacion",
-          "texto": "¿Evitas lugares, sonidos o personas porque te recuerdan algo que te asustó?"
+          "texto": "¿Qué tan seguido evitas lugares, ruidos o personas porque te recuerdan algo que te asustó?"
         },
         {
           "id": "me_sobresalto",
@@ -2030,7 +2034,7 @@
           "escala": "E5",
           "variable": "V14",
           "item": "V14.sobresalto",
-          "texto": "¿Te asustas fácil con ruidos fuertes, como cohetes o portazos?"
+          "texto": "¿Qué tan seguido te asustas fácil con ruidos fuertes, como cohetes o portazos?"
         },
         {
           "id": "me_psicologo",
@@ -2046,7 +2050,7 @@
             },
             "min": 2
           },
-          "texto": "Lo que describes es una reacción normal ante cosas que no son normales. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho con esto. ¿Quieres saber dónde buscar ese apoyo?",
+          "texto": "Lo que cuentas le pasa a mucha gente después de vivir cosas fuertes. No es locura ni debilidad. Hablar con alguien de psicología ayuda mucho. ¿Quieres saber dónde buscar ese apoyo?",
           "opciones": [
             {
               "id": "como",
@@ -2137,7 +2141,7 @@
         {
           "id": "mf_gracias",
           "tipo": "mensaje",
-          "texto": "Gracias por tu honestidad. No te voy a juzgar. Si algún día quieres orientación, la Línea de la Vida también atiende esto, gratis y sin dar tu nombre."
+          "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres que alguien te oriente, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
         }
       ]
     },
@@ -2152,7 +2156,7 @@
           "escala": "E5",
           "variable": "V16",
           "item": "V16.consumo",
-          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o música sobre armas, dinero fácil o grupos criminales?"
+          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o escuchas música sobre armas, dinero fácil o grupos criminales?"
         },
         {
           "id": "mg_sientes",
@@ -2285,7 +2289,7 @@
           "tipo": "opcion",
           "variable": "V8",
           "item": "V8.expectativa",
-          "texto": "¿Qué tan posible crees que es?",
+          "texto": "¿Qué tan posible crees que es lograrlo?",
           "opciones": [
             {
               "id": "muy",
@@ -2320,7 +2324,7 @@
               "imposible"
             ]
           },
-          "texto": "Entiendo que desde aquí se vea lejos. Mucha gente empezó en lugares difíciles. ¿Qué sería un primer pasito?",
+          "texto": "Desde aquí puede verse lejos, y está bien. ¿Cuál sería un primer pasito para acercarte?",
           "rapidas": [
             {
               "id": "prefiero",
@@ -2379,7 +2383,7 @@
           "tipo": "multiple",
           "variable": "V19",
           "item": "V19.barreras",
-          "texto": "¿Qué te impediría pedir ayuda? Puedes elegir varias.",
+          "texto": "¿Qué te detendría para pedir ayuda? Puedes elegir varias.",
           "opciones": [
             {
               "id": "miedo",
@@ -2469,8 +2473,8 @@
             "paso": "en_termometro",
             "respondido": true
           },
-          "texto": "Antes de despedirnos, vuelve a pensar en la emoción del inicio. Del 1 al 10, ¿qué tan fuerte está ahora?",
-          "repetir": "Del 1 al 10, ¿qué tan fuerte está ahora la emoción con la que llegaste?"
+          "texto": "Antes de despedirnos, piensa otra vez en cómo te sentías al principio. Del 1 al 10, ¿qué tan fuerte lo sientes ahorita?",
+          "repetir": "Del 1 al 10, ¿qué tan fuerte sientes ahorita lo que sentías al principio?"
         },
         {
           "id": "ci_ahora",
@@ -2506,7 +2510,7 @@
               "peor"
             ]
           },
-          "texto": "Gracias por decírmelo. A veces hablar mueve cosas. ¿Quieres hacer un ejercicio de un minuto para calmar el cuerpo o ver a quién puedes llamar?",
+          "texto": "Gracias por decírmelo. A veces platicar mueve cosas por dentro. ¿Quieres hacer un ejercicio de un minuto para calmar el cuerpo, o prefieres ver a quién puedes llamar?",
           "opciones": [
             {
               "id": "ejercicio",
@@ -2563,7 +2567,7 @@
               }
             ]
           },
-          "texto": "Antes de irte, ¿quieres hacer un ejercicio de un minuto? Se llama {ejercicio}: {ejercicioPara}",
+          "texto": "Antes de irte, te propongo un ejercicio de un minuto. {ejercicioComo} {ejercicioPara} ¿Quieres intentarlo?",
           "opciones": [
             {
               "id": "si",
@@ -2590,7 +2594,7 @@
         {
           "id": "ci_gracias",
           "tipo": "mensaje",
-          "texto": "Gracias por platicar conmigo. Lo que sientes es válido y aquí hay quien te escuche. Si en algún momento necesitas hablar con una persona, aquí tienes opciones:"
+          "texto": "Gracias por platicar conmigo. Lo que sientes importa, y hay personas que te pueden escuchar. Aquí tienes algunas opciones:"
         },
         {
           "id": "ci_directorio",
@@ -2612,7 +2616,7 @@
           "id": "cr_1",
           "tipo": "mensaje",
           "estilo": "crisis",
-          "texto": "Lo que me cuentas es muy importante y me preocupa que estés pasando por esto. Mereces apoyo de una persona ahora."
+          "texto": "Lo que me cuentas es muy importante y me preocupa que estés pasando por esto. Mereces que una persona te apoye ahorita."
         },
         {
           "id": "cr_2",
@@ -2623,7 +2627,7 @@
         {
           "id": "cr_ejercicio",
           "tipo": "opcion",
-          "texto": "Mientras tanto, puedo mostrarte una respiración de un minuto. Respirar lento le avisa a tu cuerpo que puede bajar la alerta. ¿Quieres hacerla?",
+          "texto": "Mientras tanto, te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos?",
           "opciones": [
             {
               "id": "si",
@@ -2669,7 +2673,7 @@
         {
           "id": "sa_gracias",
           "tipo": "mensaje",
-          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes es válido y aquí hay quien te escuche."
+          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes importa, y hay personas que te pueden escuchar."
         },
         {
           "id": "sa_directorio",
@@ -2798,6 +2802,7 @@
   "ia": {
     "privacidad": "Eco no pide nombres ni ubicación; cada plática tiene un código al azar. Lo que escribes no se guarda completo: sólo números y temas. Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién es quién.",
     "proposito": "Eco es un espacio para platicar cómo te sientes. Lo que contestas ayuda a que el equipo de psicología entienda cómo están los jóvenes de tu escuela y pueda crear apoyos.",
-    "rondaIntro": "Antes de terminar, unas preguntas rápidas. Puedes contestar con un toque."
+    "rondaIntro": "Antes de terminar, unas preguntas rápidas. Puedes contestar con un toque.",
+    "ofertaEjercicio": "Te propongo un ejercicio de un minuto. {como} {para} ¿Quieres intentarlo? Si no te late, no pasa nada."
   }
 }

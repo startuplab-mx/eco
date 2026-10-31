@@ -112,19 +112,24 @@ function sistemaConducir(): string {
 
 Ahora conduces la plática. Tu meta es doble: que el joven se sienta escuchado y que, de forma natural, la plática pase por los temas pendientes de la lista. Es una plática, no un cuestionario.
 
+Cómo hablas:
+- Español de México, sencillo, como le hablarías a alguien de 12 años: palabras de todos los días ("platicar", "ahorita", "seguido", "a salvo"). Nada rebuscado ni técnico ("inseguridad", "ámbito", "sensación", "intensidad", "afrontar", "regular emociones").
+- Si usas una palabra que un chavo de secundaria podría no entender, cámbiala por una más simple.
+
 Cómo escribes cada mensaje:
 - De 1 a 3 oraciones cortas, máximo unas 35 palabras: se lee en un celular. Una sola pregunta por mensaje, al final.
 - Primero reconoce lo que dijo, en sus términos y sin exagerar. Luego conecta con el siguiente tema.
 - Suena como una persona, no como un formulario: varía cómo empiezas. NO empieces con "Gracias por decírmelo/contármelo" (úsalo, como mucho, una vez cada cinco mensajes). No repitas las mismas palabras de un mensaje a otro ("pesa", "cansa", "desgasta"). A veces basta con retomar sus palabras ("Un 7, eso es bastante.") o ir directo a la pregunta.
 - Si contestó tocando un botón, no hace falta comentar mucho: un reconocimiento breve o ninguno, y sigue.
 - Elige el siguiente tema según lo que va contando: si habla de su colonia, sigue con lo de la colonia; si habla de dormir, pregunta por eso. Si no hay hilo, toma el siguiente pendiente obligatorio.
-- Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones (si las opciones son de frecuencia, pregunta "qué tan seguido"). Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
+- Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones. Si las opciones son Nunca… Casi siempre, pregunta "¿qué tan seguido…?". Si son del 1 al 5, di "del 1 al 5". Si son del 1 al 10, di "del 1 al 10". Nunca preguntes sí/no cuando las opciones son de frecuencia. Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
 - Para preguntas abiertas, marca su id en "item" también.
 - Si pregunta algo ("¿para qué es esto?", "¿qué es eso?", "no entendí"), contesta en una o dos frases con la información de abajo y vuelve a la pregunta.
 - Si se desvía, bromea o insulta: no regañes ni sermonees; reconoce con humor ligero o calma y regresa al tema.
 - Si no quiere contestar algo, está bien: dilo con naturalidad y pasa a otro tema.
 - Si dice que se siente mal o algo le pesa, valida y no corras al siguiente tema en el mismo mensaje.
-- Ejercicios: puedes ofrecer uno cuando la emoción es intensa o lo pide. SIEMPRE explica antes para qué sirve, con la información de abajo, y pregunta si quiere hacerlo. Sólo cuando diga que sí, pon su id en "ejercicio" (se muestra en pantalla) y en "item" null.
+- Ejercicios: puedes ofrecer uno cuando la emoción es intensa, cuando lo pide o cuando algo le pesa mucho. NO escribas tú la oferta: pon el id en "ofrecer" y en "mensaje" sólo reconoce lo que dijo, sin preguntas (el sistema agrega qué es el ejercicio, para qué sirve y los botones Sí / Ahora no). "item" en null. Si te pregunta qué es o para qué sirve un ejercicio, explícalo con la información de abajo.
+- "ejercicio": sólo si el joven escribió que sí quiere hacer el ejercicio que se le ofreció; pon su id y se muestra en pantalla.
 - Temas opcionales: sólo si la plática va hacia ahí. No los busques.
 - "terminar": true cuando ya no queden pendientes obligatorios, cuando el joven quiera terminar, o al llegar al límite de turnos. En ese caso el mensaje cierra el tema con calidez (sin despedirte del todo: después vienen dos preguntas de cierre) e "item" es null.
 
@@ -141,7 +146,7 @@ Información que puedes usar si pregunta:
 - Ejercicios:
 ${ej}
 
-Devuelve JSON: {"mensaje": "...", "item": id o null, "ejercicio": id o null, "terminar": true/false}.`;
+Devuelve JSON: {"mensaje": "...", "item": id o null, "ofrecer": id de ejercicio o null, "ejercicio": id o null, "terminar": true/false}.`;
 }
 
 const ESQUEMA_CONDUCIR = {
@@ -150,17 +155,18 @@ const ESQUEMA_CONDUCIR = {
   properties: {
     mensaje: { type: "string" },
     item: { type: ["string", "null"] },
+    ofrecer: { type: ["string", "null"] },
     ejercicio: { type: ["string", "null"] },
     terminar: { type: "boolean" },
   },
-  required: ["mensaje", "item", "ejercicio", "terminar"],
+  required: ["mensaje", "item", "ofrecer", "ejercicio", "terminar"],
 };
 
 function instrucciones(p: PedidoConversar, tipo: string, nucleo: ItemCatalogo[], respiracion: boolean): string[] {
   const xs: string[] = [];
   if (respiracion)
     xs.push(
-      "El termómetro está en 9 o 10. En este mensaje reconoce que es muy intenso, explica que cuando una emoción está así de fuerte el cuerpo se acelera y que respirar lento le avisa al cuerpo que puede bajar la alerta, y pregunta si quiere respirar un minuto. item null.",
+      "El termómetro está en 9 o 10. En este mensaje reconoce que es muy intenso y que cuando una emoción está así de fuerte el cuerpo se acelera; sin preguntas. Pon ofrecer = \"respiracion\" e item null.",
     );
   if (tipo === "privacidad") xs.push("Preguntó por su privacidad: contesta con la información de privacidad, en dos frases, y vuelve al tema.");
   if (tipo === "pide_orientacion") xs.push("Pidió orientación sobre algo serio: reconoce que es importante y dile que abajo le aparecen lugares donde lo pueden orientar. No des consejos. Luego vuelve al tema con suavidad.");
@@ -178,7 +184,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
   const contenido = [
     `PENDIENTES OBLIGATORIOS (${nucleo.length}):\n${nucleo.map(lineaItem).join("\n") || "(ninguno)"}`,
     `TEMAS OPCIONALES DISPONIBLES:\n${opcionales.map(lineaItem).join("\n") || "(ninguno)"}`,
-    `Turno ${p.turnos} de ${p.maxTurnos}. Ejercicios ya hechos: ${p.ejercicios.join(", ") || "ninguno"}.`,
+    `Turno ${p.turnos} de ${p.maxTurnos}. Ejercicios ya hechos: ${p.ejercicios.join(", ") || "ninguno"}. Ejercicios ya ofrecidos: ${(p.ofrecidos ?? []).join(", ") || "ninguno"}${(p.ofrecidos ?? []).length >= 2 ? " (ya no ofrezcas más)" : ""}.`,
     extraidas.length ? `De su último mensaje ya quedó registrado: ${extraidas.join(", ")}. No lo vuelvas a preguntar.` : "",
     instrucciones(p, tipo, nucleo, respiracion).map((x) => `INDICACIÓN: ${x}`).join("\n"),
     `PLÁTICA HASTA AHORA:\n${p.historial.map((m) => `${m.quien === "eco" ? "Eco" : "Joven"}: ${m.texto}`).join("\n")}`,
@@ -192,11 +198,18 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
     const mensaje = abrirPreguntas(String(r.mensaje ?? "").trim());
     const item = typeof r.item === "string" && r.item ? r.item : null;
     const ejercicio = typeof r.ejercicio === "string" && r.ejercicio in g.ejercicios ? r.ejercicio : null;
+    const ofrecidos = p.ofrecidos ?? [];
+    const pideOferta = typeof r.ofrecer === "string" && r.ofrecer in g.ejercicios && !ejercicio;
+    const ofrecer = pideOferta && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null;
     const motivo =
-      motivoRechazo(mensaje, r.terminar === true) ??
+      (pideOferta && !ofrecer ? "ya se ofrecieron suficientes ejercicios o ése ya se ofreció; no ofrezcas otro y sigue con la plática" : null) ??
+      motivoRechazo(mensaje, r.terminar === true || !!ofrecer) ??
+      (!ofrecer && !ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(mensaje) && mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
+        ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
+        : null) ??
       (item && !itemPorId(g, item) ? `el item ${item} no existe` : null) ??
       (item && (p.cubiertos.includes(item) || extraidas.includes(item)) ? `el item ${item} ya está contestado` : null);
-    if (!motivo) return { mensaje, item, ejercicio, terminar: r.terminar === true };
+    if (!motivo) return { mensaje, item: ofrecer ? null : item, ejercicio, ofrecer, terminar: !ofrecer && r.terminar === true };
     registrarFalla("conducir", new Error(`rechazado: ${motivo}`));
     nota = `\n\nTu respuesta anterior no se pudo usar porque ${motivo}. Escríbela de nuevo cumpliendo las reglas.`;
   }
@@ -229,6 +242,11 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
 
   let c = null;
   try { c = await conducir(p, tipo, extraidas, respiracion); } catch (e) { registrarFalla("conducir", e); }
+  // Termómetro en 9–10: la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
+  if (c && respiracion && !c.ofrecer && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion")) {
+    const sinPregunta = c.mensaje.split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
+    c = { ...c, mensaje: sinPregunta || "Eso es muy intenso.", item: null, ofrecer: "respiracion", terminar: false };
+  }
   const final = c ?? respaldo(p, extraidas);
   return {
     riesgo: false,
@@ -237,6 +255,7 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
     mensaje: final.mensaje,
     item: final.item,
     ejercicio: c?.ejercicio ?? null,
+    ofrecer: c?.ofrecer ?? (respiracion && !c ? "respiracion" : null),
     terminar: final.terminar,
     respaldo: !c,
     ...(respiracion ? { respiracion: "ofrecida" } : {}),

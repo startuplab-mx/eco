@@ -2,7 +2,7 @@
 // - riesgo en cada mensaje (lista de alarma aquí + vigilante en el servidor) → protocolo de crisis;
 // - qué preguntas del núcleo faltan, el límite de turnos y la ronda rápida final;
 // - la escalera de desvíos (tercer desvío → "¿otro día?") y el directorio cuando pide orientación.
-import type { Estado, Guion, Instancia, Salida } from "./tipos";
+import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
 import { activarRojo, esperaIA, ofrecerOtroDia, pendientesNucleo, seguirGuion, type Entrada } from "./motor";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
 import { catalogo, itemPorId, leerLocal, omitir, registrar } from "./catalogo";
@@ -11,6 +11,16 @@ import type { ServicioIA } from "./ia-tipos";
 export const MAX_TURNOS = 40;
 
 type Uso = { llamadas: number; respaldos: number; puentes: number };
+
+const OPC_OFERTA = [{ id: "si", label: "Sí, va" }, { id: "no", label: "Ahora no" }];
+const OPC_LISTO = [{ id: "listo", label: "Listo" }];
+
+/** La oferta de un ejercicio, con el texto aprobado: qué vas a hacer, para qué sirve y que es opcional. */
+export function textoOferta(g: Guion, id: string): string {
+  const e = g.ejercicios[id as EjercicioId];
+  const plantilla = g.ia?.ofertaEjercicio ?? "Te propongo un ejercicio de un minuto. {como} {para} ¿Quieres intentarlo?";
+  return plantilla.replace("{como}", e?.como ?? "").replace("{para}", e?.para ?? "").replace(/\s+/g, " ").trim();
+}
 
 export function enFaseIA(estado: Estado): boolean {
   return estado.modo === "ia" && estado.esperando?.paso.id === "_ia" && !!estado.ia;
@@ -33,6 +43,32 @@ export async function turnoIA(
   const filtrado = texto ? filtrarIdentificadores(texto).texto : null;
   const item = st.item;
 
+  // 0. Oferta de ejercicio: el sí, el no y el "Listo" los resuelve el código.
+  if (st.oferta && entrada.opcion && !texto) {
+    if (st.oferta === "hecho") {
+      st.historial.push({ quien: "joven", texto: "Listo, hice el ejercicio." });
+      st.oferta = null;
+    } else if (entrada.opcion === "si") {
+      const id = st.oferta;
+      st.historial.push({ quien: "joven", texto: "Sí, va." });
+      salida.push({ tipo: "ejercicio", ejercicio: id as EjercicioId });
+      st.ejercicios.push(id);
+      if (id === "respiracion") st.respiracion = "ofrecida";
+      st.oferta = "hecho";
+      const t = "Aquí está. Tómate tu tiempo; cuando termines, toca «Listo» o cuéntame cómo te fue.";
+      salida.push({ tipo: "eco", texto: t });
+      st.historial.push({ quien: "eco", texto: `[se mostró el ejercicio ${id}] ${t}` });
+      estado.esperando = esperaIA(g, null, t, OPC_LISTO);
+      return { estado, salida, uso };
+    } else {
+      st.historial.push({ quien: "joven", texto: "Ahora no." });
+      st.oferta = null;
+    }
+    st.turnos++;
+    return conversarYSeguir(g, inst, estado, salida, uso, ia, null, null, null);
+  }
+  if (st.oferta) st.oferta = null;
+
   // 1. Etiquetas tocadas: se registran tal cual, sin pasar por la IA.
   const tocadas = entrada.opciones?.length ? entrada.opciones : entrada.opcion ? [entrada.opcion] : [];
   const it = itemPorId(g, item);
@@ -49,6 +85,16 @@ export async function turnoIA(
   const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
   if (nivel === "segura") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
 
+  return conversarYSeguir(g, inst, estado, salida, uso, ia, filtrado, texto, nivel);
+}
+
+async function conversarYSeguir(
+  g: Guion, inst: Instancia, estado: Estado, salida: Salida[], uso: Uso, ia: ServicioIA | null,
+  filtrado: string | null, texto: string | null, nivel: "segura" | "revisar" | null,
+): Promise<{ estado: Estado; salida: Salida[]; uso: Uso }> {
+  const st = estado.ia!;
+  const item = st.item;
+  const it = itemPorId(g, item);
   // 3. La IA: vigilante + conductor en el servidor.
   let r = null;
   if (ia?.conversar) {
@@ -64,6 +110,7 @@ export async function turnoIA(
       maxTurnos: MAX_TURNOS,
       respiracion: st.respiracion,
       ejercicios: st.ejercicios,
+      ofrecidos: st.ofrecidos ?? [],
     });
   }
 
@@ -126,6 +173,18 @@ export async function turnoIA(
   const sinPendientes = pendientesNucleo(g, estado).length === 0;
   if (r.terminar || st.turnos >= MAX_TURNOS || (sinPendientes && !r.item)) {
     seguirGuion(g, inst, estado, salida);
+    return { estado, salida, uso };
+  }
+  // Oferta de ejercicio: el texto aprobado y los botones Sí / Ahora no los pone el código.
+  if (r.ofrecer && g.ejercicios[r.ofrecer as EjercicioId] && !st.ejercicios.includes(r.ofrecer)) {
+    const oferta = textoOferta(g, r.ofrecer);
+    salida.push({ tipo: "eco", texto: oferta });
+    st.historial.push({ quien: "eco", texto: oferta });
+    st.oferta = r.ofrecer;
+    st.ofrecidos = [...(st.ofrecidos ?? []), r.ofrecer];
+    st.item = null;
+    if (r.ofrecer === "respiracion") st.respiracion = "ofrecida";
+    estado.esperando = esperaIA(g, null, oferta, OPC_OFERTA);
     return { estado, salida, uso };
   }
   st.item = r.item && !estado.respuestas[r.item] ? r.item : null;

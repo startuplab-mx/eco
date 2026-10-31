@@ -150,7 +150,8 @@ export function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: 
     .replace("{lugar}", inst.orientador.lugar)
     .replace("{horario}", inst.orientador.horario)
     .replace("{ejercicio}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.titulo ?? "")
-    .replace("{ejercicioPara}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.para ?? "");
+    .replace("{ejercicioPara}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.para ?? "")
+    .replace("{ejercicioComo}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.como ?? "");
 }
 
 export function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emocion"): EjercicioId {
@@ -326,6 +327,8 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
     }
     const p = b.pasos[estado.indice];
     if (p.si && !evaluar(g, estado, p.si)) { estado.indice++; continue; }
+    // Si en la plática con IA ya hizo un ejercicio, el cierre no ofrece otro.
+    if (p.id === "ci_amarillo_ej" && (estado.ia?.ejercicios.length ?? 0) > 0) { estado.indice++; continue; }
 
     emitirTextos(g, inst, estado, p, salida);
     if (p.tipo === "mensaje") { estado.indice++; continue; }
@@ -394,9 +397,9 @@ function entrarIA(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
 }
 
 /** Lo que espera la fase con IA: texto libre siempre y, si la IA hizo una pregunta medida, sus etiquetas. */
-export function esperaIA(g: Guion, item: string | null, pregunta: string): Espera {
+export function esperaIA(g: Guion, item: string | null, pregunta: string, propias?: Opcion[]): Espera {
   const p = item ? Object.values(g.bloques).flatMap((b) => b.pasos).find((x) => x.id === item) : undefined;
-  const opciones = p && (p.tipo === "opcion" || p.tipo === "multiple") ? opcionesDe(g, p) : [];
+  const opciones = propias ?? (p && (p.tipo === "opcion" || p.tipo === "multiple") ? opcionesDe(g, p) : []);
   return {
     paso: { id: "_ia", tipo: "abierta", texto: pregunta, placeholder: "Escribe tu respuesta…" },
     opciones,

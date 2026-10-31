@@ -3,8 +3,10 @@ import type { Estado, Guion, Instancia } from "./tipos";
 import { resumen } from "./indices";
 import { consintio } from "./motor";
 
-export type Guardado = { fila: string | null; rojoEnviado: boolean; finalEnviado: boolean };
+export type Guardado = { fila: string | null; rojoEnviado: boolean; finalEnviado: boolean; ultimo?: string };
 export const guardadoNuevo = (): Guardado => ({ fila: null, rojoEnviado: false, finalEnviado: false });
+
+const hora = () => new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
 /**
  * Decide si hay que guardar y lo hace.
@@ -32,9 +34,13 @@ export async function guardarSiToca(
       // Permite que el envío termine aunque la página se esté cerrando.
       keepalive: true,
     });
-    const d = (await res.json().catch(() => ({}))) as { fila?: string };
+    const d = (await res.json().catch(() => ({}))) as { fila?: string; error?: string; rojo?: boolean; guardado?: boolean };
     if (d.fila) memo.fila = d.fila;
+    memo.ultimo = res.ok
+      ? `${hora()} · ${d.rojo ? "sesión roja registrada" : d.guardado === false ? "sin consentimiento: no se guarda" : estado.terminada ? "sesión completa guardada" : "guardado parcial"}`
+      : `${hora()} · error ${res.status} ${d.error ?? ""}`;
   } catch {
     // Sin conexión: no se reintenta para no duplicar. Se pierde sólo esta sesión.
+    memo.ultimo = `${hora()} · sin conexión`;
   }
 }

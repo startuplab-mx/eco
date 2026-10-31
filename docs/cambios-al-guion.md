@@ -143,3 +143,10 @@ emojis e insultos directos. Los textos son fijos y están en `desvios` del guion
 - Ámbito: "¿Hay algo que te haga sentir así? Puede ser un lugar, alguien o algo que pasa. No tienes que contar qué pasó."
 - Sin IA disponible: guion completo de antes.
 - Simulador de jóvenes (7 perfiles) en /api/demo?p=simular&persona=… (sólo versiones de prueba).
+
+## Ejercicios explicados y preguntas en español de México sencillo (31 oct 2026)
+
+- La IA ya no redacta la oferta de un ejercicio: pide cuál y el código pone el texto aprobado ("Te propongo un ejercicio de un minuto. Vas a… Sirve para… ¿Quieres intentarlo? Si no te late, no pasa nada.") con botones "Sí, va" / "Ahora no"; después del ejercicio, botón "Listo". Máximo dos ofertas por plática; si ya hizo uno, el cierre no ofrece otro.
+- Cada ejercicio tiene "qué vas a hacer" (como) y "para qué sirve" (para).
+- Preguntas de frecuencia en forma "¿Qué tan seguido…?" (antes algunas preguntaban sí/no con opciones de frecuencia). Escalas 1–5 con "Del 1 al 5". Termómetro: "Del 1 al 10, ¿qué tan fuerte sientes eso ahorita? 1 es muy poquito y 10 es lo más fuerte." ("Muy leve" → "Muy poquito").
+- Palabras más simples: "inseguridad" → "no estás a salvo"; "riesgo" → "peligro"; "Consumir algo" → "Tomar, fumar o vapear"; "Tener poder o dinero rápido vale el riesgo" → "Ganar dinero rápido o tener poder vale la pena, aunque sea peligroso"; "ayuda directa" → "teléfonos y lugares donde te pueden ayudar"; "Lo que sientes es válido" → "Lo que sientes importa".
