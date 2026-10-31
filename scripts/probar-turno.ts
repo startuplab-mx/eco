@@ -319,6 +319,24 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   ok(textos(r.salida)[1] === "¿Quieres seguir?", "en el consentimiento también se repite la pregunta");
 
+  // Mayúsculas del teclado del celular: la primera palabra nunca se toma como nombre.
+  for (const [t, esperado] of [["Tranquilo", "Tranquilo"], ["Casi siempre", "Casi siempre"], ["Desde hace un mes", "Desde hace un mes"], ["Nunca", "Nunca"], ["Me pega Brayan", "Me pega [nombre]"], ["Sofía no me habla", "[nombre] no me habla"]] as const)
+    ok(filtrarIdentificadores(t).texto === esperado, `filtro: «${t}» → «${esperado}»`);
+  // Si el modelo no entiende pero las reglas sí, ganan las reglas.
+  const iaSinSentido: ServicioIA = { interpretar: async () => ({ tipo: "sin_sentido", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  const iaSinOpcion: ServicioIA = { interpretar: async () => ({ tipo: "responde", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  e = hasta("en_emociones");
+  r = await turno(g, inst, e, { texto: "Tranquilo" }, iaSinSentido, []);
+  ok(textos(r.salida)[0] === "Entiendo que hoy te sientes en calma. ¿Es así?", "«Tranquilo» con modelo que duda → espejo «en calma»");
+  r = await turno(g, inst, e, { texto: "Tranquilo" }, iaSinOpcion, []);
+  ok(textos(r.salida)[0] === "Entiendo que hoy te sientes en calma. ¿Es así?", "«Tranquilo» con modelo sin opción → espejo «en calma»");
+  e = hasta("v2_alerta");
+  r = await turno(g, inst, e, { texto: "Casi siempre" }, iaSinSentido, []);
+  ok(r.estado.respuestas["v2_alerta"]?.valor === "casi_siempre", "«Casi siempre» con modelo que duda → casi siempre");
+  const iaGroseria: ServicioIA = { interpretar: async () => ({ tipo: "groseria", riesgo: false, opciones: [], repregunta: null, otro: null }), redactar: async () => null };
+  r = await turno(g, inst, e, { texto: "nunca te voy a contestar pendejo" }, iaGroseria, []);
+  ok(!r.estado.respuestas["v2_alerta"] && textos(r.salida)[0] === g.desvios.groseria[0], "grosería: manda el modelo aunque diga «nunca»");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

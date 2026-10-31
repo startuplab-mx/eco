@@ -47,6 +47,21 @@ export async function turno(
       texto: filtrarIdentificadores(texto).texto,
     });
     const aceptaOtro = !!esp.paso.aceptaOtro && !!r?.otro;
+    // ¿Las reglas del guion ya entienden este texto solas? (sinónimos, número, etiqueta). Si sí, el modelo
+    // no puede convertirlo en desvío ni en "no entendí": "Tranquilo" es "En calma" aunque el modelo dude.
+    let entiende: boolean | undefined;
+    const motorEntiende = () => {
+      if (entiende === undefined) {
+        // Cuenta sólo si casó con una opción real: en pasos que aceptan "otro", las reglas aceptan cualquier
+        // texto como "otro", y eso no es entender.
+        const prueba = responder(g, inst, estado, { texto });
+        const conf = prueba.estado.confirmacion?.entrada;
+        const valor = conf ? (conf.opciones ?? conf.opcion) : prueba.respondido ? prueba.estado.respuestas[esp.paso.id]?.valor : undefined;
+        const ids = (Array.isArray(valor) ? valor : valor === undefined ? [] : [valor]).map(String);
+        entiende = ids.some((id) => id !== "otro" && id !== "otra" && id !== "omitida");
+      }
+      return entiende;
+    };
     modeloSinRiesgo = !!r && !r.riesgo;
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
     else if (r.riesgo) final = { alarma: true };
@@ -57,7 +72,7 @@ export async function turno(
       // Confirmando el espejo: sí/no lo resuelve el motor; si escribió otra cosa, es una nueva respuesta.
       // El texto se conserva para que la lista de alarma lo revise.
       final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;
-    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length && !(esp.paso.tipo === "numero" && /\d/.test(texto))) {
+    } else if (r.tipo && r.tipo !== "responde" && !r.opciones.length && !r.otro && !entrada.opciones?.length && !(esp.paso.tipo === "numero" && /\d/.test(texto)) && !(r.tipo === "sin_sentido" && motorEntiende())) {
       // (Un número en una pregunta de número nunca es desvío: lo lee el motor, aunque esté fuera de rango.)
       // Desvío: sin sentido, grosería, fuera de tema, no quiere, se quiere ir, privacidad, orientación.
       final = { texto, desvio: r.tipo };
@@ -67,11 +82,17 @@ export async function turno(
         ? { texto, opciones: [...(entrada.opciones ?? []), ...r.opciones], sinReglas: true }
         : aceptaOtro
           ? { texto, opciones: entrada.opciones, sinReglas: true, otro: r.otro! }
-          : { texto, opciones: entrada.opciones, sinOtro: true };
+          : motorEntiende()
+            ? { texto, opciones: entrada.opciones }
+            : { texto, opciones: entrada.opciones, sinOtro: true };
       repregunta = r.repregunta;
     } else if (esp.paso.tipo === "opcion" && !entrada.opcion) {
       // Se conserva el texto para el espejo y para que la lista de alarma lo revise.
-      final = r.opciones[0] ? { opcion: r.opciones[0], texto } : aceptaOtro ? { texto, otro: r.otro! } : { texto, sinOtro: true };
+      final = r.opciones[0]
+        ? { opcion: r.opciones[0], texto }
+        : aceptaOtro
+          ? { texto, otro: r.otro! }
+          : motorEntiende() ? { texto } : { texto, sinOtro: true };
       repregunta = r.repregunta;
     }
   }
