@@ -7,7 +7,7 @@ import "server-only";
 import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
-import { abrirPreguntas, acortar, motivoModo, quitarConectores, quitarMuletillas, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
+import { abrirPreguntas, acortar, motivoModo, quitarConectores, quitarMuletillas, TIPOS_RESPUESTA, type ModoTurno, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
 import { cuantifica } from "@/lib/literal";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
 
@@ -54,6 +54,7 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 "respuestas": SOLO la pregunta que le acaban de hacer ("pregunta_que_contestaba"), si su mensaje la contesta CLARAMENTE, con los id de opción que corresponden. No registres ninguna otra pregunta, aunque creas que lo que dijo también la contesta. Reglas:
 - Si dijo la opción con sus palabras ("casi siempre", "a veces"), usa exactamente esa: no la cambies por otra parecida.
 - En las preguntas de frecuencia o de qué tanto, si no dice cuántas veces o qué tanto, no la registres: no la adivines por lo que cuenta.
+- En preguntas que tienen la opción «No sé», si dice "no sé", "depende" o "a veces sí, a veces no", eso es «No sé»: regístrala.
 - Pregunta de una opción: exactamente un id. De varias: uno o más. Abierta: ["texto"] si contestó con sus palabras, o el id de la frase sugerida si eligió una.
 - Lee con faltas de ortografía y escritura de celular como lo que son: "aveces" = a veces, "nunka" = nunca, "masomenos" = más o menos, "kasi" = casi, "bastate" = bastante.
 - Termómetro (Muy poquito… Muy fuerte): "poquito" → t2, "muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
@@ -297,12 +298,17 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
   const contestada = !!p.item && !sinContestar;
   const forzado: Forzado = respiracion ? "seguir" : MODOS_DESVIO.includes(tipo) && sinContestar ? "responder" : MODOS_DESVIO.includes(tipo) || tipo === "no_quiere" || contestada ? "seguir" : null;
 
-  let c = null;
+  let c: { mensaje: string; modo: ModoTurno; ejercicio: string | null; ofrecer: string | null } | null = null;
   try { c = await conducir(p, tipo, extraidas, forzado, respiracion, sig, contestada); } catch (e) { registrarFalla("conducir", e); }
   // Termómetro en «Muy fuerte» (4): la respiración se ofrece sí o sí.
   if (respiracion && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion") && !c?.ofrecer) {
     const sinPregunta = (c?.mensaje ?? "").split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
     c = { mensaje: sinPregunta || "Eso es muy intenso.", modo: "seguir" as const, ejercicio: null, ofrecer: "respiracion" };
+  }
+  // No contestó la pregunta de botones y Eco iba a seguir (no a escuchar): antes de saltarla, una sola vez,
+  // reconoce lo que dijo y le pide que elija. Así no se pierde la respuesta.
+  if (c && c.modo === "seguir" && !c.ofrecer && !c.ejercicio && tipo === "responde" && sinContestar && p.puedeAclarar && p.texto) {
+    c = { ...c, modo: "aclarar", mensaje: `${c.mensaje ? c.mensaje + " " : ""}Para no equivocarme, ¿cuál de estas se parece más?` };
   }
   const final = c ?? (forzado === "responder" ? { mensaje: respuestaFija(tipo), modo: "responder" as const, ejercicio: null, ofrecer: null } : { mensaje: "", modo: "seguir" as const, ejercicio: null, ofrecer: null });
   return {

@@ -321,3 +321,4 @@ Textos nuevos para revisión:
 | Opción escrita tal cual | El modelo podía cambiarla ("casi siempre" → Seguido) | Si escribe la opción con todas sus letras, se registra esa y el modelo no la cambia |
 | Sin frecuencia | El modelo la adivinaba ("no sé ni cómo estoy… no duermo" → A veces) | En las escalas, si no dice cuántas veces o qué tanto, no se registra |
 | Ya contestó y contó más | Eco le pedía que contara más | Eco reconoce lo que sintió en una frase y sigue |
+| No contestó la de botones | Se saltaba | Una sola vez: reconoce lo que dijo y "Para no equivocarme, ¿cuál de estas se parece más?" con los botones; si se abrió, Eco escucha |
