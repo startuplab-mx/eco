@@ -222,3 +222,8 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Guardado a medias durante la plática (cada 20 s si hay respuestas nuevas), además de al cerrar u ocultar la pantalla. Reintentos si falla; los envíos salen en orden.
 - Una etiqueta nueva ya no rechaza la fila (Airtable crea la opción). Antes, "En ninguna parte" y "Como sin energía" hacían que la sesión no se guardara.
 - El guardado tiene su propio límite por sesión, separado de la IA.
+
+**Faltas de ortografía (30 oct 2026)**
+- "Aveces" se tapaba como si fuera una dirección (la regla buscaba "av" de avenida) y Eco contestaba "Prefiero no pedirte lugares" y repetía la pregunta. Ahora las palabras de dirección deben ser palabras completas, y las comunes (colonia, calle, barrio…) sólo se tapan si les sigue un nombre con mayúscula o un número: "en mi colonia hay balazos" ya llega completo.
+- Respuestas cortas con faltas ("Aveces", "Nunka", "Masomenos", "Kasi siempre", "bastate") se toman como la opción a la que claramente se parecen, en el guion y con la IA. Si se parecen igual a dos opciones, no adivina.
+- La IA tiene la instrucción de leer las faltas comunes como lo que son.
