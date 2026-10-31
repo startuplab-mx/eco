@@ -1,5 +1,5 @@
 {
-  "version": "0.2",
+  "version": "0.3",
   "escalas": {
     "E5": [
       {
@@ -113,11 +113,11 @@
         ]
       }
     ],
-    "T10": [
+    "T5": [
       {
         "id": "t1",
         "label": "Muy poquito",
-        "valor": 1.5,
+        "valor": 1,
         "sinonimos": [
           "muy poquito",
           "muy poco",
@@ -128,7 +128,7 @@
       {
         "id": "t2",
         "label": "Poquito",
-        "valor": 3.5,
+        "valor": 2,
         "sinonimos": [
           "poquito",
           "poco",
@@ -139,7 +139,7 @@
       {
         "id": "t3",
         "label": "Más o menos",
-        "valor": 5.5,
+        "valor": 3,
         "sinonimos": [
           "mas o menos",
           "maso",
@@ -150,7 +150,7 @@
       {
         "id": "t4",
         "label": "Fuerte",
-        "valor": 7.5,
+        "valor": 4,
         "sinonimos": [
           "fuerte",
           "bastante"
@@ -159,7 +159,7 @@
       {
         "id": "t5",
         "label": "Muy fuerte",
-        "valor": 9.5,
+        "valor": 5,
         "sinonimos": [
           "muy fuerte",
           "demasiado",
@@ -897,7 +897,7 @@
         {
           "id": "en_termometro",
           "tipo": "opcion",
-          "escala": "T10",
+          "escala": "T5",
           "variable": "V21",
           "item": "V21.inicial",
           "texto": "¿Qué tan fuerte sientes eso ahorita?"
@@ -907,7 +907,7 @@
           "tipo": "opcion",
           "si": {
             "paso": "en_termometro",
-            "gte": 9
+            "gte": 5
           },
           "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos?",
           "opciones": [
@@ -2516,7 +2516,7 @@
         {
           "id": "ci_termometro",
           "tipo": "opcion",
-          "escala": "T10",
+          "escala": "T5",
           "variable": "V21",
           "item": "V21.final",
           "si": {

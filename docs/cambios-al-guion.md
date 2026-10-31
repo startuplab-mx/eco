@@ -205,3 +205,10 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Muletillas: también "dice mucho / bastante de ti" y "eso se nota".
 - Si el joven escribe dos opciones a la vez ("más o menos, a veces fuerte"), Eco pregunta "¿Cuál se parece más: «Más o menos» o «Fuerte»?" en lugar de "No te entendí bien".
 - Vigilante: oír balazos, tener miedo de la violencia del lugar o no tener con quién hablar no es riesgo por sí solo (una simulación lo marcó como crisis).
+
+**Termómetro con código numérico (30 oct 2026, aprobado por el equipo de psicología junto con todos los cambios de esta sección)**
+- Se guarda como número entero: 1 Muy poquito · 2 Poquito · 3 Más o menos · 4 Fuerte · 5 Muy fuerte (antes 1.5…9.5 sobre 1–10).
+- "Termómetro alto" y la oferta de respirar: cuando es 5 (Muy fuerte), igual que antes con 9–10.
+- Cambio emocional = inicial − final, de −4 a 4.
+- Si el joven escribe un número del 1 al 10 ("como un 8"), se convierte: 1–2 → 1, 3–4 → 2, 5–6 → 3, 7–8 → 4, 9–10 → 5.
+- Guion v0.3: en Airtable, "Versión del guion" separa estas filas de las anteriores.

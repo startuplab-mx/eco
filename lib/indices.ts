@@ -5,7 +5,7 @@ import type { Estado, Guion, Instancia, Nivel, Paso } from "./tipos";
 
 /** Umbrales del protocolo amarillo (documento, sección 5). */
 export const UMBRALES = {
-  termometro: 9, // termómetro inicial 9–10
+  termometro: 5, // termómetro inicial en "Muy fuerte" (5 de 5)
   desesperanza: 3, // "Seguido" o más
   malestar: 60, // malestar global > 60/100
   presion: 3, // presión de riesgo "Seguido" o más

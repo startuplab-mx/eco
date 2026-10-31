@@ -157,7 +157,7 @@ export function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emoci
   if (p === "miedo" || p === "preocupado") return "respiracion";
   if (p === "enojado") return "punos";
   if (p === "triste" || p === "vacio") return "mano";
-  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 9;
+  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 5;
   if (p === "confundido" || p === "nose" || intenso) return "anclaje";
   return "respiracion";
 }
@@ -509,7 +509,7 @@ function sinContenidas<T>(xs: T[], frase: (x: T) => string): T[] {
 function porNumero(p: Paso, opciones: Opcion[], texto: string): Opcion | undefined {
   const n = leerNumero(texto);
   if (n === null) return undefined;
-  if (p.escala === "T10" && n >= 1 && n <= 10) return opciones[Math.min(4, Math.floor((n - 1) / 2))];
+  if (p.escala === "T5" && n >= 1 && n <= 10) return opciones[Math.min(4, Math.floor((n - 1) / 2))];
   return undefined;
 }
 
