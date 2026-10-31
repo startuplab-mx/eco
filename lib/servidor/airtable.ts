@@ -136,7 +136,7 @@ async function pedir(ruta: string, init: RequestInit): Promise<Response> {
 export async function guardarSesion(campos: Record<string, unknown>): Promise<string | null> {
   const res = await pedir(encodeURIComponent(T_SESIONES), {
     method: "PATCH",
-    body: JSON.stringify({ performUpsert: { fieldsToMergeOn: ["Código"] }, typecast: false, records: [{ fields: campos }] }),
+    body: JSON.stringify({ performUpsert: { fieldsToMergeOn: ["Código"] }, typecast: true, records: [{ fields: campos }] }),
   });
   if (!res.ok) throw new Error(`Airtable ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const d = (await res.json()) as { records?: { id: string }[] };
