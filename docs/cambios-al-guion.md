@@ -227,3 +227,11 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - "Aveces" se tapaba como si fuera una dirección (la regla buscaba "av" de avenida) y Eco contestaba "Prefiero no pedirte lugares" y repetía la pregunta. Ahora las palabras de dirección deben ser palabras completas, y las comunes (colonia, calle, barrio…) sólo se tapan si les sigue un nombre con mayúscula o un número: "en mi colonia hay balazos" ya llega completo.
 - Respuestas cortas con faltas ("Aveces", "Nunka", "Masomenos", "Kasi siempre", "bastate") se toman como la opción a la que claramente se parecen, en el guion y con la IA. Si se parecen igual a dos opciones, no adivina.
 - La IA tiene la instrucción de leer las faltas comunes como lo que son.
+
+**Nunca se repite una pregunta (30 oct 2026)**
+- Eco lleva la lista de preguntas que ya hizo. Ni la IA, ni el respaldo, ni la ronda rápida final vuelven a hacer una que ya se hizo, aunque la respuesta no se haya entendido.
+- Si no se entiende la respuesta a una pregunta de botones, Eco pide UNA aclaración corta ("No te entendí bien. ¿Cuál de estas se parece más?") con los botones; si tampoco se entiende, la deja como saltada y sigue.
+- Una emoción dicha con sus palabras que no está en la lista se registra como "Otro" (antes, en la plática con IA, no se podía registrar y la pregunta quedaba pendiente para siempre).
+- Emociones a su modo: "chingón", "chido", "padre", "poca madre", "muy bien" = Con alegría; "bien", "tranqui", "relax", "normal" = En calma. En respuestas cortas se reconocen antes de llegar a la IA.
+- Si el mensaje de la IA trae una muletilla o le falta la pregunta, el código lo repara (quita esa oración o agrega la pregunta del guion) en lugar de tirarlo; el respaldo del guion se usa sólo si la reparación tampoco pasa.
+- Muletillas con el orden cambiado: "cabe aquí", "todo cabe", "es totalmente válido".

@@ -17,6 +17,8 @@ export interface ItemCatalogo {
   texto: string;
   tipo: "opcion" | "multiple" | "abierta";
   opciones: { id: string; label: string }[];
+  /** Acepta "otro": lo que dijo con sus palabras y no está en la lista (p. ej., una emoción). */
+  aceptaOtro?: boolean;
 }
 
 /** Pasos que no son preguntas de contenido: ofertas de ejercicio, entradas a temas, ayudas. */
@@ -48,6 +50,7 @@ export function catalogo(g: Guion): ItemCatalogo[] {
         texto: textos.filter(Boolean).join(" "),
         tipo: p.tipo as ItemCatalogo["tipo"],
         opciones: opcionesDe(g, p).map((o) => ({ id: o.id, label: o.label })),
+        aceptaOtro: !!p.aceptaOtro,
       });
     }
   }
@@ -80,11 +83,13 @@ export function registrar(g: Guion, estado: Estado, id: string, valor: string | 
     if (!frase && texto) estado.textos[id] = texto;
   } else {
     const ops: Opcion[] = opcionesDe(g, p);
-    const validos = ids.filter((x) => ops.some((o) => o.id === x));
+    // "otro" vale en las preguntas que lo aceptan, aunque no sea un botón (igual que en el guion).
+    const validos = ids.filter((x) => ops.some((o) => o.id === x) || (p.aceptaOtro && x === "otro"));
     if (!validos.length) return false;
+    if (validos.includes("otro") && texto) estado.textos[`${id}:otro`] = texto.slice(0, 60);
     if (it.tipo === "opcion") {
-      const o = ops.find((x) => x.id === validos[0])!;
-      estado.respuestas[id] = { valor: o.id, num: o.valor };
+      const o = ops.find((x) => x.id === validos[0]);
+      estado.respuestas[id] = o ? { valor: o.id, num: o.valor } : { valor: "otro" };
     } else {
       estado.respuestas[id] = { valor: [...new Set(validos)] };
     }

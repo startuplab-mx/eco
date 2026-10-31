@@ -56,6 +56,8 @@ export interface PedidoConversar {
   item: string | null;
   /** Ítems ya contestados u omitidos. */
   cubiertos: string[];
+  /** Preguntas que Eco ya hizo (contestadas o no): no se vuelven a hacer. */
+  preguntados?: string[];
   /** Módulos opcionales ya tocados. */
   opcionales: string[];
   turnos: number;
@@ -181,7 +183,7 @@ const PREGUNTA_DETALLE = new RegExp(
 );
 
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /aqu[ií] cabe|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /aqu[ií] (tambi[eé]n )?cabe|cabe (aqu[ií]|todo)|todo cabe|es (totalmente |completamente )?v[aá]lid[oa]|v[aá]lido (sentir|que)|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
@@ -192,6 +194,15 @@ export function abrirPreguntas(texto: string): string {
 }
 
 /** Devuelve el motivo si el mensaje no se puede mostrar, o null si está bien. */
+/** Quita las oraciones que tienen una muletilla ("Eso también cabe aquí.") y deja el resto. */
+export function quitarMuletillas(texto: string): string {
+  return texto
+    .split(/(?<=[.!?])\s+/)
+    .filter((o) => !MULETILLAS.test(o))
+    .join(" ")
+    .trim();
+}
+
 export function motivoRechazo(texto: string, terminar = false): string | null {
   const t = texto.trim();
   if (terminar && t.includes("?")) return "cierra la plática pero deja una pregunta abierta";

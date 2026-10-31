@@ -3,7 +3,7 @@
 // - qué preguntas del núcleo faltan, el límite de turnos y la ronda rápida final;
 // - la escalera de desvíos (tercer desvío → "¿otro día?") y el directorio cuando pide orientación.
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
-import { activarRojo, esperaIA, ofrecerOtroDia, pendientesNucleo, seguirGuion, type Entrada } from "./motor";
+import { activarRojo, esperaIA, ofrecerOtroDia, pendientesNucleo, porSinonimos, seguirGuion, type Entrada } from "./motor";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
 import { catalogo, itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
@@ -28,11 +28,6 @@ export function enFaseIA(estado: Estado): boolean {
 }
 
 /** Siguiente pregunta obligatoria tal como está en el guion (respaldo cuando la IA no responde). */
-function siguienteDelGuion(g: Guion, estado: Estado) {
-  const pend = new Set(pendientesNucleo(g, estado));
-  return catalogo(g).find((x) => x.nucleo && pend.has(x.id));
-}
-
 export async function turnoIA(
   g: Guion, inst: Instancia, estadoPrevio: Estado, entrada: Entrada, ia: ServicioIA | null,
 ): Promise<{ estado: Estado; salida: Salida[]; uso: Uso }> {
@@ -79,6 +74,11 @@ export async function turnoIA(
     const id = opcionParecida(opcionesCompletas(g, it.id), texto);
     if (id) { tocadas = [id]; corregida = true; }
   }
+  // 1b. Varias opciones (emociones) dichas en corto y a su modo ("Chingón", "tranqui", "triste y con coraje").
+  if (it && !tocadas.length && texto && it.tipo === "multiple" && texto.split(/\s+/).length <= 6) {
+    const ids = porSinonimos(opcionesCompletas(g, it.id), texto);
+    if (ids.length) { tocadas = ids; corregida = true; }
+  }
   let etiquetas = "";
   if (it && tocadas.length) {
     registrar(g, estado, it.id, tocadas);
@@ -113,6 +113,7 @@ async function conversarYSeguir(
       texto: filtrado,
       item,
       cubiertos: Object.keys(estado.respuestas).filter((k) => itemPorId(g, k)),
+      preguntados: st.preguntados ?? [],
       opcionales: st.opcionales,
       turnos: st.turnos,
       maxTurnos: MAX_TURNOS,
@@ -126,17 +127,7 @@ async function conversarYSeguir(
   if (!r) {
     uso.respaldos++;
     if (nivel === "revisar") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
-    if (it && texto && !estado.respuestas[it.id]) {
-      const ids = leerLocal(g, it.id, texto);
-      if (ids.length) registrar(g, estado, it.id, ids);
-      else if (it.tipo === "abierta") registrar(g, estado, it.id, ["texto"], filtrado ?? undefined);
-    }
-    const sig = siguienteDelGuion(g, estado);
-    if (!sig || st.turnos >= MAX_TURNOS) { seguirGuion(g, inst, estado, salida); return { estado, salida, uso }; }
-    salida.push({ tipo: "eco", texto: sig.texto });
-    st.historial.push({ quien: "eco", texto: sig.texto });
-    st.item = sig.id;
-    estado.esperando = esperaIA(g, sig.id, sig.texto);
+    respaldoSinRepetir(g, inst, estado, salida, texto, filtrado);
     return { estado, salida, uso };
   }
 
@@ -162,7 +153,13 @@ async function conversarYSeguir(
   if (r.respiracion === "ofrecida") st.respiracion = "ofrecida";
   else if (st.respiracion === "no" && (estado.respuestas.en_termometro?.num ?? 0) >= 4) st.respiracion = "pendiente";
 
-  // 7. Lo que dice Eco.
+  // 7. Lo que dice Eco. Si el servidor no logró un mensaje válido de la IA, el respaldo lo pone el código
+  // y nunca repite una pregunta que ya se hizo.
+  if (r.respaldo && !r.ofrecer) {
+    uso.respaldos++;
+    respaldoSinRepetir(g, inst, estado, salida, texto, filtrado);
+    return { estado, salida, uso };
+  }
   if (r.respaldo) uso.respaldos++; else uso.puentes++;
   const mensaje = r.mensaje ?? "";
   if (mensaje) {
@@ -196,6 +193,48 @@ async function conversarYSeguir(
     return { estado, salida, uso };
   }
   st.item = r.item && !estado.respuestas[r.item] ? r.item : null;
+  if (st.item) marcarPreguntado(st, st.item);
   estado.esperando = esperaIA(g, st.item, mensaje);
   return { estado, salida, uso };
+}
+
+function marcarPreguntado(st: NonNullable<Estado["ia"]>, id: string) {
+  st.preguntados = [...new Set([...(st.preguntados ?? []), id])];
+}
+
+/**
+ * Respaldo sin la IA (no respondió o su mensaje no pasó la revisión). Regla: nunca se repite una pregunta.
+ * 1. Lo que contestó a la pregunta en curso se lee con las reglas; si es una emoción con sus palabras, va como "otro".
+ * 2. Si no se entendió una pregunta de botones, se pide UNA aclaración corta ("¿Cuál se parece más?") con los botones;
+ *    si tampoco se entiende, se deja como saltada.
+ * 3. Sigue con la primera pregunta obligatoria que todavía no se ha hecho.
+ */
+function respaldoSinRepetir(
+  g: Guion, inst: Instancia, estado: Estado, salida: Salida[], texto: string | null, filtrado: string | null,
+): void {
+  const st = estado.ia!;
+  const cur = itemPorId(g, st.item);
+  if (cur && texto && !estado.respuestas[cur.id]) {
+    const ids = leerLocal(g, cur.id, texto);
+    if (ids.length) registrar(g, estado, cur.id, ids);
+    else if (cur.tipo === "abierta") registrar(g, estado, cur.id, ["texto"], filtrado ?? undefined);
+    else if (cur.aceptaOtro) registrar(g, estado, cur.id, ["otro"], filtrado ?? undefined);
+    else if (!(st.aclarados ?? []).includes(cur.id)) {
+      st.aclarados = [...(st.aclarados ?? []), cur.id];
+      const t = "No te entendí bien. ¿Cuál de estas se parece más?";
+      salida.push({ tipo: "eco", texto: t });
+      st.historial.push({ quien: "eco", texto: t });
+      estado.esperando = esperaIA(g, cur.id, t);
+      return;
+    } else omitir(estado, cur.id);
+  }
+  const hechas = new Set(st.preguntados ?? []);
+  const pend = new Set(pendientesNucleo(g, estado));
+  const sig = catalogo(g).find((x) => x.nucleo && pend.has(x.id) && !hechas.has(x.id));
+  if (!sig || st.turnos >= MAX_TURNOS) { seguirGuion(g, inst, estado, salida); return; }
+  salida.push({ tipo: "eco", texto: sig.texto });
+  st.historial.push({ quien: "eco", texto: sig.texto });
+  st.item = sig.id;
+  marcarPreguntado(st, sig.id);
+  estado.esperando = esperaIA(g, sig.id, sig.texto);
 }
