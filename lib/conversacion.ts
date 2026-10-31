@@ -152,7 +152,7 @@ async function conversarYSeguir(
 
   // 6. Termómetro alto: se pide ofrecer la respiración (el servidor avisa cuando ya la ofreció).
   if (r.respiracion === "ofrecida") st.respiracion = "ofrecida";
-  else if (st.respiracion === "no" && (estado.respuestas.en_termometro?.num ?? 0) >= 9) st.respiracion = "pendiente";
+  else if (st.respiracion === "no" && (estado.respuestas.en_termometro?.num ?? 0) >= 4) st.respiracion = "pendiente";
 
   // 7. Lo que dice Eco.
   if (r.respaldo) uso.respaldos++; else uso.puentes++;

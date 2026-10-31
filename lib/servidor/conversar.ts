@@ -46,12 +46,12 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 - "privacidad": pregunta quién lee, si lo pueden ubicar o qué pasa con lo que escribe.
 - "pide_orientacion": pide consejo o ayuda sobre algo serio ("¿cómo me salgo de un grupo?").
 
-"riesgo": true SOLO si dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima, abusa de él o lo obliga a algo, o que está en peligro ahora. Ejemplos true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "si no le entro me va a ir mal". La tristeza, el miedo o el enojo en general NO son riesgo. Contar que vende o consume algo, sin decir que lo obligan o que está en peligro, NO es riesgo. Las expresiones coloquiales tampoco ("me muero de risa", "me mata la tarea", "mi mamá me va a matar si repruebo").
+"riesgo": true SOLO si dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima, abusa de él o lo obliga a algo, o que está en peligro ahora. Ejemplos true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "si no le entro me va a ir mal". La tristeza, el miedo o el enojo en general NO son riesgo. Oír balazos o violencia en la colonia, tener miedo de que pase algo, o no tener con quién hablar NO es riesgo por sí solo: es riesgo sólo si dice que a él lo lastimaron, lo amenazan o está en peligro en este momento. Ejemplo false: "cuando hay balazos mi mamá no me deja salir y no sé a quién decirle lo que siento". Contar que vende o consume algo, sin decir que lo obligan o que está en peligro, NO es riesgo. Las expresiones coloquiales tampoco ("me muero de risa", "me mata la tarea", "mi mamá me va a matar si repruebo").
 
 "respuestas": las preguntas de la lista que su mensaje contesta CLARAMENTE, con los id de opción que corresponden. Reglas:
 - Prioriza la pregunta que le acaban de hacer. Puedes registrar otras de la lista sólo si lo que dijo las contesta sin lugar a dudas ("no puedo dormir de lo que pienso" contesta el sueño; "mi mamá" no contesta nada por sí solo).
 - Pregunta de una opción: exactamente un id. De varias: uno o más. Abierta: ["texto"] si contestó con sus palabras, o el id de la frase sugerida si eligió una.
-- Termómetro: un número del 1 al 10 va a su rango (8 → t4). Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
+- Termómetro (Muy poquito… Muy fuerte): "poquito" → t2, "muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
 - Una emoción que no está en la lista va como "otro" si la pregunta tiene esa opción; si no, no la registres.
 - Si no es claro, no registres nada. Es mejor dejarla pendiente que adivinar.`;
 
@@ -122,7 +122,7 @@ Cómo escribes cada mensaje:
 - Suena como una persona, no como un formulario: varía cómo empiezas. NO empieces con "Gracias por decírmelo/contármelo" (úsalo, como mucho, una vez cada cinco mensajes). No repitas las mismas palabras de un mensaje a otro ("pesa", "cansa", "desgasta"). A veces basta con retomar sus palabras ("Un 7, eso es bastante.") o ir directo a la pregunta.
 - Si contestó tocando un botón, no hace falta comentar mucho: un reconocimiento breve o ninguno, y sigue.
 - Elige el siguiente tema según lo que va contando: si habla de su colonia, sigue con lo de la colonia; si habla de dormir, pregunta por eso. Si no hay hilo, toma el siguiente pendiente obligatorio.
-- Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones. Si las opciones son Nunca… Casi siempre, pregunta "¿qué tan seguido…?". Si son del 1 al 5, di "del 1 al 5". Si son del 1 al 10, di "del 1 al 10". Nunca preguntes sí/no cuando las opciones son de frecuencia. Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
+- Para las preguntas con opciones (escalas): usa tus palabras, pero pregunta de forma que se pueda contestar con esas opciones. Si las opciones son Nunca… Casi siempre, pregunta "¿qué tan seguido…?". Si son Nada… Mucho, pregunta "¿qué tanto…?" (o "¿qué tan importante…?"). Si son Muy poquito… Muy fuerte, pregunta "¿qué tan fuerte…?". Nunca uses números ni escalas ("del 1 al 5", "del 1 al 10") ni pidas calificar una frase ("¿qué tan de acuerdo estás…?"): pregunta directo, como en una plática. Nunca preguntes sí/no cuando las opciones son de frecuencia. Marca su id en "item": las opciones se le muestran como botones. Una pregunta medida por mensaje.
 - Para preguntas abiertas, marca su id en "item" también.
 - Si pregunta algo ("¿para qué es esto?", "¿qué es eso?", "no entendí"), contesta en una o dos frases con la información de abajo y vuelve a la pregunta.
 - Si se desvía, bromea o insulta: no regañes ni sermonees; reconoce con humor ligero o calma y regresa al tema.
@@ -207,6 +207,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
       (!ofrecer && !ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(mensaje) && mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
         ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
         : null) ??
+      (item && !ofrecer && r.terminar !== true && !mensaje.includes("?") ? "marca un item pero no hace la pregunta; el mensaje debe terminar con esa pregunta, con signos ¿?" : null) ??
       (item && !itemPorId(g, item) ? `el item ${item} no existe` : null) ??
       (item && (p.cubiertos.includes(item) || extraidas.includes(item)) ? `el item ${item} ya está contestado` : null);
     if (!motivo) return { mensaje, item: ofrecer ? null : item, ejercicio, ofrecer, terminar: !ofrecer && r.terminar === true };
@@ -236,13 +237,13 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
     respuestas = v.respuestas;
   }
   const extraidas = respuestas.map((r) => r.id);
-  // Termómetro alto (9–10) recién contestado o pendiente: el código pide ofrecer la respiración.
+  // Termómetro en «Muy fuerte» (4) recién contestado o pendiente: el código pide ofrecer la respiración.
   const termometro = respuestas.find((r) => r.id === "en_termometro")?.valor[0];
   const respiracion = p.respiracion === "pendiente" || (p.respiracion === "no" && termometro === "t5");
 
   let c = null;
   try { c = await conducir(p, tipo, extraidas, respiracion); } catch (e) { registrarFalla("conducir", e); }
-  // Termómetro en 9–10: la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
+  // Termómetro en «Muy fuerte» (4): la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
   if (c && respiracion && !c.ofrecer && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion")) {
     const sinPregunta = c.mensaje.split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
     c = { ...c, mensaje: sinPregunta || "Eso es muy intenso.", item: null, ofrecer: "respiracion", terminar: false };

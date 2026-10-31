@@ -291,6 +291,33 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   e = hasta("en_termometro");
   r = await turno(g, inst, e, { texto: "del 1 al 10 como un 8" }, null, []);
   ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "I7: usa el último número (8 → t4)");
+  // Escalas con palabras: gana la frase más larga; "no sé" no cuenta como "Nada".
+  for (const [paso, t, v] of [
+    ["en_termometro", "muy fuerte", "t5"], ["en_termometro", "fuerte", "t4"], ["en_termometro", "pues muy poquito", "t1"],
+    ["en_termometro", "poquito", "t2"], ["v6_normal", "bastante", "a4"], ["v6_normal", "un poco", "a2"],
+    ["v6_normal", "para nada", "a1"], ["v6_normal", "no sé", undefined], ["v6_normal", "3", undefined],
+    ["v2_alerta", "casi nunca la verdad", "casi_nunca"],
+  ] as const) {
+    e = hasta(paso);
+    r = await turno(g, inst, e, { texto: t }, null, []);
+    ok(r.estado.respuestas[paso]?.valor === v, `escala con palabras: «${t}» → ${v ?? "no se entiende"}`);
+  }
+  e = hasta("en_termometro");
+  r = await turno(g, inst, e, { texto: "pues como mas o menos, a veces fuerte" }, null, []);
+  ok(!r.estado.respuestas["en_termometro"] && textos(r.salida)[0] === "¿Cuál se parece más: «Más o menos» o «Fuerte»?", "dos opciones a la vez: pregunta cuál se parece más");
+  r = await turno(g, inst, r.estado, { texto: "fuerte" }, null, []);
+  ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "…y luego registra la que elige");
+  ok(r.estado.respuestas["en_termometro"]?.num === 3, "termómetro: «Fuerte» se guarda como 3");
+  for (const [t, n] of [["muy poquito", 0], ["poquito", 1], ["más o menos", 2], ["como un 8", 3], ["muy fuerte", 4]] as const) {
+    e = hasta("en_termometro");
+    r = await turno(g, inst, e, { texto: t }, null, []);
+    ok(r.estado.respuestas["en_termometro"]?.num === n, `termómetro: «${t}» se guarda como ${n}`);
+  }
+  ok(r.estado.esperando?.paso.id === "en_respirar", "termómetro en «Muy fuerte» (4): ofrece respirar");
+  // Rúbrica: sólo las escalas llevan número, siempre 0–4 y consecutivo.
+  for (const [k, ops] of Object.entries(g.escalas)) ok(JSON.stringify(ops.map((o) => o.valor)) === "[0,1,2,3,4]", `rúbrica: escala ${k} va de 0 a 4`);
+  ok(Object.values(g.bloques).flatMap((b) => b.pasos).every((p) => !p.opciones?.some((o) => o.valor !== undefined)), "rúbrica: las preguntas que no son escala no llevan número");
+  ok(!JSON.stringify(g).match(/[Dd]el 1 al|qué tan de acuerdo/), "el guion ya no usa escalas de números ni de acuerdo");
 
   // Consentimiento por sinónimos.
   for (const [t, v] of [["nel", "no"], ["va", "si"], ["simón", "si"], ["ahorita no", "no"]] as const) {
@@ -314,7 +341,7 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   ok(textos(r.salida).at(-1) === "¿Cuántos años tienes?", "tras explicar la privacidad, repite la pregunta");
   e = hasta("v5_lealtad");
   r = await turno(g, inst, e, { texto: "asdf" }, null, []);
-  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que quedarte callado o callada, o hacer cosas, para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
+  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que no puedes contar algo para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
   c = arrancar(g, inst, crearEstado()).estado;
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   ok(textos(r.salida)[1] === "¿Quieres seguir?", "en el consentimiento también se repite la pregunta");

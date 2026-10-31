@@ -1,7 +1,7 @@
 // Tipos del guion y del motor de Eco.
 // El guion vive en data/guion.json; este archivo describe su forma.
 
-export type EscalaId = "E5" | "A5" | "T10";
+export type EscalaId = "E5" | "A5" | "T5";
 
 export interface Opcion {
   id: string;
@@ -135,7 +135,7 @@ export type Valor = string | string[] | number;
 
 export interface Respuesta {
   valor: Valor;
-  /** Para escalas: valor numérico normalizado 0–4 (E5, A5) o 1–10 (T10). */
+  /** Para escalas: valor numérico normalizado 0–4 en las tres escalas (E5, A5, T5). Sólo las escalas llevan número; lo demás se guarda como texto. */
   num?: number;
 }
 

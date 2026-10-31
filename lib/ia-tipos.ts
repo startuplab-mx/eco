@@ -181,7 +181,7 @@ const PREGUNTA_DETALLE = new RegExp(
 );
 
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /aqu[ií] cabe|(eso )?dice mucho de ti|es (muy )?v[aá]lido|qu[eé] valioso|se nota que|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /aqu[ií] cabe|dice (mucho|bastante|algo)|es (muy )?v[aá]lido|qu[eé] valioso|se nota( que| en|\.|,|$)|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
@@ -202,6 +202,7 @@ export function motivoRechazo(texto: string, terminar = false): string | null {
   if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
   if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
+  if (/\bdel? \d+ al \d+|qu[eé] tan de acuerdo|en una escala/i.test(t)) return "usa una escala de números o de acuerdo; pregunta directo";
   if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";
   return null;
 }

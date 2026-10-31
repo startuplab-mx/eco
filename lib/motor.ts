@@ -76,11 +76,8 @@ function minuscula(s: string): string {
   return s.charAt(0).toLowerCase() + s.slice(1);
 }
 
-/** Espejo corto de lo que se entendió de una respuesta escrita: "casi nunca", "3 de 5", "un 7–8". */
-function espejoCorto(p: Paso, ids: string[], opciones: Opcion[], otro: string | null): string {
-  const elegidas = opciones.filter((o) => ids.includes(o.id));
-  if (p.escala === "A5") return elegidas.map((o) => `${opciones.indexOf(o) + 1} de 5`).join(", ");
-  if (p.escala === "T10") return `un ${elegidas[0].label.replace(/ Muy (leve|fuerte)$/, "")}`;
+/** Espejo corto de lo que se entendió de una respuesta escrita: "casi nunca", "bastante", "muy fuerte". */
+function espejoCorto(_p: Paso, ids: string[], opciones: Opcion[], otro: string | null): string {
   const idO = idOtro(opciones);
   return listaNatural(ids.map((id) => (id === idO && otro ? otro : minuscula(opciones.find((o) => o.id === id)?.label ?? id))));
 }
@@ -160,7 +157,7 @@ export function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emoci
   if (p === "miedo" || p === "preocupado") return "respiracion";
   if (p === "enojado") return "punos";
   if (p === "triste" || p === "vacio") return "mano";
-  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 9;
+  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 4;
   if (p === "confundido" || p === "nose" || intenso) return "anclaje";
   return "respiracion";
 }
@@ -479,7 +476,11 @@ function porSinonimos(opciones: Opcion[], texto: string): string[] {
     if (!t.includes(patron)) return false;
     return !t.includes(` no${patron}`) && !t.includes(` no estoy${patron}`) && !t.includes(` no me siento${patron}`) && !t.includes(` nada${patron}`);
   };
-  const hallados = opciones.filter((o) => o.sinonimos?.some(coincide)).map((o) => o.id);
+  const conFrase = opciones
+    .map((o) => ({ o, f: (o.sinonimos ?? []).filter(coincide).map((x) => normalizar(x.replace(/\*$/, ""))).sort((a, b) => b.length - a.length)[0] }))
+    .filter((x): x is { o: Opcion; f: string } => !!x.f);
+  // Gana la frase más larga: en "muy fuerte" no cuenta también "fuerte".
+  const hallados = sinContenidas(conFrase, (x) => x.f).map((x) => x.o.id);
   const sinNose = hallados.filter((id) => id !== "nose");
   return sinNose.length ? sinNose : hallados;
 }
@@ -499,12 +500,16 @@ function leerNumero(texto: string): number | null {
   return null;
 }
 
-/** Escalas numéricas: "7" en el termómetro → 7–8; "4" en acuerdo → 4. */
+/** Quita los candidatos cuya frase está dentro de la frase de otro candidato. */
+function sinContenidas<T>(xs: T[], frase: (x: T) => string): T[] {
+  return xs.filter((x) => !xs.some((y) => y !== x && frase(y) !== frase(x) && ` ${frase(y)} `.includes(` ${frase(x)} `)));
+}
+
+/** Número escrito en el termómetro ("como un 8") → su rango. Las escalas de "qué tanto" ya no usan números. */
 function porNumero(p: Paso, opciones: Opcion[], texto: string): Opcion | undefined {
   const n = leerNumero(texto);
   if (n === null) return undefined;
-  if (p.escala === "T10" && n >= 1 && n <= 10) return opciones[Math.min(4, Math.floor((n - 1) / 2))];
-  if (p.escala === "A5" && n >= 1 && n <= 5) return opciones[n - 1];
+  if (p.escala === "T5" && n >= 1 && n <= 10) return opciones[Math.min(4, Math.floor((n - 1) / 2))];
   return undefined;
 }
 
@@ -518,7 +523,9 @@ function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
     const l = normalizar(o.label).replace(/[^a-z0-9ñ ]/g, "");
     return l.length > 1 && (t.includes(l) || (t.length >= 3 && l.startsWith(t)));
   });
-  return contiene.length === 1 ? contiene[0] : undefined;
+  // Gana la más larga: "muy fuerte" contiene "fuerte"; "casi nunca" contiene "nunca".
+  const largas = sinContenidas(contiene, (o) => normalizar(o.label).replace(/[^a-z0-9ñ ]/g, ""));
+  return largas.length === 1 ? largas[0] : undefined;
 }
 
 export function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
@@ -540,7 +547,7 @@ export function preguntaCorta(g: Guion, inst: Instancia, estado: Estado, p: Paso
   const oraciones = textos.flatMap((t) => t.split(/(?<=[.?!])\s+(?=[¿A-ZÁÉÍÓÚÑ"])/));
   const conPregunta = oraciones.filter((o) => o.includes("?"));
   let q = (conPregunta[conPregunta.length - 1] ?? textos[textos.length - 1] ?? "").trim();
-  // Sólo se quitan arranques que no aportan ("Para empezar, ¿cuántos…?"); "Del 1 al 10, ¿qué tan…?" se queda entero.
+  // Sólo se quitan arranques que no aportan ("Para empezar, ¿cuántos…?"); "Donde vives, ¿qué tanto…?" se queda entero.
   const arranque = q.match(/^(para empezar|ahora|y|va|bueno),?\s+(?=¿)/i);
   if (arranque) q = "¿" + q.charAt(arranque[0].length + 1).toUpperCase() + q.slice(arranque[0].length + 2);
   return q || null;
@@ -693,6 +700,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   const { paso: p, opciones } = estado.esperando;
   let respuesta: Respuesta | undefined;
   let elegida: Opcion | undefined;
+  let dudas: string[] | null = null;
 
   if (p.tipo === "ejercicio") {
     respuesta = { valor: "listo" };
@@ -772,6 +780,7 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       if (!elegida && !entrada.sinOtro) {
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
+        else if (ids.length >= 2 && ids.length <= 3) dudas = ids.map((id) => opciones.find((o) => o.id === id)!.label);
       }
     }
     if (!elegida && texto && !entrada.otro) {
@@ -787,7 +796,9 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   }
 
   if (!respuesta || (Array.isArray(respuesta.valor) && respuesta.valor.length === 0)) {
-    salida.push({ tipo: "eco", texto: "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?" });
+    // Dijo dos opciones a la vez ("más o menos, a veces fuerte"): se pregunta cuál se parece más.
+    const texto2 = dudas ? `¿Cuál se parece más: ${listaNatural(dudas.map((d) => `«${d}»`)).replace(/ y («[^»]+»)$/, " o $1")}?` : "No te entendí bien. ¿Me ayudas eligiendo una de las opciones?";
+    salida.push({ tipo: "eco", texto: texto2 });
     return { estado, salida };
   }
 

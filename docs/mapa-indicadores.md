@@ -60,7 +60,7 @@ Mayor = más de lo que mide la variable. Las variables sin escala se reportan co
 | V4 Enojo | Enojo | Índice | Todos | Tablero |
 | V5 Culpa y lealtad | Lealtad, culpa | Índice | Todos | Tablero |
 | **Malestar global** | Promedio de V2–V5 | Promedio · % > 60 | Todos | Tablero |
-| V6 Normalización | Violencia normal, dinero rápido | Índice · % de acuerdo (4–5) con cada frase | Todos | Tablero |
+| V6 Normalización | Violencia normal, dinero rápido | Índice · % "Bastante" o "Mucho" en cada pregunta | Todos | Tablero |
 | V7 Presión | Presión (escala) · puede decir que no | Índice · % presión ≥ Seguido · % "no podría decir que no" | Todos | Tablero |
 | V8 Proyecto de vida | Terminar la escuela (escala) · se imagina en 5 años | Índice · % "No" en 5 años | Todos | Tablero |
 | V9 Apoyo y afrontamiento | Adulto confiable · amistades seguras · estrategias | % sin adulto confiable · % sin amistades seguras · % por estrategia (marcar consumir, pelear, encerrarme) | Todos | Tablero |
@@ -72,7 +72,7 @@ Mayor = más de lo que mide la variable. Las variables sin escala se reportan co
 | V10 Duelo | Pérdida · cuánto duele · mensaje | % con pérdida · distribución del dolor · temas (etapa 3) | Ruta (C) | Tablero |
 | V11 Pertenencia escolar | Me siento parte · docente de confianza · qué cambiaría | Índice · % sin docente de confianza · % por cambio | Ruta (A) | Tablero |
 | V12 Clima familiar | Cariño · tensión (invertida) · hablar en casa | Índice (mayor = mejor clima) · % "No" puede hablar | Ruta (B) | Tablero |
-| V13 Autoestima | Persona valiosa · fortalezas | Índice · % en 1–2 · temas (etapa 3) | Ruta (D) | Tablero |
+| V13 Autoestima | Persona valiosa · fortalezas | Índice · % "Nada" o "Un poco" · temas (etapa 3) | Ruta (D) | Tablero |
 | V14 Estrés traumático | Recuerdos, evitación, sobresalto | Índice · % con 2+ síntomas ≥ Seguido · % que pidió saber cómo buscar ayuda | Ruta (E) | Tablero |
 | V15 Consumo para afrontar | Frecuencia · motivo | Índice · % ≥ A veces · % por motivo | Ruta (F) | Tablero |
 | V16 Narcocultura en redes | Frecuencia · cómo se siente | Índice · % "con emoción" | Ruta (G) | Tablero |

@@ -3,9 +3,31 @@
 
 import type { Estado, Guion, Instancia, Nivel, Paso } from "./tipos";
 
+/**
+ * Dirección de cada índice (rúbrica): "riesgo" = más alto es peor; "proteccion" = más alto es mejor.
+ * Las preguntas que van en contra de su índice se marcan en el guion con "invertido".
+ */
+export const DIRECCION: Record<string, { nombre: string; direccion: "riesgo" | "proteccion" }> = {
+  V1: { nombre: "Exposición a violencia", direccion: "riesgo" },
+  V2: { nombre: "Miedo y ansiedad", direccion: "riesgo" },
+  V3: { nombre: "Tristeza y desesperanza", direccion: "riesgo" },
+  V4: { nombre: "Enojo", direccion: "riesgo" },
+  V5: { nombre: "Culpa y lealtad", direccion: "riesgo" },
+  V6: { nombre: "Normalización", direccion: "riesgo" },
+  V7: { nombre: "Presión", direccion: "riesgo" },
+  V8: { nombre: "Proyecto de vida", direccion: "proteccion" },
+  V11: { nombre: "Pertenencia escolar", direccion: "proteccion" },
+  V12: { nombre: "Clima familiar", direccion: "proteccion" },
+  V13: { nombre: "Autoestima", direccion: "proteccion" },
+  V14: { nombre: "Estrés traumático", direccion: "riesgo" },
+  V15: { nombre: "Consumo para afrontar", direccion: "riesgo" },
+  V16: { nombre: "Narcocultura en redes", direccion: "riesgo" },
+  V18: { nombre: "Resiliencia", direccion: "proteccion" },
+};
+
 /** Umbrales del protocolo amarillo (documento, sección 5). */
 export const UMBRALES = {
-  termometro: 9, // termómetro inicial 9–10
+  termometro: 4, // termómetro inicial en "Muy fuerte" (4 en la escala 0–4)
   desesperanza: 3, // "Seguido" o más
   malestar: 60, // malestar global > 60/100
   presion: 3, // presión de riesgo "Seguido" o más
