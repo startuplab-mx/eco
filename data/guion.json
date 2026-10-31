@@ -117,7 +117,7 @@
       {
         "id": "t1",
         "label": "Muy poquito",
-        "valor": 1,
+        "valor": 0,
         "sinonimos": [
           "muy poquito",
           "muy poco",
@@ -128,7 +128,7 @@
       {
         "id": "t2",
         "label": "Poquito",
-        "valor": 2,
+        "valor": 1,
         "sinonimos": [
           "poquito",
           "poco",
@@ -139,7 +139,7 @@
       {
         "id": "t3",
         "label": "Más o menos",
-        "valor": 3,
+        "valor": 2,
         "sinonimos": [
           "mas o menos",
           "maso",
@@ -150,7 +150,7 @@
       {
         "id": "t4",
         "label": "Fuerte",
-        "valor": 4,
+        "valor": 3,
         "sinonimos": [
           "fuerte",
           "bastante"
@@ -159,7 +159,7 @@
       {
         "id": "t5",
         "label": "Muy fuerte",
-        "valor": 5,
+        "valor": 4,
         "sinonimos": [
           "muy fuerte",
           "demasiado",
@@ -907,7 +907,7 @@
           "tipo": "opcion",
           "si": {
             "paso": "en_termometro",
-            "gte": 5
+            "gte": 4
           },
           "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Te propongo respirar un minuto: vas a inhalar contando 4, aguantar contando 4 y soltar el aire contando 6. Eso le avisa a tu cuerpo que puede bajar la alerta. ¿Lo intentamos?",
           "opciones": [
@@ -980,28 +980,23 @@
           "opciones": [
             {
               "id": "hoy",
-              "label": "Solo hoy",
-              "valor": 1
+              "label": "Solo hoy"
             },
             {
               "id": "semana",
-              "label": "Esta semana",
-              "valor": 2
+              "label": "Esta semana"
             },
             {
               "id": "semanas",
-              "label": "Desde hace semanas",
-              "valor": 3
+              "label": "Desde hace semanas"
             },
             {
               "id": "mucho",
-              "label": "Desde hace mucho",
-              "valor": 4
+              "label": "Desde hace mucho"
             },
             {
               "id": "siempre",
-              "label": "Casi siempre me siento así",
-              "valor": 5
+              "label": "Casi siempre me siento así"
             }
           ]
         },
@@ -1476,18 +1471,15 @@
           "opciones": [
             {
               "id": "si",
-              "label": "Sí",
-              "valor": 2
+              "label": "Sí"
             },
             {
               "id": "mas_menos",
-              "label": "Más o menos",
-              "valor": 1
+              "label": "Más o menos"
             },
             {
               "id": "no",
-              "label": "No",
-              "valor": 0
+              "label": "No"
             }
           ]
         },
@@ -1816,18 +1808,15 @@
           "opciones": [
             {
               "id": "si",
-              "label": "Sí",
-              "valor": 2
+              "label": "Sí"
             },
             {
               "id": "a_veces",
-              "label": "A veces",
-              "valor": 1
+              "label": "A veces"
             },
             {
               "id": "no",
-              "label": "No",
-              "valor": 0
+              "label": "No"
             }
           ]
         },
@@ -1905,23 +1894,19 @@
           "opciones": [
             {
               "id": "casi_nada",
-              "label": "Casi nada",
-              "valor": 1
+              "label": "Casi nada"
             },
             {
               "id": "poco",
-              "label": "Un poco",
-              "valor": 2
+              "label": "Un poco"
             },
             {
               "id": "bastante",
-              "label": "Bastante",
-              "valor": 3
+              "label": "Bastante"
             },
             {
               "id": "mucho",
-              "label": "Mucho, todos los días",
-              "valor": 4
+              "label": "Mucho, todos los días"
             }
           ]
         },
@@ -2343,18 +2328,15 @@
           "opciones": [
             {
               "id": "muy",
-              "label": "Sí",
-              "valor": 3
+              "label": "Sí"
             },
             {
               "id": "algo",
-              "label": "Tal vez",
-              "valor": 2
+              "label": "Tal vez"
             },
             {
               "id": "imposible",
-              "label": "Lo veo muy difícil",
-              "valor": 0
+              "label": "Lo veo muy difícil"
             },
             {
               "id": "nose",

@@ -157,7 +157,7 @@ export function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emoci
   if (p === "miedo" || p === "preocupado") return "respiracion";
   if (p === "enojado") return "punos";
   if (p === "triste" || p === "vacio") return "mano";
-  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 5;
+  const intenso = (estado.respuestas["en_termometro"]?.num ?? 0) >= 4;
   if (p === "confundido" || p === "nose" || intenso) return "anclaje";
   return "respiracion";
 }

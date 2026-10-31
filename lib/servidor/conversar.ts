@@ -237,13 +237,13 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
     respuestas = v.respuestas;
   }
   const extraidas = respuestas.map((r) => r.id);
-  // Termómetro en «Muy fuerte» (5) recién contestado o pendiente: el código pide ofrecer la respiración.
+  // Termómetro en «Muy fuerte» (4) recién contestado o pendiente: el código pide ofrecer la respiración.
   const termometro = respuestas.find((r) => r.id === "en_termometro")?.valor[0];
   const respiracion = p.respiracion === "pendiente" || (p.respiracion === "no" && termometro === "t5");
 
   let c = null;
   try { c = await conducir(p, tipo, extraidas, respiracion); } catch (e) { registrarFalla("conducir", e); }
-  // Termómetro en «Muy fuerte» (5): la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
+  // Termómetro en «Muy fuerte» (4): la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
   if (c && respiracion && !c.ofrecer && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion")) {
     const sinPregunta = c.mensaje.split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
     c = { ...c, mensaje: sinPregunta || "Eso es muy intenso.", item: null, ofrecer: "respiracion", terminar: false };

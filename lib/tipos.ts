@@ -135,7 +135,7 @@ export type Valor = string | string[] | number;
 
 export interface Respuesta {
   valor: Valor;
-  /** Para escalas: valor numérico normalizado 0–4 (E5, A5) o 1–5 (T5: 1 Muy poquito … 5 Muy fuerte). */
+  /** Para escalas: valor numérico normalizado 0–4 en las tres escalas (E5, A5, T5). Sólo las escalas llevan número; lo demás se guarda como texto. */
   num?: number;
 }
 

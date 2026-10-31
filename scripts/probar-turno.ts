@@ -307,13 +307,16 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   ok(!r.estado.respuestas["en_termometro"] && textos(r.salida)[0] === "¿Cuál se parece más: «Más o menos» o «Fuerte»?", "dos opciones a la vez: pregunta cuál se parece más");
   r = await turno(g, inst, r.estado, { texto: "fuerte" }, null, []);
   ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "…y luego registra la que elige");
-  ok(r.estado.respuestas["en_termometro"]?.num === 4, "termómetro: «Fuerte» se guarda como 4");
-  for (const [t, n] of [["muy poquito", 1], ["poquito", 2], ["más o menos", 3], ["como un 8", 4], ["muy fuerte", 5]] as const) {
+  ok(r.estado.respuestas["en_termometro"]?.num === 3, "termómetro: «Fuerte» se guarda como 3");
+  for (const [t, n] of [["muy poquito", 0], ["poquito", 1], ["más o menos", 2], ["como un 8", 3], ["muy fuerte", 4]] as const) {
     e = hasta("en_termometro");
     r = await turno(g, inst, e, { texto: t }, null, []);
     ok(r.estado.respuestas["en_termometro"]?.num === n, `termómetro: «${t}» se guarda como ${n}`);
   }
-  ok(r.estado.esperando?.paso.id === "en_respirar", "termómetro en «Muy fuerte» (5): ofrece respirar");
+  ok(r.estado.esperando?.paso.id === "en_respirar", "termómetro en «Muy fuerte» (4): ofrece respirar");
+  // Rúbrica: sólo las escalas llevan número, siempre 0–4 y consecutivo.
+  for (const [k, ops] of Object.entries(g.escalas)) ok(JSON.stringify(ops.map((o) => o.valor)) === "[0,1,2,3,4]", `rúbrica: escala ${k} va de 0 a 4`);
+  ok(Object.values(g.bloques).flatMap((b) => b.pasos).every((p) => !p.opciones?.some((o) => o.valor !== undefined)), "rúbrica: las preguntas que no son escala no llevan número");
   ok(!JSON.stringify(g).match(/[Dd]el 1 al|qué tan de acuerdo/), "el guion ya no usa escalas de números ni de acuerdo");
 
   // Consentimiento por sinónimos.

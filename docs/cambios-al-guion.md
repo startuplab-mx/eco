@@ -206,9 +206,11 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Si el joven escribe dos opciones a la vez ("más o menos, a veces fuerte"), Eco pregunta "¿Cuál se parece más: «Más o menos» o «Fuerte»?" en lugar de "No te entendí bien".
 - Vigilante: oír balazos, tener miedo de la violencia del lugar o no tener con quién hablar no es riesgo por sí solo (una simulación lo marcó como crisis).
 
-**Termómetro con código numérico (30 oct 2026, aprobado por el equipo de psicología junto con todos los cambios de esta sección)**
-- Se guarda como número entero: 1 Muy poquito · 2 Poquito · 3 Más o menos · 4 Fuerte · 5 Muy fuerte (antes 1.5…9.5 sobre 1–10).
-- "Termómetro alto" y la oferta de respirar: cuando es 5 (Muy fuerte), igual que antes con 9–10.
-- Cambio emocional = inicial − final, de −4 a 4.
-- Si el joven escribe un número del 1 al 10 ("como un 8"), se convierte: 1–2 → 1, 3–4 → 2, 5–6 → 3, 7–8 → 4, 9–10 → 5.
-- Guion v0.3: en Airtable, "Versión del guion" separa estas filas de las anteriores.
+**Rúbrica de codificación (30 oct 2026, aprobada por el equipo de psicología)**
+- Sólo las tres escalas llevan número, siempre 0–4: frecuencia (Nunca… Casi siempre), qué tanto (Nada… Mucho) y termómetro (Muy poquito 0 … Muy fuerte 4).
+- Todo lo demás se guarda como texto para graficar por categoría. Ya no llevan número: desde cuándo (antes 1–5), cuánto duele la pérdida (antes 1–4), ¿crees que lo puedes lograr? (antes 3/2/0), ¿te imaginas en 5 años? y ¿puedes platicar en casa? (antes 0–2). Ninguno entraba a un índice, así que los índices no cambian.
+- "Termómetro alto" y la oferta de respirar: termómetro en 4 (Muy fuerte), igual que antes con 9–10. Cambio emocional = inicial − final, de −4 a 4.
+- Si el joven escribe un número del 1 al 10 en el termómetro: 1–2 → 0, 3–4 → 1, 5–6 → 2, 7–8 → 3, 9–10 → 4.
+- Cada índice declara su dirección (riesgo o protección) en `lib/indices.ts` y en la descripción de su campo en Airtable.
+- Rúbrica completa en `docs/rubrica-codificacion.md`, generada desde el guion (`npx tsx scripts/rubrica.ts`).
+- Guion v0.3: en Airtable, "Versión del guion" separa estas filas de las de prueba anteriores.
