@@ -145,7 +145,7 @@ Una sesión roja (alarma) sólo registra escuela y semana.
 | ¿Me cuentas un poco cómo te imaginas? | `V8.metas_texto` | Sí/no escribió (el texto no se guarda) | — |
 | ¿Qué tan importante es para ti terminar la escuela? | `V8.escuela` | Número 0–4 (Qué tanto) | ver escala |
 | Si pudieras ser lo que quisieras en 10 años, sin que nada te detuviera, ¿qué serías? | `V8.aspiracion` | Sí/no escribió (el texto no se guarda) | — |
-| ¿Crees que puedes llegar a ser eso? | `V8.expectativa` | Texto · una categoría | Sí (`muy`) · Tal vez (`algo`) · Lo veo muy difícil (`imposible`) · No sé (`nose`) |
+| ¿Crees que puedes llegar a ser eso? | `V8.expectativa` | Texto · una categoría | Sí (`si`) · Tal vez (`tal_vez`) · Lo veo muy difícil (`dificil`) · No sé (`nose`) |
 | ¿Qué es algo pequeño que podrías hacer para empezar? | `V8.primer_paso` | Sí/no escribió (el texto no se guarda) | — |
 
 ### V9 Apoyo y afrontamiento
@@ -233,14 +233,14 @@ Una sesión roja (alarma) sólo registra escuela y semana.
 | Pregunta | Código | Se guarda como | Opciones |
 |---|---|---|---|
 | Si necesitaras ayuda con algo serio, ¿a quién acudirías? Puedes elegir varias. | `V19.confianza` | Texto · varias categorías | Familia (`familia`) · Amistades (`amigos`) · Alguien de la escuela (`escuela`) · Centro de salud (`salud`) · Iglesia (`iglesia`) · Policía (`policia`) · Nadie (`nadie`) |
-| ¿Qué te frenaría para pedir ayuda? Puedes elegir varias. | `V19.barreras` | Texto · varias categorías | Miedo (`miedo`) · Vergüenza (`verguenza`) · Sentir que no sirve de nada (`no_sirve`) · Que me puedan ubicar (`ubicar`) · No saber a dónde ir (`no_se`) · Otro (`otro`) |
+| ¿Qué te frenaría para pedir ayuda? Puedes elegir varias. | `V19.barreras` | Texto · varias categorías | Miedo (`miedo`) · Vergüenza (`verguenza`) · Sentir que no sirve de nada (`no_sirve`) · Que me puedan ubicar (`ubicar`) · No saber a dónde ir (`no_sabe_donde`) · Otro (`otro`) |
 
 ### Espacio libre
 
 | Pregunta | Código | Se guarda como | Opciones |
 |---|---|---|---|
 | ¿Hay algo más de cómo te sientes que quieras contarme? Recuerda: sin nombres ni lugares. | `libre.espacio` | Sí/no escribió (el texto no se guarda) | — |
-| … | `libre.pregunta_cierre` | Sí/no escribió (el texto no se guarda) | — |
+| (pregunta de cierre que varía según la plática) | `libre.pregunta_cierre` | Sí/no escribió (el texto no se guarda) | — |
 
 ### Cierre
 

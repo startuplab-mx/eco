@@ -2327,15 +2327,15 @@
           "texto": "¿Crees que lo puedes lograr?",
           "opciones": [
             {
-              "id": "muy",
+              "id": "si",
               "label": "Sí"
             },
             {
-              "id": "algo",
+              "id": "tal_vez",
               "label": "Tal vez"
             },
             {
-              "id": "imposible",
+              "id": "dificil",
               "label": "Lo veo muy difícil"
             },
             {
@@ -2353,7 +2353,7 @@
           "si": {
             "paso": "mh_posible",
             "en": [
-              "imposible"
+              "dificil"
             ]
           },
           "texto": "Aunque se vea lejos, está bien. ¿Qué es algo pequeño que podrías hacer para empezar?",
@@ -2434,7 +2434,7 @@
               "label": "Que me puedan ubicar"
             },
             {
-              "id": "no_se",
+              "id": "no_sabe_donde",
               "label": "No saber a dónde ir"
             },
             {

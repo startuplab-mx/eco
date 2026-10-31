@@ -18,6 +18,7 @@ const OTRAS: Record<string, string> = {
 
 const texto = (p: Paso) => {
   const t = Array.isArray(p.texto) ? p.texto.join(" ") : p.texto ?? "";
+  if (/^\{[^}]+\}$/.test(t.trim())) return "(pregunta de cierre que varía según la plática)";
   return (p.repetir ?? t).replace(/\{[^}]+\}/g, "…").replace(/\|/g, "/");
 };
 const tipoDato = (p: Paso) =>

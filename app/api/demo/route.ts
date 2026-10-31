@@ -59,7 +59,7 @@ const PERSONAS: Record<string, { nombre: string; plan: Plan; defecto: number }> 
       en_tiempo: { opcion: "siempre" }, en_voz: { opcion: "prefiero" }, en_ambito: { opcion: "nose" },
       en_regular: { opcion: "no" }, md_bien: { texto: "jugar fut" }, md_fuerza: { texto: "mis amigos" },
       v8_cinco: { opcion: "mas_menos" }, v9_adulto: { opcion: "nose" },
-      mh_que: { texto: "que es bien bueno en el fut" }, mh_ser: { texto: "futbolista" }, mh_posible: { opcion: "imposible" },
+      mh_que: { texto: "que es bien bueno en el fut" }, mh_ser: { texto: "futbolista" }, mh_posible: { opcion: "dificil" },
       mh_paso: { texto: "entrenar más" }, li_libre: { opcion: "prefiero" }, li_cierre: { texto: "que nos escuchen más" },
       tr_seguir: { opcion: "seguir" }, ci_ahora: { opcion: "igual" },
     },

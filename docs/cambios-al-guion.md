@@ -212,5 +212,6 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - "Termómetro alto" y la oferta de respirar: termómetro en 4 (Muy fuerte), igual que antes con 9–10. Cambio emocional = inicial − final, de −4 a 4.
 - Si el joven escribe un número del 1 al 10 en el termómetro: 1–2 → 0, 3–4 → 1, 5–6 → 2, 7–8 → 3, 9–10 → 4.
 - Cada índice declara su dirección (riesgo o protección) en `lib/indices.ts` y en la descripción de su campo en Airtable.
+- Códigos que no coincidían con su etiqueta: ¿crees que lo puedes lograr? `muy/algo/imposible` → `si/tal_vez/dificil`; barrera "No saber a dónde ir" `no_se` → `no_sabe_donde` (se confundía con `nose`).
 - Rúbrica completa en `docs/rubrica-codificacion.md`, generada desde el guion (`npx tsx scripts/rubrica.ts`).
 - Guion v0.3: en Airtable, "Versión del guion" separa estas filas de las de prueba anteriores.
