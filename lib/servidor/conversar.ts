@@ -8,6 +8,7 @@ import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
 import { abrirPreguntas, acortar, motivoModo, quitarConectores, quitarMuletillas, TIPOS_RESPUESTA, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
+import { cuantifica } from "@/lib/literal";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
 
 const g = guionJson as unknown as Guion;
@@ -50,8 +51,9 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 
 "riesgo": true SOLO si dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima, abusa de él o lo obliga a algo, o que está en peligro ahora. Ejemplos true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "si no le entro me va a ir mal". La tristeza, el miedo o el enojo en general NO son riesgo. Oír balazos o violencia en la colonia, tener miedo de que pase algo, o no tener con quién hablar NO es riesgo por sí solo: es riesgo sólo si dice que a él lo lastimaron, lo amenazan o está en peligro en este momento. Ejemplo false: "cuando hay balazos mi mamá no me deja salir y no sé a quién decirle lo que siento". Contar que vende o consume algo, sin decir que lo obligan o que está en peligro, NO es riesgo. Las expresiones coloquiales tampoco ("me muero de risa", "me mata la tarea", "mi mamá me va a matar si repruebo").
 
-"respuestas": las preguntas de la lista que su mensaje contesta CLARAMENTE, con los id de opción que corresponden. Reglas:
-- Prioriza la pregunta que le acaban de hacer. Puedes registrar otras de la lista sólo si lo que dijo las contesta sin lugar a dudas ("no puedo dormir de lo que pienso" contesta el sueño; "mi mamá" no contesta nada por sí solo).
+"respuestas": SOLO la pregunta que le acaban de hacer ("pregunta_que_contestaba"), si su mensaje la contesta CLARAMENTE, con los id de opción que corresponden. No registres ninguna otra pregunta, aunque creas que lo que dijo también la contesta. Reglas:
+- Si dijo la opción con sus palabras ("casi siempre", "a veces"), usa exactamente esa: no la cambies por otra parecida.
+- En las preguntas de frecuencia o de qué tanto, si no dice cuántas veces o qué tanto, no la registres: no la adivines por lo que cuenta.
 - Pregunta de una opción: exactamente un id. De varias: uno o más. Abierta: ["texto"] si contestó con sus palabras, o el id de la frase sugerida si eligió una.
 - Lee con faltas de ortografía y escritura de celular como lo que son: "aveces" = a veces, "nunka" = nunca, "masomenos" = más o menos, "kasi" = casi, "bastate" = bastante.
 - Termómetro (Muy poquito… Muy fuerte): "poquito" → t2, "muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
@@ -77,20 +79,20 @@ const ESQUEMA_VIGILAR = {
   required: ["tipo", "riesgo", "respuestas"],
 };
 
-async function vigilar(p: PedidoConversar, lista: ItemCatalogo[]) {
+async function vigilar(p: PedidoConversar, _lista: ItemCatalogo[]) {
   const actual = itemPorId(g, p.item);
   const contenido = JSON.stringify({
     ultimo_mensaje_de_eco: p.historial.filter((m) => m.quien === "eco").slice(-1)[0]?.texto ?? "",
     pregunta_que_contestaba: actual ? lineaItem(actual) : null,
-    preguntas_pendientes: lista.map(lineaItem).join("\n"),
     mensaje_del_joven: p.texto,
   });
   const r = await pedirJSON(MODELO_RAPIDO, SISTEMA_VIGILAR, contenido, ESQUEMA_VIGILAR, 600, 9000);
   if (!r) return null;
   const tipo = (TIPOS_RESPUESTA as string[]).includes(String(r.tipo)) ? (r.tipo as TipoRespuesta) : r.tipo === "pregunta" ? "pregunta" : "responde";
-  // Sólo respuestas a preguntas de la lista y con opciones que existen.
-  const permitidas = new Map(lista.map((x) => [x.id, x]));
-  if (actual) permitidas.set(actual.id, actual);
+  // Sólo la pregunta que se le acaba de hacer, con opciones que existen: no se deducen otras.
+  // En las escalas, si no dijo una frecuencia o cantidad, no se registra (no se adivina).
+  const permitidas = new Map<string, ItemCatalogo>();
+  if (actual && (actual.tipo !== "opcion" || cuantifica(g, actual.id, p.texto ?? ""))) permitidas.set(actual.id, actual);
   const respuestas: { id: string; valor: string[] }[] = [];
   for (const x of Array.isArray(r.respuestas) ? (r.respuestas as { id: string; valor: string[] }[]) : []) {
     const it = permitidas.get(x?.id);

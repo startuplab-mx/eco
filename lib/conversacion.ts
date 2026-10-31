@@ -8,6 +8,7 @@ import { elegirModulo, siguientePaso, siguientesPasos } from "./temas";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
 import { itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
+import { opcionLiteral } from "./literal";
 import type { ServicioIA } from "./ia-tipos";
 
 export const MAX_TURNOS = 40;
@@ -118,6 +119,12 @@ export async function turnoIA(
     const id = opcionParecida(opcionesCompletas(g, it.id), texto);
     if (id) { tocadas = [id]; corregida = true; }
   }
+  // 1c. Escribió la opción con todas sus letras dentro de una frase ("pues casi siempre, sobre todo de noche"):
+  // se registra esa tal cual. La IA recibe la frase completa para reconocer lo que contó, pero no puede cambiarla.
+  if (it && !tocadas.length && texto && it.tipo === "opcion") {
+    const id = opcionLiteral(g, it.id, texto);
+    if (id) tocadas = [id];
+  }
   // 1b. Varias opciones (emociones) dichas en corto y a su modo ("Chingón", "tranqui", "triste y con coraje").
   if (it && !tocadas.length && texto && it.tipo === "multiple" && texto.split(/\s+/).length <= 6) {
     const ids = porSinonimos(opcionesCompletas(g, it.id), texto);
@@ -195,7 +202,8 @@ async function conversarYSeguir(
 
   // 4. Lo que el vigilante entendió de su mensaje.
   for (const x of r.respuestas) {
-    if (estado.respuestas[x.id] && x.id !== item) continue;
+    // Lo que ya quedó registrado (botón o lo que escribió tal cual) no lo cambia el modelo.
+    if (estado.respuestas[x.id]) continue;
     registrar(g, estado, x.id, x.valor, filtrado ?? undefined);
   }
   if (item === "en_emociones" && filtrado && estado.respuestas.en_emociones) estado.textos.en_emociones = filtrado;

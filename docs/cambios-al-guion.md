@@ -312,3 +312,12 @@ Textos nuevos para revisión:
 - Al terminar E, si hay señales de estrés después de algo fuerte (la misma condición de antes): "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. Al final te dejo dónde buscar ese apoyo." (antes era una pregunta; el directorio del cierre ya lo muestra).
 - Al terminar F: el mismo texto de antes ("Gracias por contarme. Aquí nadie te juzga…").
 - Si pide respirar: "Va, respiremos un momento. Tómate tu tiempo; cuando termines, toca «Listo»."
+
+## Cómo se registran las respuestas escritas (31 oct 2026)
+
+| | Antes | Ahora |
+|---|---|---|
+| Qué registra el modelo | La pregunta en curso y otras que creía contestadas ("mi jefa anda de malas" → cariño en casa = Nunca) | Sólo la pregunta en curso; las demás se hacen cuando toca |
+| Opción escrita tal cual | El modelo podía cambiarla ("casi siempre" → Seguido) | Si escribe la opción con todas sus letras, se registra esa y el modelo no la cambia |
+| Sin frecuencia | El modelo la adivinaba ("no sé ni cómo estoy… no duermo" → A veces) | En las escalas, si no dice cuántas veces o qué tanto, no se registra |
+| Ya contestó y contó más | Eco le pedía que contara más | Eco reconoce lo que sintió en una frase y sigue |

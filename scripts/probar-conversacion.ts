@@ -9,6 +9,7 @@ import { arrancar, crearEstado } from "../lib/motor";
 import { turno } from "../lib/turno";
 import { cobertura, catalogo } from "../lib/catalogo";
 import { resumen } from "../lib/indices";
+import { cuantifica, opcionLiteral } from "../lib/literal";
 
 const g = guionJson as unknown as Guion;
 const inst = instJson as Instancia;
@@ -322,6 +323,26 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
     e = await hastaIA(null);
     r = await turno(g, inst, e, { texto: "¿me puedes ayudar a respirar?" }, null, []);
     ok(r.salida.some((x) => x.tipo === "ejercicio") && r.estado.esperando?.paso.id === e.esperando?.paso.id, "guion: muestra la respiración y la pregunta sigue ahí");
+  }
+  // Lo que dice tal cual manda; si no dice una frecuencia, no se adivina.
+  ok(opcionLiteral(g, "v1_colonia", "pues se oye de todo, balazos en la noche casi siempre") === "casi_siempre", "literal: «…casi siempre» → Casi siempre (no Seguido)");
+  ok(opcionLiteral(g, "v1_escuela", "pues a veces, no siempre. depende del día") === "a_veces", "literal: «a veces, no siempre» → A veces");
+  ok(opcionLiteral(g, "v4_enojo", "no es seguido") === null, "literal: «no es seguido» no se toma como Seguido");
+  ok(opcionLiteral(g, "v6_dinero", "me da mucho miedo eso de que te maten por dinero") === null, "literal: en «qué tanto», «mucho» dentro de una frase larga no cuenta");
+  ok(!cuantifica(g, "v3_desesperanza", "pues la verdad no sé ni cómo estoy jaja. bien supongo? pero no duermo"), "sin frecuencia: no se registra la escala");
+  {
+    // La IA dice «Seguido», pero escribió «casi siempre»: queda Casi siempre.
+    const ia: ServicioIA = {
+      interpretar: async () => null, redactar: async () => null,
+      conversar: async (p) => ({ riesgo: false, tipo: "responde", respuestas: p.item ? [{ id: p.item, valor: ["seguido"] }] : [], mensaje: "", modo: "seguir", ejercicio: null }),
+    };
+    let e = await hastaIA(ia);
+    for (let k = 0; k < 20 && e.ia?.item !== "v1_colonia"; k++) {
+      const x = e.esperando!;
+      e = (await turno(g, inst, e, (x.opciones.length ? (x.multiple ? { opciones: [x.opciones[0].id] } : { opcion: x.opciones[0].id }) : { texto: "pues bien" }) as never, ia, [])).estado;
+    }
+    const r = await turno(g, inst, e, { texto: "pues se oye de todo, balazos en la noche casi siempre" }, ia, []);
+    ok(r.estado.respuestas.v1_colonia?.valor === "casi_siempre", "lo que escribió tal cual gana sobre lo que entendió el modelo");
   }
   ok(!!motivoRechazo("Gracias por ser honesto."), "validador: rechaza «ser honesto»");
   ok(!!motivoRechazo("No tienes que cargarlo solo."), "validador: rechaza «cargarlo solo»");

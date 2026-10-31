@@ -62,7 +62,7 @@ export function itemPorId(g: Guion, id: string | null | undefined): ItemCatalogo
   return id ? catalogo(g).find((x) => x.id === id) : undefined;
 }
 
-function pasoPorId(g: Guion, id: string): Paso | undefined {
+export function pasoPorId(g: Guion, id: string): Paso | undefined {
   return Object.values(g.bloques).flatMap((b) => b.pasos).find((p) => p.id === id);
 }
 
