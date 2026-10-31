@@ -41,7 +41,7 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   let e = hasta("en_ambito");
   let r = await turno(g, inst, e, { opcion: "colonia" }, iaBuena, []);
   ok(textos(r.salida)[0] === "PUENTE con base", "la validación de la emoción se reescribe");
-  ok(textos(r.salida).some((t) => t.startsWith("¿Quieres hacer un ejercicio")), "la pregunta siguiente queda literal");
+  ok(textos(r.salida).some((t) => t.startsWith("Tengo un ejercicio de un minuto")), "la pregunta siguiente queda literal");
 
   // Escala con botón y sin reacción: no se llama a la IA.
   e = hasta("v2_alerta");

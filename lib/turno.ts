@@ -3,7 +3,8 @@
 // (2) reescribe reacciones y validaciones. Si la IA falla o tarda, se usa el guion.
 
 import type { Estado, Guion, Instancia, Salida } from "./tipos";
-import { responder, type Entrada } from "./motor";
+import { responder, usarGuionCompleto, type Entrada } from "./motor";
+import { enFaseIA, turnoIA } from "./conversacion";
 import { filtrarIdentificadores, normalizar } from "./seguridad";
 import type { ServicioIA } from "./ia-tipos";
 
@@ -32,6 +33,8 @@ export async function turno(
   const esp = estado.esperando;
   const texto = entrada.texto?.trim();
   const comando = texto && ["pausa", "salir"].includes(normalizar(texto));
+  // Fase en que la IA conduce: otro flujo. "pausa" y "salir" los sigue manejando el motor.
+  if (enFaseIA(estado) && !comando) return turnoIA(g, inst, estado, entrada, ia);
   let final: Entrada = entrada;
 
   // 1. Texto escrito: revisar riesgo, clasificar y entender a qué opción corresponde.
@@ -150,6 +153,14 @@ export async function turno(
     } else uso.respaldos++;
   }
 
+  // Si el motor acaba de entrar a la fase con IA pero no hay IA, se usa el guion completo de antes.
+  if (enFaseIA(res.estado) && !ia?.conversar) {
+    const est = structuredClone(res.estado);
+    const primera = est.ia!.historial[0]?.texto;
+    salida = salida.filter((s) => !("texto" in s) || s.texto !== primera);
+    usarGuionCompleto(g, inst, est, salida);
+    return { estado: est, salida, uso };
+  }
   return { estado: res.estado, salida, uso };
 }
 
@@ -188,5 +199,6 @@ export function iaPorHTTP(): ServicioIA {
   return {
     interpretar: (p) => post("/api/interpretar", p, 9000),
     redactar: (p) => post("/api/redactar", p, 6000),
+    conversar: (p) => post("/api/conversar", p, 30000),
   };
 }

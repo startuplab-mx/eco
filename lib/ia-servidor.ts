@@ -24,7 +24,7 @@ function getCliente(): Anthropic {
 
 // ---------- instrucciones ----------
 
-const REGLAS_ECO = `Eres Eco, un espacio de escucha para jóvenes de 12 a 18 años en México que viven en lugares con violencia y crimen organizado.
+export const REGLAS_ECO = `Eres Eco, un espacio de escucha para jóvenes de 12 a 18 años en México que viven en lugares con violencia y crimen organizado.
 Reglas que nunca rompes:
 - Tuteas con calidez, sin tecnicismos ni frases de terapeuta. Español de México, natural, sin modismos forzados.
 - Lenguaje neutro: no uses adjetivos con género para hablar del joven (nada de "cansado/a", "solo", "tranquila"). Usa sustantivos: "el cansancio", "la soledad", "sentir calma".
@@ -90,14 +90,20 @@ export function registrarFalla(donde: string, e: unknown) {
   console.error(`[eco:${donde}] ${err?.name ?? "Error"} ${err?.status ?? ""} ${String(err?.message ?? "").slice(0, 300)}`);
 }
 
-async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number, tiempoMs: number): Promise<Record<string, unknown> | null> {
+/**
+ * Cómo se apaga el razonamiento según el modelo. Algunos aceptan {type:"disabled"}; otros piden
+ * {type:"between_tools"}. Se aprende con el primer error y se recuerda.
+ */
+const SIN_RAZONAR: Record<string, { type: string }> = {};
+
+export async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number, tiempoMs: number): Promise<Record<string, unknown> | null> {
   const base = {
     model: modelo,
     max_tokens: maxTokens,
     system: sistema,
     messages: [{ role: "user" as const, content: contenido }],
     // Respuesta directa: sin razonamiento interno que consuma tiempo y tokens.
-    thinking: { type: "disabled" as const },
+    thinking: (SIN_RAZONAR[modelo] ?? { type: "disabled" }) as never,
     // Sin "temperature": estos modelos la rechazan (400). La estabilidad del riesgo la da la lista de alarma.
   };
   // Intentos de más a menos estricto: formato JSON + sin razonamiento → sólo sin razonamiento → mínimo.
@@ -107,12 +113,19 @@ async function pedirJSON(modelo: string, sistema: string, contenido: string, esq
     { model: modelo, max_tokens: 2000, system: `${sistema}\nResponde sólo con el JSON, sin texto adicional.`, messages: base.messages },
   ];
   let msg: Anthropic.Message | null = null;
-  for (const params of intentos) {
+  for (let i = 0; i < intentos.length; i++) {
     try {
-      msg = await getCliente().messages.create(params, { timeout: tiempoMs });
+      msg = await getCliente().messages.create(intentos[i] as never, { timeout: tiempoMs });
       break;
     } catch (e) {
       if (!(e instanceof Anthropic.BadRequestError)) throw e;
+      // El modelo pide otra forma de apagar el razonamiento: se ajusta y se repite el mismo intento.
+      if (/between_tools/.test(String(e.message)) && !SIN_RAZONAR[modelo]) {
+        SIN_RAZONAR[modelo] = { type: "between_tools" };
+        for (const x of intentos) if ("thinking" in x) (x as { thinking: unknown }).thinking = SIN_RAZONAR[modelo];
+        i--;
+        continue;
+      }
       registrarFalla("formato", e);
     }
   }

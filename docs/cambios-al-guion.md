@@ -134,3 +134,12 @@ emojis e insultos directos. Los textos son fijos y están en `desvios` del guion
 - en_emociones: "Ahora quiero saber cómo estás tú" (ya no "Antes de cualquier otra cosa", porque va después de edad y género).
 - Campo `repetir`: versión completa de la pregunta para los pasos que dependen de la oración anterior.
 - Botón final: "Cerrar y limpiar la pantalla" (antes "Cerrar y borrar esta plática"): sólo limpia la pantalla; las respuestas ya se guardaron.
+
+## La IA conduce, el código vigila (31 oct 2026)
+
+- Inicio con botones (consentimiento, edad, género, con quién vive). Después la IA lleva la plática y toca los 27 temas obligatorios en el orden que la conversación pida; las escalas siempre se muestran como etiquetas.
+- El código vigila: lista de alarma en cada mensaje + un segundo modelo que revisa riesgo y registra respuestas; crisis, escalera de desvíos, límite de 40 mensajes y ronda rápida final si no se llegó al 80%; cierre del guion.
+- Ejercicios: siempre se explica para qué sirve antes de ofrecerlo (texto aprobado por ejercicio). Termómetro en 9–10: se ofrece respirar con la explicación.
+- Ámbito: "¿Hay algo que te haga sentir así? Puede ser un lugar, alguien o algo que pasa. No tienes que contar qué pasó."
+- Sin IA disponible: guion completo de antes.
+- Simulador de jóvenes (7 perfiles) en /api/demo?p=simular&persona=… (sólo versiones de prueba).

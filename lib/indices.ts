@@ -134,7 +134,7 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     recursos: estado.recursos,
     comoTermina: str("ci_ahora"),
     completa: estado.completa,
-    ultimoBloque: estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
+    ultimoBloque: estado.modo === "ia" ? "conversacion" : estado.bloque === "@ronda" ? "ronda" : estado.bloque ?? estado.bloquesHechos[estado.bloquesHechos.length - 1] ?? null,
     consintio:
       estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si",
     desvios: estado.desviosTotal,

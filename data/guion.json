@@ -155,7 +155,8 @@
         "Sostén el aire contando 4.",
         "Suéltalo despacio contando 6.",
         "Repite durante un minuto."
-      ]
+      ],
+      "para": "Respirar lento le avisa a tu cuerpo que puede bajar la alerta: el corazón se calma y la cabeza se aclara."
     },
     "punos": {
       "titulo": "Soltar el enojo",
@@ -163,14 +164,16 @@
         "Aprieta los puños 5 segundos.",
         "Suelta.",
         "Repite tres veces."
-      ]
+      ],
+      "para": "Apretar y soltar saca la tensión que el enojo deja en el cuerpo."
     },
     "mano": {
       "titulo": "Una mano en el pecho",
       "pasos": [
         "Pon una mano en tu pecho.",
         "Di en tu mente: esto es difícil y estoy haciendo lo mejor que puedo."
-      ]
+      ],
+      "para": "Te ayuda a tratarte con la paciencia con la que tratarías a alguien que quieres."
     },
     "anclaje": {
       "titulo": "Anclaje 5-4-3-2-1",
@@ -180,7 +183,8 @@
         "3 cosas que oyes.",
         "2 cosas que hueles.",
         "1 cosa que saboreas."
-      ]
+      ],
+      "para": "Usar tus sentidos regresa tu atención al presente cuando la mente va muy rápido o hay miedo."
     }
   },
   "ruta": {
@@ -850,7 +854,7 @@
             "paso": "en_termometro",
             "gte": 9
           },
-          "texto": "Eso es muy intenso. Antes de seguir, ¿quieres que respiremos juntos un minuto?",
+          "texto": "Eso es muy intenso. Cuando una emoción está así de fuerte, el cuerpo se acelera: el corazón late rápido y cuesta pensar. Respirar lento le avisa al cuerpo que puede bajar la alerta. ¿Quieres que respiremos juntos un minuto antes de seguir?",
           "opciones": [
             {
               "id": "si",
@@ -983,7 +987,7 @@
           "tipo": "opcion",
           "variable": "ambito",
           "item": "ambito",
-          "texto": "¿Con qué tiene que ver más lo que sientes? No necesitas explicar qué pasó.",
+          "texto": "¿Hay algo que te haga sentir así? Puede ser un lugar, alguien o algo que pasa. No tienes que contar qué pasó.",
           "opciones": [
             {
               "id": "escuela",
@@ -1094,7 +1098,7 @@
               }
             ]
           },
-          "texto": "¿Quieres hacer un ejercicio cortito antes de seguir?",
+          "texto": "Tengo un ejercicio de un minuto que puede ayudarte con lo que sientes. Se llama {ejercicio}: {ejercicioPara} ¿Quieres hacerlo antes de seguir?",
           "opciones": [
             {
               "id": "si",
@@ -2502,7 +2506,7 @@
               "peor"
             ]
           },
-          "texto": "Gracias por decírmelo. A veces hablar mueve cosas. ¿Quieres hacer un ejercicio para calmarte o ver a quién puedes llamar?",
+          "texto": "Gracias por decírmelo. A veces hablar mueve cosas. ¿Quieres hacer un ejercicio de un minuto para calmar el cuerpo o ver a quién puedes llamar?",
           "opciones": [
             {
               "id": "ejercicio",
@@ -2559,7 +2563,7 @@
               }
             ]
           },
-          "texto": "¿Quieres hacer un ejercicio de un minuto antes de irte?",
+          "texto": "Antes de irte, ¿quieres hacer un ejercicio de un minuto? Se llama {ejercicio}: {ejercicioPara}",
           "opciones": [
             {
               "id": "si",
@@ -2619,7 +2623,7 @@
         {
           "id": "cr_ejercicio",
           "tipo": "opcion",
-          "texto": "¿Quieres que te muestre un ejercicio para calmarte mientras tanto?",
+          "texto": "Mientras tanto, puedo mostrarte una respiración de un minuto. Respirar lento le avisa a tu cuerpo que puede bajar la alerta. ¿Quieres hacerla?",
           "opciones": [
             {
               "id": "si",
@@ -2761,5 +2765,39 @@
     "me acosan",
     "me siguen",
     "me tocan"
-  ]
+  ],
+  "nucleo": [
+    "en_emociones",
+    "en_termometro",
+    "en_cuerpo",
+    "en_tiempo",
+    "en_ambito",
+    "v1_colonia",
+    "v1_escuela",
+    "v1_enterado",
+    "v2_miedo",
+    "v2_alerta",
+    "v2_dormir",
+    "v3_triste",
+    "v3_desesperanza",
+    "v4_enojo",
+    "v5_lealtad",
+    "v5_culpa",
+    "v6_normal",
+    "v6_dinero",
+    "v7_presion",
+    "v7_libertad",
+    "v8_cinco",
+    "v8_escuela",
+    "v9_adulto",
+    "v9_amigos",
+    "v9_estrategias",
+    "ci_termometro",
+    "ci_ahora"
+  ],
+  "ia": {
+    "privacidad": "Eco no pide nombres ni ubicación; cada plática tiene un código al azar. Lo que escribes no se guarda completo: sólo números y temas. Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién es quién.",
+    "proposito": "Eco es un espacio para platicar cómo te sientes. Lo que contestas ayuda a que el equipo de psicología entienda cómo están los jóvenes de tu escuela y pueda crear apoyos.",
+    "rondaIntro": "Antes de terminar, unas preguntas rápidas. Puedes contestar con un toque."
+  }
 }

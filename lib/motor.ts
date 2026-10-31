@@ -132,14 +132,14 @@ export function emocionPrincipal(g: Guion, estado: Estado): string {
   return g.ruta.prioridad.find((e) => elegidas.includes(e)) ?? "nose";
 }
 
-function opcionesDe(g: Guion, p: Paso): Opcion[] {
+export function opcionesDe(g: Guion, p: Paso): Opcion[] {
   if (p.tipo === "ejercicio") return [{ id: "listo", label: "Listo" }];
   if (p.tipo === "abierta" || p.tipo === "numero") return p.rapidas ?? [];
   if (p.escala) return [...g.escalas[p.escala], ...(p.opcionesExtra ?? [])];
   return p.opciones ?? [];
 }
 
-function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: string): string {
+export function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: string): string {
   const elegidas = emocionesElegidas(estado);
   const una = elegidas.length === 1 && elegidas[0] !== "nose";
   return texto
@@ -148,10 +148,12 @@ function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: string)
     .replace("{preguntaCierre}", g.preguntasCierre[estado.preguntaCierre] ?? g.preguntasCierre[0])
     .replace("{orientador}", inst.orientador.nombre)
     .replace("{lugar}", inst.orientador.lugar)
-    .replace("{horario}", inst.orientador.horario);
+    .replace("{horario}", inst.orientador.horario)
+    .replace("{ejercicio}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.titulo ?? "")
+    .replace("{ejercicioPara}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.para ?? "");
 }
 
-function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emocion"): EjercicioId {
+export function ejercicioPara(g: Guion, estado: Estado, e: EjercicioId | "@emocion"): EjercicioId {
   if (e !== "@emocion") return e;
   const p = emocionPrincipal(g, estado);
   if (p === "miedo" || p === "preocupado") return "respiracion";
@@ -232,11 +234,15 @@ export function calcularRuta(g: Guion, estado: Estado): string[] {
 
 // ---------- ciclo ----------
 
-export function crearEstado(rand: () => number = Math.random, fecha: Date = new Date(), nPreguntasCierre = 3): Estado {
+/**
+ * conIA: después de los datos, la IA conduce la plática (con ronda rápida y cierre del guion).
+ * Sin conIA: el guion completo de siempre (lo usan las pruebas y el respaldo sin IA).
+ */
+export function crearEstado(rand: () => number = Math.random, fecha: Date = new Date(), nPreguntasCierre = 3, conIA = false): Estado {
   return {
     codigo: codigoAleatorio(rand),
     semana: semanaISO(fecha),
-    cola: ["bienvenida", "datos", "entrada", "@ruta"],
+    cola: conIA ? ["bienvenida", "datos", "@ia", "@ronda", "cierre"] : ["bienvenida", "datos", "entrada", "@ruta"],
     bloque: null,
     indice: 0,
     respuestas: {},
@@ -260,7 +266,7 @@ export function crearEstado(rand: () => number = Math.random, fecha: Date = new 
   };
 }
 
-function emitirTextos(g: Guion, inst: Instancia, estado: Estado, p: Paso, salida: Salida[]) {
+export function emitirTextos(g: Guion, inst: Instancia, estado: Estado, p: Paso, salida: Salida[]) {
   if (!p.texto) return;
   const textos = Array.isArray(p.texto) ? p.texto : [p.texto];
   for (const t of textos) {
@@ -291,6 +297,15 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
       }
       if (estado.rojo && !TRAS_CRISIS.includes(id)) continue;
       if (id === "@ruta") { estado.cola.unshift(...calcularRuta(g, estado)); continue; }
+      if (id === "@ia") { entrarIA(g, inst, estado, salida); return; }
+      if (id === "@ronda" || id === "@ronda-todas") {
+        estado.ronda = pendientesRonda(g, estado, 0.8, id === "@ronda-todas");
+        if (!estado.ronda.length) continue;
+        if (g.ia?.rondaIntro) salida.push({ tipo: "eco", texto: g.ia.rondaIntro });
+        estado.bloque = "@ronda";
+        estado.indice = 0;
+        continue;
+      }
       const b: Bloque = g.bloques[id];
       if (b.clase === "modulo") estado.modulosHechos.push(id);
       if (b.grupo && !estado.gruposMostrados.includes(b.grupo)) {
@@ -303,9 +318,9 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
       estado.indice = 0;
     }
 
-    const b = g.bloques[estado.bloque];
+    const b = bloqueActual(g, estado);
     if (estado.indice >= b.pasos.length) {
-      estado.bloquesHechos.push(b.id);
+      if (b.id !== "@ronda") estado.bloquesHechos.push(b.id);
       estado.bloque = null;
       continue;
     }
@@ -329,6 +344,87 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
   throw new Error("El motor no avanzó: revisa el guion");
 }
 
+/** El bloque en curso; "@ronda" se arma con las preguntas que faltan. */
+function bloqueActual(g: Guion, estado: Estado): Bloque {
+  if (estado.bloque === "@ronda") {
+    const todos = Object.values(g.bloques).flatMap((b) => b.pasos);
+    return { id: "@ronda", nombre: "Ronda rápida", clase: "fijo", pasos: (estado.ronda ?? []).map((id) => todos.find((p) => p.id === id)!).filter(Boolean) };
+  }
+  return g.bloques[estado.bloque!];
+}
+
+/**
+ * Pregunta del núcleo que no aplica: su condición depende de una respuesta que ya está y no se cumple
+ * (p. ej. "¿podrías decir que no?" cuando no hay presión).
+ */
+export function noAplica(g: Guion, estado: Estado, id: string): boolean {
+  const p = Object.values(g.bloques).flatMap((b) => b.pasos).find((x) => x.id === id);
+  const c = p?.si as { paso?: string } | undefined;
+  if (!c || !c.paso || !estado.respuestas[c.paso]) return false;
+  return !evaluar(g, estado, p!.si!);
+}
+
+/** Preguntas del núcleo que siguen pendientes. Las del cierre no cuentan: el bloque de cierre las hace siempre. */
+export function pendientesNucleo(g: Guion, estado: Estado): string[] {
+  return (g.nucleo ?? []).filter((id) => !estado.respuestas[id] && !id.startsWith("ci_") && !noAplica(g, estado, id));
+}
+
+/** Cuántas del núcleo faltan para llegar al 80% (contando las dos del cierre como hechas). */
+export function pendientesRonda(g: Guion, estado: Estado, meta = 0.8, todas = false): string[] {
+  const nucleo = (g.nucleo ?? []).filter((id) => !noAplica(g, estado, id));
+  const pend = pendientesNucleo(g, estado);
+  if (todas) return pend;
+  const cubiertas = nucleo.length - pend.length; // incluye las del cierre, que siempre se hacen
+  // Se piden de más las que dependen de otra (podrían no aplicar cuando llegue su turno).
+  const condicionadas = pend.filter((id) => Object.values(g.bloques).flatMap((b) => b.pasos).find((p) => p.id === id)?.si).length;
+  const faltan = Math.max(0, Math.ceil(meta * nucleo.length) - cubiertas);
+  return faltan ? pend.slice(0, faltan + condicionadas) : [];
+}
+
+/** Primera pregunta de la fase con IA: la emoción, con sus etiquetas. La IA conduce desde la respuesta. */
+function entrarIA(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
+  estado.modo = "ia";
+  estado.bloque = null;
+  estado.ia = { turnos: 0, item: "en_emociones", historial: [], opcionales: [], respiracion: "no", ejercicios: [] };
+  const p = g.bloques.entrada.pasos.find((x) => x.id === "en_emociones")!;
+  const texto = resolverTexto(g, inst, estado, String(p.texto));
+  salida.push({ tipo: "eco", texto });
+  estado.ia.historial.push({ quien: "eco", texto });
+  estado.esperando = esperaIA(g, "en_emociones", texto);
+}
+
+/** Lo que espera la fase con IA: texto libre siempre y, si la IA hizo una pregunta medida, sus etiquetas. */
+export function esperaIA(g: Guion, item: string | null, pregunta: string): Espera {
+  const p = item ? Object.values(g.bloques).flatMap((b) => b.pasos).find((x) => x.id === item) : undefined;
+  const opciones = p && (p.tipo === "opcion" || p.tipo === "multiple") ? opcionesDe(g, p) : [];
+  return {
+    paso: { id: "_ia", tipo: "abierta", texto: pregunta, placeholder: "Escribe tu respuesta…" },
+    opciones,
+    multiple: p?.tipo === "multiple",
+    textoLibre: true,
+    pregunta,
+  };
+}
+
+/** Sigue con el guion fijo (ronda, cierre) después de la fase con IA. */
+export function seguirGuion(g: Guion, inst: Instancia, estado: Estado, salida: Salida[], todas = false): void {
+  estado.modo = "guion";
+  estado.esperando = null;
+  estado.bloque = null;
+  if (todas) estado.cola = ["@ronda-todas", ...estado.cola.filter((x) => x !== "@ronda")];
+  avanzar(g, inst, estado, salida);
+}
+
+/** Sin IA desde el inicio: el guion completo de antes (entrada, núcleo, módulos y cierre). */
+export function usarGuionCompleto(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): void {
+  estado.modo = "guion";
+  estado.esperando = null;
+  estado.bloque = null;
+  delete estado.ia;
+  estado.cola = ["entrada", "@ruta"];
+  avanzar(g, inst, estado, salida);
+}
+
 export function arrancar(g: Guion, inst: Instancia, estadoInicial: Estado): Resultado {
   const estado = structuredClone(estadoInicial);
   const salida: Salida[] = [];
@@ -336,7 +432,8 @@ export function arrancar(g: Guion, inst: Instancia, estadoInicial: Estado): Resu
   return { estado, salida };
 }
 
-function irA(estado: Estado, bloques: string[]) {
+export function irA(estado: Estado, bloques: string[]) {
+  estado.modo = "guion";
   estado.cola = bloques;
   estado.bloque = null;
   estado.esperando = null;
@@ -353,7 +450,7 @@ export function consintio(estado: Estado): boolean {
 /** Bloques permitidos después de una crisis: no se regresa al cuestionario. */
 const TRAS_CRISIS = ["crisis", "salida", "otrodia"];
 
-function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
+export function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
   if (estado.rojo) {
     // Ya está en crisis: repite a dónde llamar y sigue donde iba.
     const cr2 = g.bloques.crisis.pasos.find((p) => p.id === "cr_2");
@@ -421,7 +518,7 @@ function casarTexto(opciones: Opcion[], texto: string): Opcion | undefined {
   return contiene.length === 1 ? contiene[0] : undefined;
 }
 
-function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
+export function ofrecerOtroDia(estado: Estado, texto: string, salida: Salida[]) {
   estado.pausa = "otrodia";
   estado.esperandoPrevio = estado.esperando!;
   estado.esperando = { paso: { id: "_otrodia", tipo: "opcion", texto }, opciones: OPC_OTRODIA, multiple: false, textoLibre: true, pregunta: texto };

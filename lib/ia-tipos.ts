@@ -45,10 +45,48 @@ export interface RespuestaRedactar {
   puente: string | null;
 }
 
+/** Un turno de la fase en que la IA conduce. El servidor arma el catálogo; aquí sólo van ids. */
+export interface PedidoConversar {
+  codigo: string;
+  /** Últimos mensajes de la plática con IA, ya filtrados. */
+  historial: { quien: "eco" | "joven"; texto: string }[];
+  /** Lo que escribió el joven, ya filtrado (null si sólo tocó una etiqueta). */
+  texto: string | null;
+  /** Pregunta medida que estaba contestando, si la había. */
+  item: string | null;
+  /** Ítems ya contestados u omitidos. */
+  cubiertos: string[];
+  /** Módulos opcionales ya tocados. */
+  opcionales: string[];
+  turnos: number;
+  maxTurnos: number;
+  /** Termómetro alto: ofrecer respiración en este turno. */
+  respiracion: "no" | "pendiente" | "ofrecida";
+  ejercicios: string[];
+}
+
+export interface RespuestaConversar {
+  riesgo: boolean;
+  tipo: TipoRespuesta;
+  /** Respuestas que se desprenden de lo que escribió. */
+  respuestas: { id: string; valor: string[] }[];
+  /** Lo que dice Eco (null en crisis). */
+  mensaje: string | null;
+  /** Pregunta medida que hace en este mensaje (sus opciones se muestran como etiquetas). */
+  item: string | null;
+  ejercicio: string | null;
+  terminar: boolean;
+  /** El mensaje lo escribió el guion porque la IA no dio uno válido. */
+  respaldo?: boolean;
+  /** En este mensaje se ofreció la respiración por termómetro alto. */
+  respiracion?: "ofrecida";
+}
+
 /** Lo que el turno necesita de la IA. Si devuelve null, se usa el guion. */
 export interface ServicioIA {
   interpretar(p: PedidoInterpretar): Promise<RespuestaInterpretar | null>;
   redactar(p: PedidoRedactar): Promise<RespuestaRedactar | null>;
+  conversar?(p: PedidoConversar): Promise<RespuestaConversar | null>;
 }
 
 // ---------- validación de lo que escribe el modelo ----------
@@ -115,4 +153,51 @@ export function validarFrase(texto: unknown): string | null {
   if (!t || t.length > 50 || t.split(/\s+/).length > 6) return null;
   if (/[?¿]/.test(t) || PROHIBIDO.test(t) || CON_GENERO.test(t) || GENERO_SUELTO.test(t) || /\d{3,}/.test(t)) return null;
   return t.charAt(0).toLowerCase() + t.slice(1);
+}
+
+// ---------- validación del mensaje cuando la IA conduce ----------
+
+/** Preguntas que Eco nunca hace: detalles que identifican, qué pasó, por qué. */
+// "porque" (causal, sin espacio) sí se permite; "¿por qué…?" no. "¿A quién admiras?" sí; "¿Quién te hizo…?" no.
+const TEMAS_FUERA = /denunci|\b089\b|polic[ií]a|c[aá]rtel|narco|delito|crimen|diagn[oó]stic|depresi[oó]n|trastorno|https?:|@|\[|\]|\/a\b|\/o\b/i;
+const FIN = "(?![a-záéíóúñü])";
+const PREGUNTA_DETALLE = new RegExp(
+  "¿[^?]*(" +
+    [
+      `por\\s+qu[eé]${FIN}`,
+      `quién(es)?\\s+(te|le|les|fue|fueron|es|son|era|eran|lo|la|los|las)${FIN}`,
+      `c[oó]mo se llama`,
+      `d[oó]nde (vives|est[aá]s|queda|fue|pas[oó])${FIN}`,
+      `qu[eé] te pas[oó]${FIN}`,
+      `en qu[eé] (escuela|colonia|calle)`,
+      `cu[aá]l es tu (nombre|escuela)`,
+    ].join("|") +
+    ")[^?]*\\?",
+  "i",
+);
+
+/** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
+const MULETILLAS = /aqu[ií] cabe|(eso )?dice mucho de ti|es (muy )?v[aá]lido|qu[eé] valioso|se nota que|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+
+/** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
+export function abrirPreguntas(texto: string): string {
+  return texto
+    .split(/(?<=[.!?])\s+/)
+    .map((o) => (o.endsWith("?") && !o.includes("¿") ? "¿" + o.charAt(0).toUpperCase() + o.slice(1) : o))
+    .join(" ");
+}
+
+/** Devuelve el motivo si el mensaje no se puede mostrar, o null si está bien. */
+export function motivoRechazo(texto: string, terminar = false): string | null {
+  const t = texto.trim();
+  if (terminar && t.includes("?")) return "cierra la plática pero deja una pregunta abierta";
+  if (MULETILLAS.test(t)) return "usa una frase de muletilla (aquí cabe, es válido, se nota que…)";
+  if (!t) return "vacío";
+  if (t.length > 420) return "muy largo (máximo 3 oraciones cortas)";
+  if ((t.match(/\?/g) ?? []).length > 2) return "más de una pregunta";
+  if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
+  if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
+  if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
+  if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";
+  return null;
 }
