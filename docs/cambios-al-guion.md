@@ -235,3 +235,4 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Emociones a su modo: "chingón", "chido", "padre", "poca madre", "muy bien" = Con alegría; "bien", "tranqui", "relax", "normal" = En calma. En respuestas cortas se reconocen antes de llegar a la IA.
 - Si el mensaje de la IA trae una muletilla o le falta la pregunta, el código lo repara (quita esa oración o agrega la pregunta del guion) en lugar de tirarlo; el respaldo del guion se usa sólo si la reparación tampoco pasa.
 - Muletillas con el orden cambiado: "cabe aquí", "todo cabe", "es totalmente válido".
+- Al retomar después de "¿Seguimos o lo dejamos para otro día?" (o de una pausa), Eco dice "Va, seguimos." y sólo la pregunta, en una burbuja; ya no repite el mensaje anterior completo.

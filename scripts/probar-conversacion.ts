@@ -176,6 +176,11 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   ok(e.esperando?.paso.id === "_otrodia", "tres desvíos: ofrece dejarlo para otro día");
   r = await turno(g, inst, e, { opcion: "seguir" }, ia, []);
   ok(r.estado.modo === "ia" && r.estado.esperando?.paso.id === "_ia" && r.estado.desvios === 0, "«Seguir» regresa a la plática con IA");
+  {
+    const antes = e.esperandoPrevio?.pregunta ?? "";
+    const t = textos(r.salida);
+    ok(t.length === 1 && /^Va, seguimos\. ¿/.test(t[0]) && t[0] !== `Va, seguimos. ${antes}` && !t[0].includes("Pregunto:"), "«Seguir»: retoma sólo con la pregunta, sin repetir el mensaje anterior");
+  }
 
   // 9. Pausa y salir funcionan en la fase con IA.
   ia = iaFalsa();

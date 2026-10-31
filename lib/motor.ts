@@ -658,8 +658,13 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
       const previo = estado.esperandoPrevio!;
       estado.esperando = previo;
       delete estado.esperandoPrevio;
-      salida.push({ tipo: "eco", texto: "Va, seguimos." });
-      emitirTextos(g, inst, estado, previo.paso, salida);
+      // Se retoma sólo con la pregunta, en la misma burbuja: nunca se repite el mensaje anterior completo.
+      const pregunta = previo.paso.tipo === "ejercicio" ? null : preguntaCorta(g, inst, estado, { ...previo.paso, texto: previo.pregunta ?? previo.paso.texto });
+      if (pregunta) salida.push({ tipo: "eco", texto: `Va, seguimos. ${pregunta}` });
+      else {
+        salida.push({ tipo: "eco", texto: "Va, seguimos." });
+        emitirTextos(g, inst, estado, previo.paso, salida);
+      }
       if (previo.paso.tipo === "ejercicio") salida.push({ tipo: "ejercicio", ejercicio: ejercicioPara(g, estado, previo.paso.ejercicio ?? "respiracion") });
       return { estado, salida };
     }
