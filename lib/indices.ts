@@ -27,7 +27,7 @@ export const DIRECCION: Record<string, { nombre: string; direccion: "riesgo" | "
 
 /** Umbrales del protocolo amarillo (documento, sección 5). */
 export const UMBRALES = {
-  termometro: 4, // termómetro inicial en "Muy fuerte" (4 en la escala 0–4)
+  termometro: 4, // termómetro inicial en "Muchísimo" (4 en la escala 0–4)
   desesperanza: 3, // "Seguido" o más
   malestar: 60, // malestar global > 60/100
   presion: 3, // presión de riesgo "Seguido" o más

@@ -101,6 +101,8 @@ export interface Guion {
   ejercicios: Record<EjercicioId, { titulo: string; pasos: string[]; /** Para qué sirve, en una frase. */ para?: string; /** Qué vas a hacer, en una frase. */ como?: string }>;
   /** Preguntas que cuentan para la cobertura (el 80%), en orden de referencia. */
   nucleo?: string[];
+  /** Termómetro: cómo se nombra cada emoción en «¿Qué tanto miedo sientes ahorita?». */
+  termometroEmocion?: Record<string, string>;
   /** Información aprobada que la IA puede usar al responder preguntas del joven. */
   ia?: {
     privacidad: string; proposito: string; rondaIntro: string; ofertaEjercicio?: string;

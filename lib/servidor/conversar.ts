@@ -57,7 +57,7 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 - En preguntas que tienen la opción «No sé», si dice "no sé", "depende" o "a veces sí, a veces no", eso es «No sé»: regístrala.
 - Pregunta de una opción: exactamente un id. De varias: uno o más. Abierta: ["texto"] si contestó con sus palabras, o el id de la frase sugerida si eligió una.
 - Lee con faltas de ortografía y escritura de celular como lo que son: "aveces" = a veces, "nunka" = nunca, "masomenos" = más o menos, "kasi" = casi, "bastate" = bastante.
-- Termómetro (Muy poquito… Muy fuerte): "poquito" → t2, "muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
+- Termómetro (Muy poquito… Muchísimo): "poquito" → t2, "mucho/bastante" → t4, "muchísimo/muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
 - Una emoción que no está en la lista va como "otro" si la pregunta tiene esa opción; si no, no la registres. Antes de usar "otro", fíjate si es una forma de decir una de la lista: "chingón", "chido", "poca madre", "bien", "feliz" = contento; "a gusto", "tranqui", "relax" = tranquilo; "de la fregada", "de la v…", "mal" sin más = no la adivines: "otro".
 - Si no es claro, no registres nada. Es mejor dejarla pendiente que adivinar.`;
 
@@ -167,7 +167,7 @@ type Forzado = "seguir" | "responder" | null;
 function instrucciones(p: PedidoConversar, tipo: string, forzado: Forzado, respiracion: boolean, sig: PedidoConversar["siguientes"]): string[] {
   const xs: string[] = [];
   if (respiracion)
-    xs.push("El termómetro está en «Muy fuerte». Modo seguir: reconoce que es muy intenso y que cuando una emoción está así de fuerte el cuerpo se acelera; sin preguntas. Pon ofrecer = \"respiracion\".");
+    xs.push("El termómetro está en «Muchísimo». Modo seguir: reconoce que es muy intenso y que cuando una emoción está así de fuerte el cuerpo se acelera; sin preguntas. Pon ofrecer = \"respiracion\".");
   if (forzado === "responder") {
     xs.push("Modo responder (pon modo \"seguir\" en el JSON): la pregunta que le hiciste sigue en pantalla con sus botones. En máximo 2 oraciones y sin preguntas, contesta su duda o, si se desvió, regresa con calma y dile que puede contestar la de arriba cuando quiera. No la repitas.");
     if (tipo === "privacidad") xs.push("Preguntó por su privacidad: contesta con la información de privacidad.");
@@ -283,7 +283,7 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
   const extraidas = respuestas.map((r) => r.id);
   const tipoCliente = (tipo === "pregunta" ? "responde" : tipo) as TipoRespuesta;
   const sinContestar = !!p.item && !p.cubiertos.includes(p.item) && !extraidas.includes(p.item);
-  // Termómetro en «Muy fuerte» (4) recién contestado o pendiente: el código pide ofrecer la respiración.
+  // Termómetro en «Muchísimo» (4) recién contestado o pendiente: el código pide ofrecer la respiración.
   const termometro = respuestas.find((r) => r.id === "en_termometro")?.valor[0];
   const respiracion = p.respiracion === "pendiente" || (p.respiracion === "no" && termometro === "t5");
 
@@ -300,7 +300,7 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
 
   let c: { mensaje: string; modo: ModoTurno; ejercicio: string | null; ofrecer: string | null } | null = null;
   try { c = await conducir(p, tipo, extraidas, forzado, respiracion, sig, contestada); } catch (e) { registrarFalla("conducir", e); }
-  // Termómetro en «Muy fuerte» (4): la respiración se ofrece sí o sí.
+  // Termómetro en «Muchísimo» (4): la respiración se ofrece sí o sí.
   if (respiracion && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion") && !c?.ofrecer) {
     const sinPregunta = (c?.mensaje ?? "").split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
     c = { mensaje: sinPregunta || "Eso es muy intenso.", modo: "seguir" as const, ejercicio: null, ofrecer: "respiracion" };
