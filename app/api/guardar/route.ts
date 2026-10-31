@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   if (!airtableDisponible()) return Response.json({ error: "sin_airtable" }, { status: 503 });
   let cuerpo: Pedido;
   try { cuerpo = await req.json(); } catch { return Response.json({ error: "json" }, { status: 400 }); }
-  const rechazo = revisar(req, cuerpo);
+  const rechazo = revisar(req, cuerpo, "guardar");
   if (rechazo) return Response.json({ error: rechazo.error }, { status: rechazo.status });
   const r = cuerpo.resumen;
   if (!r || typeof r !== "object" || r.codigo !== cuerpo.codigo) return Response.json({ error: "resumen" }, { status: 400 });

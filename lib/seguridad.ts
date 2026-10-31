@@ -143,9 +143,14 @@ export function filtrarIdentificadores(entrada: string): ResultadoFiltro {
   t = t.replace(/\b[A-Z]{2,3}[-\s]?\d{2,4}[-\s]?[A-Z]?\b/g, marca("[placa]"));
   // Usuarios de redes
   t = t.replace(/@\w+/g, marca("[usuario]"));
-  // Direcciones: palabra de lugar + lo que sigue hasta signo de puntuación
+  // Direcciones: palabra de lugar seguida de un nombre propio o un número ("colonia Centro", "calle Hidalgo 23",
+  // "av. Juárez", "# 45"). Sólo palabras completas: "aveces" no es "av", y "en mi colonia hay balazos" no es una dirección.
   t = t.replace(
-    /(?<!\[)\b(calle|av\.?|avenida|privada|cerrada|colonia|col\.|fracc\.?|fraccionamiento|barrio|esquina|manzana|mz\.?|lote|n[uú]m(ero)?\.?|#)\s*[^,.;!?\n]{1,40}/gi,
+    /(?<![\[\wáéíóúñü])([Cc]alle|[Aa]venida|[Pp]rivada|[Cc]errada|[Cc]olonia|[Ff]raccionamiento|[Bb]arrio|[Ee]squina|[Mm]anzana|[Ll]ote|[Nn][uú]mero)\s+(?=[A-ZÁÉÍÓÚÑ0-9])[^,.;!?\n]{1,40}/g,
+    marca("[lugar]"),
+  );
+  t = t.replace(
+    /(?<![\[\wáéíóúñü])(av\.|col\.|fracc\.|mz\.|n[uú]m\.|#)\s*[^,.;!?\n]{1,40}/gi,
     marca("[lugar]"),
   );
   // Nombres propios: palabras con mayúscula a media oración ("me pega Brayan").

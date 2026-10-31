@@ -8,6 +8,7 @@ import type {
 } from "./tipos";
 import { esGroseriaDirigida, filtrarIdentificadores, nivelAlarma, normalizar, pareceSinSentido } from "./seguridad";
 import { calcularNivel } from "./indices";
+import { opcionParecida } from "./ortografia";
 
 export interface Entrada {
   /** id de opción elegida (botón). */
@@ -772,8 +773,10 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   } else {
     if (entrada.opcion) elegida = opciones.find((o) => o.id === entrada.opcion);
     else if (texto) {
-      elegida = porNumero(p, opciones, texto) ?? casarTexto(opciones, texto);
-      if (elegida && entrada.sinOtro && normalizar(elegida.label) !== normalizar(texto).replace(/[.!¡]+$/, "").trim() && !porNumero(p, opciones, texto)) {
+      // Misma respuesta salvo ortografía ("kasi nunca" = "Casi nunca"): gana antes que una etiqueta suelta adentro ("nunca").
+      const igual = opcionParecida(opciones, texto, 0);
+      elegida = porNumero(p, opciones, texto) ?? (igual ? opciones.find((o) => o.id === igual) : undefined) ?? casarTexto(opciones, texto);
+      if (elegida && !igual && entrada.sinOtro && normalizar(elegida.label) !== normalizar(texto).replace(/[.!¡]+$/, "").trim() && !porNumero(p, opciones, texto)) {
         // El modelo no la entendió: sólo vale si escribió la opción tal cual o un número de la escala.
         elegida = undefined;
       }
@@ -781,6 +784,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
         const ids = porSinonimos(opciones, texto);
         if (ids.length === 1) elegida = opciones.find((o) => o.id === ids[0]);
         else if (ids.length >= 2 && ids.length <= 3) dudas = ids.map((id) => opciones.find((o) => o.id === id)!.label);
+        else if (ids.length === 0) {
+          // Faltas de ortografía ("Aveces", "Nunka", "Masomenos"): se toma la opción a la que claramente se parece.
+          const parecida = opcionParecida(opciones, texto);
+          if (parecida) elegida = opciones.find((o) => o.id === parecida);
+        }
       }
     }
     if (!elegida && texto && !entrada.otro) {

@@ -268,7 +268,7 @@ export async function GET(req: Request) {
   const permitido = process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development";
   if (!permitido) return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
-  if (p === "airtable") return Response.json(await probarAirtable());
+  if (p === "airtable") return Response.json(await probarAirtable(new URL(req.url).searchParams.get("opcion") === "ultima"));
   if (p === "simular") {
     // Tarda varios minutos: se corre después de responder y el resultado se escribe en los registros
     // de Vercel con la etiqueta [sim <id>].
@@ -316,15 +316,18 @@ export async function GET(req: Request) {
 }
 
 /** Escribe una sesión de prueba (escuela "PRUEBA") y una roja de prueba en el Airtable real. */
-async function probarAirtable() {
+async function probarAirtable(ultima = false) {
   if (!airtableDisponible()) return { ok: false, error: "Faltan AIRTABLE_TOKEN o AIRTABLE_BASE en esta versión" };
   let { estado } = arrancar(g, inst, crearEstado());
   for (let k = 0; estado.esperando && k < 200; k++) {
     const e = estado.esperando;
-    const o = e.opciones[0];
+    // "ultima" elige la última opción (salvo consentimiento y descansos) para probar etiquetas poco usadas.
+    const o = ultima && !/^(bi_|tr_|mc_entrar)/.test(e.paso.id) ? e.opciones.at(-1) : e.opciones[0];
     const ent: Entrada = e.paso.tipo === "numero" ? { texto: "15" } : e.multiple ? { opciones: o ? [o.id] : [] } : o ? { opcion: o.id } : { texto: "algo" };
     ({ estado } = responder(g, inst, estado, ent));
   }
+  // Dos preguntas saltadas (una escala y una de opciones) para probar "Preguntas que saltó".
+  for (const id of ["v2_alerta", "v9_amigos"]) if (estado.respuestas[id]) { estado.respuestas[id] = { valor: "omitida" }; estado.omitidas.push(id); }
   const r = resumen(g, inst, estado);
   const out: Record<string, unknown> = { nivel: r.nivel, consintio: r.consintio, completa: r.completa };
   try { out.fila = await guardarSesion(camposSesion({ ...r, nivel: r.nivel === "rojo" ? "amarillo" : r.nivel }, "PRUEBA")); }

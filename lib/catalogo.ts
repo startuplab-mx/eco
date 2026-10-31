@@ -3,6 +3,7 @@
 import type { Estado, Guion, Opcion, Paso } from "./tipos";
 import { noAplica, opcionesDe } from "./motor";
 import { normalizar } from "./seguridad";
+import { opcionParecida } from "./ortografia";
 
 export interface ItemCatalogo {
   id: string;
@@ -112,7 +113,18 @@ export function leerLocal(g: Guion, id: string, texto: string): string[] {
     const l = normalizar(o.label);
     return t === l || (l.length >= 4 && new RegExp(`(^|\\s)${l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\s|$)`).test(t));
   });
-  return exactas.map((o) => o.id);
+  if (exactas.length || it.tipo !== "opcion") return exactas.map((o) => o.id);
+  const parecida = opcionParecida(opcionesCompletas(g, id), texto);
+  return parecida ? [parecida] : [];
+}
+
+/** Opciones del paso con sus sinónimos (el catálogo sólo guarda id y etiqueta). */
+export function opcionesCompletas(g: Guion, id: string): Opcion[] {
+  for (const b of Object.values(g.bloques)) {
+    const p = b.pasos.find((x) => x.id === id);
+    if (p) return opcionesDe(g, p);
+  }
+  return [];
 }
 
 /** Cobertura del núcleo: contestadas (no omitidas) sobre las que aplican a esta persona. */

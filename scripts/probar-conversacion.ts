@@ -103,6 +103,23 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   r = await turno(g, inst, e, { texto: "me corto mucho" }, ia, []);
   ok(r.estado.rojo, "«me corto…» sin modelo: crisis");
 
+  // Faltas de ortografía en modo IA: «Aveces» se registra como «A veces» y la IA recibe la opción, no la palabra mal escrita.
+  {
+    const ia = iaFalsa();
+    let e = await hastaIA(ia);
+    // Avanza hasta una pregunta de frecuencia.
+    for (let k = 0; k < 20 && !(e.esperando?.opciones.some((o) => o.id === "a_veces")); k++) {
+      const x = e.esperando!;
+      e = (await turno(g, inst, e, (x.opciones.length ? (x.multiple ? { opciones: [x.opciones[0].id] } : { opcion: x.opciones[0].id }) : { texto: "pues bien" }) as never, ia, [])).estado;
+    }
+    const item = e.ia!.item!;
+    const antes = ia.pedidos.length;
+    const r = await turno(g, inst, e, { texto: "Aveces" }, ia, []);
+    ok(r.estado.respuestas[item]?.valor === "a_veces", `modo IA: «Aveces» se registra como «A veces» (${item})`);
+    ok(ia.pedidos[antes]?.texto === "A veces", "modo IA: la IA recibe «A veces», no «[lugar]» ni la palabra mal escrita");
+    ok(!textos(r.salida).some((t) => /lugares/.test(t)), "modo IA: no responde como si hubiera dado un lugar");
+  }
+
   // Validador: nada de escalas de números ni de acuerdo en lo que escribe el modelo.
   ok(!!motivoRechazo("Del 1 al 5, ¿qué tan de acuerdo estás con esta frase?"), "validador: rechaza «del 1 al 5 / de acuerdo»");
   ok(!!motivoRechazo("¿Qué tan de acuerdo estás con que la violencia es normal?"), "validador: rechaza «qué tan de acuerdo»");

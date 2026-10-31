@@ -5,7 +5,8 @@
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
 import { activarRojo, esperaIA, ofrecerOtroDia, pendientesNucleo, seguirGuion, type Entrada } from "./motor";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
-import { catalogo, itemPorId, leerLocal, omitir, registrar } from "./catalogo";
+import { catalogo, itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
+import { opcionParecida } from "./ortografia";
 import type { ServicioIA } from "./ia-tipos";
 
 export const MAX_TURNOS = 40;
@@ -70,14 +71,20 @@ export async function turnoIA(
   if (st.oferta) st.oferta = null;
 
   // 1. Etiquetas tocadas: se registran tal cual, sin pasar por la IA.
-  const tocadas = entrada.opciones?.length ? entrada.opciones : entrada.opcion ? [entrada.opcion] : [];
+  let tocadas = entrada.opciones?.length ? entrada.opciones : entrada.opcion ? [entrada.opcion] : [];
   const it = itemPorId(g, item);
+  // 1a. Respuesta corta escrita con faltas ("Aveces", "Nunka"): se toma como la opción que es, sin preguntarle otra vez.
+  let corregida = false;
+  if (it && !tocadas.length && texto && it.tipo === "opcion") {
+    const id = opcionParecida(opcionesCompletas(g, it.id), texto);
+    if (id) { tocadas = [id]; corregida = true; }
+  }
   let etiquetas = "";
   if (it && tocadas.length) {
     registrar(g, estado, it.id, tocadas);
     etiquetas = it.opciones.filter((o) => tocadas.includes(o.id)).map((o) => o.label).join(", ");
   }
-  const dicho = [filtrado, etiquetas].filter(Boolean).join(" · ");
+  const dicho = corregida ? etiquetas : [filtrado, etiquetas].filter(Boolean).join(" · ");
   if (dicho) st.historial.push({ quien: "joven", texto: dicho });
   st.turnos++;
 
@@ -85,7 +92,8 @@ export async function turnoIA(
   const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
   if (nivel === "segura") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
 
-  return conversarYSeguir(g, inst, estado, salida, uso, ia, filtrado, texto, nivel);
+  // Si se corrigió, la IA recibe la opción tal cual ("A veces"), no la palabra mal escrita.
+  return conversarYSeguir(g, inst, estado, salida, uso, ia, corregida ? etiquetas : filtrado, texto, nivel);
 }
 
 async function conversarYSeguir(
