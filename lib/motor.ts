@@ -327,6 +327,8 @@ function avanzar(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]): v
     }
     const p = b.pasos[estado.indice];
     if (p.si && !evaluar(g, estado, p.si)) { estado.indice++; continue; }
+    // Si en la plática con IA ya hizo un ejercicio, el cierre no ofrece otro.
+    if (p.id === "ci_amarillo_ej" && (estado.ia?.ejercicios.length ?? 0) > 0) { estado.indice++; continue; }
 
     emitirTextos(g, inst, estado, p, salida);
     if (p.tipo === "mensaje") { estado.indice++; continue; }

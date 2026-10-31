@@ -212,6 +212,8 @@ export interface EstadoIA {
   respiracion: "no" | "pendiente" | "ofrecida";
   /** Ejercicios ya mostrados. */
   ejercicios: string[];
+  /** Ejercicios ofrecidos (aceptados o no). Máximo dos por plática. */
+  ofrecidos?: string[];
   /** Ejercicio ofrecido que espera un sí o un no; "hecho": se mostró y espera "Listo". */
   oferta?: string | null;
 }

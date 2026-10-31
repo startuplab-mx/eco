@@ -110,6 +110,7 @@ async function conversarYSeguir(
       maxTurnos: MAX_TURNOS,
       respiracion: st.respiracion,
       ejercicios: st.ejercicios,
+      ofrecidos: st.ofrecidos ?? [],
     });
   }
 
@@ -180,6 +181,7 @@ async function conversarYSeguir(
     salida.push({ tipo: "eco", texto: oferta });
     st.historial.push({ quien: "eco", texto: oferta });
     st.oferta = r.ofrecer;
+    st.ofrecidos = [...(st.ofrecidos ?? []), r.ofrecer];
     st.item = null;
     if (r.ofrecer === "respiracion") st.respiracion = "ofrecida";
     estado.esperando = esperaIA(g, null, oferta, OPC_OFERTA);

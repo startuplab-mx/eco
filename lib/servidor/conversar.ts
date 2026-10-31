@@ -184,7 +184,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
   const contenido = [
     `PENDIENTES OBLIGATORIOS (${nucleo.length}):\n${nucleo.map(lineaItem).join("\n") || "(ninguno)"}`,
     `TEMAS OPCIONALES DISPONIBLES:\n${opcionales.map(lineaItem).join("\n") || "(ninguno)"}`,
-    `Turno ${p.turnos} de ${p.maxTurnos}. Ejercicios ya hechos: ${p.ejercicios.join(", ") || "ninguno"}.`,
+    `Turno ${p.turnos} de ${p.maxTurnos}. Ejercicios ya hechos: ${p.ejercicios.join(", ") || "ninguno"}. Ejercicios ya ofrecidos: ${(p.ofrecidos ?? []).join(", ") || "ninguno"}${(p.ofrecidos ?? []).length >= 2 ? " (ya no ofrezcas más)" : ""}.`,
     extraidas.length ? `De su último mensaje ya quedó registrado: ${extraidas.join(", ")}. No lo vuelvas a preguntar.` : "",
     instrucciones(p, tipo, nucleo, respiracion).map((x) => `INDICACIÓN: ${x}`).join("\n"),
     `PLÁTICA HASTA AHORA:\n${p.historial.map((m) => `${m.quien === "eco" ? "Eco" : "Joven"}: ${m.texto}`).join("\n")}`,
@@ -198,8 +198,11 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
     const mensaje = abrirPreguntas(String(r.mensaje ?? "").trim());
     const item = typeof r.item === "string" && r.item ? r.item : null;
     const ejercicio = typeof r.ejercicio === "string" && r.ejercicio in g.ejercicios ? r.ejercicio : null;
-    const ofrecer = typeof r.ofrecer === "string" && r.ofrecer in g.ejercicios && !p.ejercicios.includes(r.ofrecer) && !ejercicio ? r.ofrecer : null;
+    const ofrecidos = p.ofrecidos ?? [];
+    const pideOferta = typeof r.ofrecer === "string" && r.ofrecer in g.ejercicios && !ejercicio;
+    const ofrecer = pideOferta && !p.ejercicios.includes(r.ofrecer as string) && !ofrecidos.includes(r.ofrecer as string) && (ofrecidos.length < 2 || respiracion) ? (r.ofrecer as string) : null;
     const motivo =
+      (pideOferta && !ofrecer ? "ya se ofrecieron suficientes ejercicios o ése ya se ofreció; no ofrezcas otro y sigue con la plática" : null) ??
       motivoRechazo(mensaje, r.terminar === true || !!ofrecer) ??
       (!ofrecer && !ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(mensaje) && mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
         ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
@@ -240,7 +243,7 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
   let c = null;
   try { c = await conducir(p, tipo, extraidas, respiracion); } catch (e) { registrarFalla("conducir", e); }
   // Termómetro en 9–10: la respiración se ofrece sí o sí. Si el modelo no la ofreció, se quita su pregunta.
-  if (c && respiracion && !c.ofrecer && !p.ejercicios.includes("respiracion")) {
+  if (c && respiracion && !c.ofrecer && !p.ejercicios.includes("respiracion") && !(p.ofrecidos ?? []).includes("respiracion")) {
     const sinPregunta = c.mensaje.split(/(?<=[.!?])\s+/).filter((o) => !o.includes("?")).join(" ").trim();
     c = { ...c, mensaje: sinPregunta || "Eso es muy intenso.", item: null, ofrecer: "respiracion", terminar: false };
   }

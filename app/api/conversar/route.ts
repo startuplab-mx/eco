@@ -34,6 +34,7 @@ export async function POST(req: Request) {
     maxTurnos: Math.max(5, Math.min(60, Number(c.maxTurnos) || 40)),
     respiracion: c.respiracion === "pendiente" || c.respiracion === "ofrecida" ? c.respiracion : "no",
     ejercicios: lista(c.ejercicios, 10),
+    ofrecidos: lista(c.ofrecidos, 10),
   };
   try {
     return Response.json(await conversar(pedido));

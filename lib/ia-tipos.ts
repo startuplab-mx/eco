@@ -63,6 +63,8 @@ export interface PedidoConversar {
   /** Termómetro alto: ofrecer respiración en este turno. */
   respiracion: "no" | "pendiente" | "ofrecida";
   ejercicios: string[];
+  /** Ejercicios ya ofrecidos (aceptados o no). */
+  ofrecidos?: string[];
 }
 
 export interface RespuestaConversar {
