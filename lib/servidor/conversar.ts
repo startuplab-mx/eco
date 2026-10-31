@@ -46,7 +46,7 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 - "privacidad": pregunta quién lee, si lo pueden ubicar o qué pasa con lo que escribe.
 - "pide_orientacion": pide consejo o ayuda sobre algo serio ("¿cómo me salgo de un grupo?").
 
-"riesgo": true SOLO si dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima, abusa de él o lo obliga a algo, o que está en peligro ahora. Ejemplos true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "si no le entro me va a ir mal". La tristeza, el miedo o el enojo en general NO son riesgo. Contar que vende o consume algo, sin decir que lo obligan o que está en peligro, NO es riesgo. Las expresiones coloquiales tampoco ("me muero de risa", "me mata la tarea", "mi mamá me va a matar si repruebo").
+"riesgo": true SOLO si dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima, abusa de él o lo obliga a algo, o que está en peligro ahora. Ejemplos true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "si no le entro me va a ir mal". La tristeza, el miedo o el enojo en general NO son riesgo. Oír balazos o violencia en la colonia, tener miedo de que pase algo, o no tener con quién hablar NO es riesgo por sí solo: es riesgo sólo si dice que a él lo lastimaron, lo amenazan o está en peligro en este momento. Ejemplo false: "cuando hay balazos mi mamá no me deja salir y no sé a quién decirle lo que siento". Contar que vende o consume algo, sin decir que lo obligan o que está en peligro, NO es riesgo. Las expresiones coloquiales tampoco ("me muero de risa", "me mata la tarea", "mi mamá me va a matar si repruebo").
 
 "respuestas": las preguntas de la lista que su mensaje contesta CLARAMENTE, con los id de opción que corresponden. Reglas:
 - Prioriza la pregunta que le acaban de hacer. Puedes registrar otras de la lista sólo si lo que dijo las contesta sin lugar a dudas ("no puedo dormir de lo que pienso" contesta el sueño; "mi mamá" no contesta nada por sí solo).
@@ -207,6 +207,7 @@ async function conducir(p: PedidoConversar, tipo: string, extraidas: string[], r
       (!ofrecer && !ejercicio && /ejercicio|respirar|respiraci[oó]n/i.test(mensaje) && mensaje.includes("?") && !/qu[eé] es|para qu[eé]/i.test(p.texto ?? "")
         ? "ofrece un ejercicio en el mensaje; para ofrecerlo usa el campo ofrecer y no escribas la oferta"
         : null) ??
+      (item && !ofrecer && r.terminar !== true && !mensaje.includes("?") ? "marca un item pero no hace la pregunta; el mensaje debe terminar con esa pregunta, con signos ¿?" : null) ??
       (item && !itemPorId(g, item) ? `el item ${item} no existe` : null) ??
       (item && (p.cubiertos.includes(item) || extraidas.includes(item)) ? `el item ${item} ya está contestado` : null);
     if (!motivo) return { mensaje, item: ofrecer ? null : item, ejercicio, ofrecer, terminar: !ofrecer && r.terminar === true };

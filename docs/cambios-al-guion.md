@@ -199,3 +199,8 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 ⚑ Para revisión del equipo de psicología: v6_dinero ya no incluye "tener poder" (eran dos ideas en una pregunta); v5_lealtad ya no incluye "hacer cosas" (sólo el silencio para proteger a alguien). Las preguntas de acuerdo con una frase ahora son preguntas de grado ("qué tanto"); el puntaje es comparable dentro de Eco, pero no con la versión anterior del instrumento.
 
 **Reglas para la IA**: pregunta "¿qué tanto…?" o "¿qué tan fuerte…?" según las opciones; nunca usa números, escalas ("del 1 al 5") ni "¿qué tan de acuerdo estás…?". El validador rechaza esos mensajes.
+
+**Ajustes tras simular con el modelo real (31 oct 2026)**
+- Si la IA marca una pregunta medida pero su mensaje no trae la pregunta (pasó dos veces: "a veces uno se queda con cosas que no cuenta para cuidar a alguien."), se rechaza; si falla otra vez, sale la pregunta del guion.
+- Muletillas: también "dice mucho…" y "se nota en…".
+- Vigilante: oír balazos, tener miedo de la violencia del lugar o no tener con quién hablar no es riesgo por sí solo (una simulación lo marcó como crisis).

@@ -106,6 +106,7 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   // Validador: nada de escalas de números ni de acuerdo en lo que escribe el modelo.
   ok(!!motivoRechazo("Del 1 al 5, ¿qué tan de acuerdo estás con esta frase?"), "validador: rechaza «del 1 al 5 / de acuerdo»");
   ok(!!motivoRechazo("¿Qué tan de acuerdo estás con que la violencia es normal?"), "validador: rechaza «qué tan de acuerdo»");
+  ok(!!motivoRechazo("Eso de cuidar a tu jefa dice mucho de cómo la quieres."), "validador: rechaza «dice mucho…»");
   ok(motivoRechazo("Donde vives, ¿qué tanto se ve la violencia como algo normal?") === null, "validador: acepta «¿qué tanto…?»");
 
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.
