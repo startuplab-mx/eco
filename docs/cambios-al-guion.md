@@ -150,3 +150,52 @@ emojis e insultos directos. Los textos son fijos y están en `desvios` del guion
 - Cada ejercicio tiene "qué vas a hacer" (como) y "para qué sirve" (para).
 - Preguntas de frecuencia en forma "¿Qué tan seguido…?" (antes algunas preguntaban sí/no con opciones de frecuencia). Escalas 1–5 con "Del 1 al 5". Termómetro: "Del 1 al 10, ¿qué tan fuerte sientes eso ahorita? 1 es muy poquito y 10 es lo más fuerte." ("Muy leve" → "Muy poquito").
 - Palabras más simples: "inseguridad" → "no estás a salvo"; "riesgo" → "peligro"; "Consumir algo" → "Tomar, fumar o vapear"; "Tener poder o dinero rápido vale el riesgo" → "Ganar dinero rápido o tener poder vale la pena, aunque sea peligroso"; "ayuda directa" → "teléfonos y lugares donde te pueden ayudar"; "Lo que sientes es válido" → "Lo que sientes importa".
+
+## Sin escalas de números: preguntas directas para jóvenes de 15 años (31 oct 2026)
+
+Las escalas "del 1 al 5, ¿qué tan de acuerdo estás con esta frase…?" y "del 1 al 10" se cambian por preguntas directas con respuestas en palabras. Los valores que se guardan no cambian (0–4 y 1.5–9.5), así que los índices se calculan igual.
+
+**Escalas**
+
+| Escala | Antes | Ahora |
+|---|---|---|
+| Qué tanto (A5) | 1 Nada · 2 · 3 · 4 · 5 Mucho | Nada · Un poco · Más o menos · Bastante · Mucho |
+| Termómetro (T10) | 1–2 Muy poquito · 3–4 · 5–6 · 7–8 · 9–10 Muy fuerte | Muy poquito · Poquito · Más o menos · Fuerte · Muy fuerte |
+| Frecuencia (E5) | Nunca · Casi nunca · A veces · Seguido · Casi siempre | sin cambio |
+
+Si alguien escribe un número en el termómetro ("como un 8") todavía se entiende. En "qué tanto" ya no se aceptan números porque no se muestran.
+
+**Preguntas**
+
+| Paso | Antes | Ahora |
+|---|---|---|
+| en_termometro | Del 1 al 10, ¿qué tan fuerte sientes eso ahorita? 1 es muy poquito y 10 es lo más fuerte. | ¿Qué tan fuerte sientes eso ahorita? |
+| ci_termometro | … Del 1 al 10, ¿qué tan fuerte lo sientes ahorita? | … ¿Qué tan fuerte lo sientes ahorita? |
+| v6_normal | Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: "Aquí la violencia es algo normal"? | Donde vives, ¿qué tanto se ve la violencia como algo normal? |
+| v6_dinero | Del 1 al 5, ¿qué tan de acuerdo estás…: "Ganar dinero rápido o tener poder vale la pena, aunque sea peligroso"? | ¿Qué tanto crees que vale la pena ganar dinero rápido, aunque sea peligroso? ⚑ |
+| md_valiosa | Del 1 al 5, ¿qué tan de acuerdo estás…: "Siento que soy una persona valiosa"? | ¿Qué tanto sientes que vales como persona? |
+| md_salir | Del 1 al 5, ¿qué tan de acuerdo estás…: "Cuando me pasa algo difícil, logro salir adelante"? | Cuando te pasa algo difícil, ¿qué tanto sientes que puedes salir adelante? |
+| ma_parte | Hablemos de la escuela. Del 1 al 5, ¿qué tanto sientes que eres parte de tu escuela? | Hablemos de la escuela. ¿Qué tanto te sientes parte de tu escuela? |
+| v8_escuela | Del 1 al 5, ¿qué tan importante es para ti terminar la escuela? | ¿Qué tan importante es para ti terminar la escuela? |
+| intro creencias | Te voy a mostrar unas frases. Dime qué tan de acuerdo estás, sin pensarlo mucho. | Ahora unas preguntas sobre lo que piensas. No hay respuestas buenas ni malas. |
+| v1_escuela | ¿Qué tan seguido sientes que no estás a salvo en la escuela o en el camino a la escuela? | ¿Qué tan seguido te sientes en peligro en la escuela o en el camino a la escuela? |
+| v2_alerta | ¿Qué tan seguido te cuesta relajarte, como si tuvieras que estar siempre alerta? | ¿Qué tan seguido sientes que no puedes relajarte, como si algo malo fuera a pasar? |
+| v2_dormir | ¿Qué tan seguido te cuesta dormir por estar pensando en lo que pasa a tu alrededor? | ¿Qué tan seguido te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor? |
+| v3_triste | ¿Qué tan seguido te has sentido triste o sin ganas de hacer nada? | ¿Qué tan seguido te sientes triste o sin ganas de hacer nada? |
+| v3_desesperanza | ¿Qué tan seguido sientes que, hagas lo que hagas, las cosas no van a mejorar? | ¿Qué tan seguido sientes que las cosas no van a mejorar, hagas lo que hagas? |
+| v5_lealtad | A veces una persona siente que tiene que quedarse callada o hacer cosas para proteger a alguien. ¿Qué tan seguido te pasa a ti? | ¿Qué tan seguido sientes que no puedes contar algo para proteger a alguien? ⚑ |
+| v7_presion | ¿Qué tan seguido sientes que te presionan para hacer cosas que te ponen en peligro? | ¿Qué tan seguido alguien te presiona para hacer cosas peligrosas? |
+| v7_libertad | Si alguien te presionara para hacer algo así, ¿sientes que podrías decir que no? | Si alguien te presiona para hacer algo peligroso, ¿podrías decirle que no? |
+| v8_cinco | ¿Te imaginas cómo te gustaría estar dentro de 5 años? | ¿Te imaginas cómo te gustaría que fuera tu vida en 5 años? |
+| mb_tension | ¿Qué tan seguido se siente tenso el ambiente en tu casa? | ¿Qué tan seguido se siente pesado el ambiente en tu casa? |
+| mf_consumo | … ¿qué tan seguido usas alcohol, vape u otra sustancia para sentirte mejor? | … ¿qué tan seguido tomas alcohol, vapeas o usas otra sustancia? |
+| mg_contenido | … videos o escuchas música sobre armas, dinero fácil o grupos criminales? | … videos o escuchas música que hablan de armas, dinero fácil o grupos criminales? |
+| mh_posible | ¿Qué tan posible crees que es lograrlo? (Muy posible · Algo posible · Casi imposible · No sé) | ¿Crees que lo puedes lograr? (Sí · Tal vez · Lo veo muy difícil · No sé) |
+| mh_paso | Desde aquí puede verse lejos, y está bien. ¿Cuál sería un primer pasito para acercarte? | Aunque se vea lejos, está bien. ¿Qué es algo pequeño que podrías hacer para empezar? |
+| mh_admiras | opción "Alguien que me da clase" | "Un maestro o maestra" |
+| mi_impide | ¿Qué te detendría para pedir ayuda? (… Siento que no sirve · Me pueden ubicar · No sé a dónde ir …) | ¿Qué te frenaría para pedir ayuda? (… Sentir que no sirve de nada · Que me puedan ubicar · No saber a dónde ir …) |
+| li_libre | ¿Hay algo de cómo te sientes que quieras decirme y no te pregunté? | ¿Hay algo más de cómo te sientes que quieras contarme? |
+
+⚑ Para revisión del equipo de psicología: v6_dinero ya no incluye "tener poder" (eran dos ideas en una pregunta); v5_lealtad ya no incluye "hacer cosas" (sólo el silencio para proteger a alguien). Las preguntas de acuerdo con una frase ahora son preguntas de grado ("qué tanto"); el puntaje es comparable dentro de Eco, pero no con la versión anterior del instrumento.
+
+**Reglas para la IA**: pregunta "¿qué tanto…?" o "¿qué tan fuerte…?" según las opciones; nunca usa números, escalas ("del 1 al 5") ni "¿qué tan de acuerdo estás…?". El validador rechaza esos mensajes.

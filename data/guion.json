@@ -59,64 +59,115 @@
     "A5": [
       {
         "id": "a1",
-        "label": "1 Nada",
+        "label": "Nada",
         "valor": 0,
         "sinonimos": [
           "nada",
-          "para nada"
+          "para nada",
+          "cero"
         ]
       },
       {
         "id": "a2",
-        "label": "2",
-        "valor": 1
+        "label": "Un poco",
+        "valor": 1,
+        "sinonimos": [
+          "un poco",
+          "poquito",
+          "poco",
+          "tantito"
+        ]
       },
       {
         "id": "a3",
-        "label": "3",
-        "valor": 2
+        "label": "Más o menos",
+        "valor": 2,
+        "sinonimos": [
+          "mas o menos",
+          "maso",
+          "regular",
+          "medio"
+        ]
       },
       {
         "id": "a4",
-        "label": "4",
-        "valor": 3
+        "label": "Bastante",
+        "valor": 3,
+        "sinonimos": [
+          "bastante",
+          "harto",
+          "un buen"
+        ]
       },
       {
         "id": "a5",
-        "label": "5 Mucho",
+        "label": "Mucho",
         "valor": 4,
         "sinonimos": [
           "mucho",
+          "muchisimo",
           "totalmente",
-          "completamente"
+          "demasiado",
+          "un monton",
+          "si mucho"
         ]
       }
     ],
     "T10": [
       {
         "id": "t1",
-        "label": "1–2 Muy poquito",
-        "valor": 1.5
+        "label": "Muy poquito",
+        "valor": 1.5,
+        "sinonimos": [
+          "muy poquito",
+          "muy poco",
+          "casi nada",
+          "nada"
+        ]
       },
       {
         "id": "t2",
-        "label": "3–4",
-        "valor": 3.5
+        "label": "Poquito",
+        "valor": 3.5,
+        "sinonimos": [
+          "poquito",
+          "poco",
+          "un poco",
+          "leve"
+        ]
       },
       {
         "id": "t3",
-        "label": "5–6",
-        "valor": 5.5
+        "label": "Más o menos",
+        "valor": 5.5,
+        "sinonimos": [
+          "mas o menos",
+          "maso",
+          "regular",
+          "medio"
+        ]
       },
       {
         "id": "t4",
-        "label": "7–8",
-        "valor": 7.5
+        "label": "Fuerte",
+        "valor": 7.5,
+        "sinonimos": [
+          "fuerte",
+          "bastante"
+        ]
       },
       {
         "id": "t5",
-        "label": "9–10 Muy fuerte",
-        "valor": 9.5
+        "label": "Muy fuerte",
+        "valor": 9.5,
+        "sinonimos": [
+          "muy fuerte",
+          "demasiado",
+          "muchisimo",
+          "fuertisimo",
+          "lo mas fuerte",
+          "al maximo"
+        ]
       }
     ]
   },
@@ -125,7 +176,7 @@
       "texto": "Ahora quiero saber cómo te has sentido en las últimas dos semanas. No hay respuestas buenas ni malas."
     },
     "creencias": {
-      "texto": "Te voy a mostrar unas frases. Dime qué tan de acuerdo estás, sin pensarlo mucho."
+      "texto": "Ahora unas preguntas sobre lo que piensas. No hay respuestas buenas ni malas."
     },
     "futuro": {
       "texto": "Cambiemos de tema.",
@@ -849,7 +900,7 @@
           "escala": "T10",
           "variable": "V21",
           "item": "V21.inicial",
-          "texto": "Del 1 al 10, ¿qué tan fuerte sientes eso ahorita? 1 es muy poquito y 10 es lo más fuerte."
+          "texto": "¿Qué tan fuerte sientes eso ahorita?"
         },
         {
           "id": "en_respirar",
@@ -1160,7 +1211,7 @@
           "escala": "E5",
           "variable": "V1",
           "item": "V1.escolar",
-          "texto": "¿Qué tan seguido sientes que no estás a salvo en la escuela o en el camino a la escuela?"
+          "texto": "¿Qué tan seguido te sientes en peligro en la escuela o en el camino a la escuela?"
         },
         {
           "id": "v1_enterado",
@@ -1223,7 +1274,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.hipervigilancia",
-          "texto": "¿Qué tan seguido te cuesta relajarte, como si tuvieras que estar siempre alerta?"
+          "texto": "¿Qué tan seguido sientes que no puedes relajarte, como si algo malo fuera a pasar?"
         },
         {
           "id": "v2_dormir",
@@ -1231,7 +1282,7 @@
           "escala": "E5",
           "variable": "V2",
           "item": "V2.sueno",
-          "texto": "¿Qué tan seguido te cuesta dormir por estar pensando en lo que pasa a tu alrededor?"
+          "texto": "¿Qué tan seguido te cuesta dormir porque te quedas pensando en lo que pasa a tu alrededor?"
         }
       ]
     },
@@ -1247,7 +1298,7 @@
           "escala": "E5",
           "variable": "V3",
           "item": "V3.animo",
-          "texto": "¿Qué tan seguido te has sentido triste o sin ganas de hacer nada?"
+          "texto": "¿Qué tan seguido te sientes triste o sin ganas de hacer nada?"
         },
         {
           "id": "v3_desesperanza",
@@ -1255,7 +1306,7 @@
           "escala": "E5",
           "variable": "V3",
           "item": "V3.desesperanza",
-          "texto": "¿Qué tan seguido sientes que, hagas lo que hagas, las cosas no van a mejorar?",
+          "texto": "¿Qué tan seguido sientes que las cosas no van a mejorar, hagas lo que hagas?",
           "reacciones": [
             {
               "si": {
@@ -1303,7 +1354,7 @@
           "escala": "E5",
           "variable": "V5",
           "item": "V5.lealtad",
-          "texto": "A veces una persona siente que tiene que quedarse callada o hacer cosas para proteger a alguien. ¿Qué tan seguido te pasa a ti?",
+          "texto": "¿Qué tan seguido sientes que no puedes contar algo para proteger a alguien?",
           "reacciones": [
             {
               "si": {
@@ -1311,8 +1362,7 @@
               },
               "texto": "Eso es mucho peso para cargar sin compañía. No tienes que contarme qué es; solo quiero que sepas que lo que sientes importa."
             }
-          ],
-          "repetir": "¿Qué tan seguido sientes que tienes que quedarte callado o callada, o hacer cosas, para proteger a alguien?"
+          ]
         },
         {
           "id": "v5_culpa",
@@ -1344,7 +1394,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.aceptacion",
-          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Aquí la violencia es algo normal\"?"
+          "texto": "Donde vives, ¿qué tanto se ve la violencia como algo normal?"
         },
         {
           "id": "v6_dinero",
@@ -1352,7 +1402,7 @@
           "escala": "A5",
           "variable": "V6",
           "item": "V6.atractivo",
-          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Ganar dinero rápido o tener poder vale la pena, aunque sea peligroso\"?"
+          "texto": "¿Qué tanto crees que vale la pena ganar dinero rápido, aunque sea peligroso?"
         }
       ]
     },
@@ -1367,7 +1417,7 @@
           "escala": "E5",
           "variable": "V7",
           "item": "V7.presion",
-          "texto": "¿Qué tan seguido sientes que te presionan para hacer cosas que te ponen en peligro?",
+          "texto": "¿Qué tan seguido alguien te presiona para hacer cosas peligrosas?",
           "reacciones": [
             {
               "texto": "No necesito saber de qué se trata. Si algún día quieres hablarlo con alguien, te puedo decir cómo."
@@ -1383,7 +1433,7 @@
             "paso": "v7_presion",
             "gte": 2
           },
-          "texto": "Si alguien te presionara para hacer algo así, ¿sientes que podrías decir que no?",
+          "texto": "Si alguien te presiona para hacer algo peligroso, ¿podrías decirle que no?",
           "opciones": [
             {
               "id": "si",
@@ -1422,7 +1472,7 @@
           "tipo": "opcion",
           "variable": "V8",
           "item": "V8.metas",
-          "texto": "¿Te imaginas cómo te gustaría estar dentro de 5 años?",
+          "texto": "¿Te imaginas cómo te gustaría que fuera tu vida en 5 años?",
           "opciones": [
             {
               "id": "si",
@@ -1466,7 +1516,7 @@
           "escala": "A5",
           "variable": "V8",
           "item": "V8.escuela",
-          "texto": "Del 1 al 5, ¿qué tan importante es para ti terminar la escuela?"
+          "texto": "¿Qué tan importante es para ti terminar la escuela?"
         }
       ]
     },
@@ -1614,7 +1664,7 @@
           "escala": "A5",
           "variable": "V11",
           "item": "V11.pertenencia",
-          "texto": "Hablemos de la escuela. Del 1 al 5, ¿qué tanto sientes que eres parte de tu escuela?"
+          "texto": "Hablemos de la escuela. ¿Qué tanto te sientes parte de tu escuela?"
         },
         {
           "id": "ma_maestro",
@@ -1746,7 +1796,7 @@
           "escala": "E5",
           "variable": "V12",
           "item": "V12.tension",
-          "texto": "¿Qué tan seguido se siente tenso el ambiente en tu casa?",
+          "texto": "¿Qué tan seguido se siente pesado el ambiente en tu casa?",
           "reacciones": [
             {
               "si": {
@@ -1917,7 +1967,7 @@
           "escala": "A5",
           "variable": "V13",
           "item": "V13.autovaloracion",
-          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Siento que soy una persona valiosa\"?",
+          "texto": "¿Qué tanto sientes que vales como persona?",
           "reacciones": [
             {
               "si": {
@@ -1985,7 +2035,7 @@
           "escala": "A5",
           "variable": "V18",
           "item": "V18.recuperacion",
-          "texto": "Del 1 al 5, ¿qué tan de acuerdo estás con esta frase: \"Cuando me pasa algo difícil, logro salir adelante\"?"
+          "texto": "Cuando te pasa algo difícil, ¿qué tanto sientes que puedes salir adelante?"
         },
         {
           "id": "md_fuerza",
@@ -2094,7 +2144,7 @@
           "tipo": "opcion",
           "variable": "V15",
           "item": "V15.frecuencia",
-          "texto": "Cuando te sientes mal, ¿qué tan seguido usas alcohol, vape u otra sustancia para sentirte mejor?",
+          "texto": "Cuando te sientes mal, ¿qué tan seguido tomas alcohol, vapeas o usas otra sustancia?",
           "escala": "E5",
           "opcionesExtra": [
             {
@@ -2156,7 +2206,7 @@
           "escala": "E5",
           "variable": "V16",
           "item": "V16.consumo",
-          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o escuchas música sobre armas, dinero fácil o grupos criminales?"
+          "texto": "Hablemos de redes. ¿Qué tan seguido ves videos o escuchas música que hablan de armas, dinero fácil o grupos criminales?"
         },
         {
           "id": "mg_sientes",
@@ -2229,7 +2279,7 @@
             },
             {
               "id": "maestro",
-              "label": "Alguien que me da clase"
+              "label": "Un maestro o maestra"
             },
             {
               "id": "deportista",
@@ -2289,21 +2339,21 @@
           "tipo": "opcion",
           "variable": "V8",
           "item": "V8.expectativa",
-          "texto": "¿Qué tan posible crees que es lograrlo?",
+          "texto": "¿Crees que lo puedes lograr?",
           "opciones": [
             {
               "id": "muy",
-              "label": "Muy posible",
+              "label": "Sí",
               "valor": 3
             },
             {
               "id": "algo",
-              "label": "Algo posible",
+              "label": "Tal vez",
               "valor": 2
             },
             {
               "id": "imposible",
-              "label": "Casi imposible",
+              "label": "Lo veo muy difícil",
               "valor": 0
             },
             {
@@ -2311,7 +2361,7 @@
               "label": "No sé"
             }
           ],
-          "repetir": "¿Qué tan posible crees que es llegar a ser eso?"
+          "repetir": "¿Crees que puedes llegar a ser eso?"
         },
         {
           "id": "mh_paso",
@@ -2324,14 +2374,14 @@
               "imposible"
             ]
           },
-          "texto": "Desde aquí puede verse lejos, y está bien. ¿Cuál sería un primer pasito para acercarte?",
+          "texto": "Aunque se vea lejos, está bien. ¿Qué es algo pequeño que podrías hacer para empezar?",
           "rapidas": [
             {
               "id": "prefiero",
               "label": "Prefiero no escribir"
             }
           ],
-          "repetir": "¿Qué sería un primer pasito para llegar ahí?"
+          "repetir": "¿Qué es algo pequeño que podrías hacer para empezar?"
         }
       ]
     },
@@ -2383,7 +2433,7 @@
           "tipo": "multiple",
           "variable": "V19",
           "item": "V19.barreras",
-          "texto": "¿Qué te detendría para pedir ayuda? Puedes elegir varias.",
+          "texto": "¿Qué te frenaría para pedir ayuda? Puedes elegir varias.",
           "opciones": [
             {
               "id": "miedo",
@@ -2395,15 +2445,15 @@
             },
             {
               "id": "no_sirve",
-              "label": "Siento que no sirve"
+              "label": "Sentir que no sirve de nada"
             },
             {
               "id": "ubicar",
-              "label": "Me pueden ubicar"
+              "label": "Que me puedan ubicar"
             },
             {
               "id": "no_se",
-              "label": "No sé a dónde ir"
+              "label": "No saber a dónde ir"
             },
             {
               "id": "otro",
@@ -2435,7 +2485,7 @@
           "tipo": "abierta",
           "variable": "libre",
           "item": "libre.espacio",
-          "texto": "¿Hay algo de cómo te sientes que quieras decirme y no te pregunté? Recuerda: sin nombres ni lugares.",
+          "texto": "¿Hay algo más de cómo te sientes que quieras contarme? Recuerda: sin nombres ni lugares.",
           "rapidas": [
             {
               "id": "prefiero",
@@ -2473,8 +2523,8 @@
             "paso": "en_termometro",
             "respondido": true
           },
-          "texto": "Antes de despedirnos, piensa otra vez en cómo te sentías al principio. Del 1 al 10, ¿qué tan fuerte lo sientes ahorita?",
-          "repetir": "Del 1 al 10, ¿qué tan fuerte sientes ahorita lo que sentías al principio?"
+          "texto": "Antes de despedirnos, piensa otra vez en cómo te sentías al principio. ¿Qué tan fuerte lo sientes ahorita?",
+          "repetir": "¿Qué tan fuerte sientes ahorita lo que sentías al principio?"
         },
         {
           "id": "ci_ahora",

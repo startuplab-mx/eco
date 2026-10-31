@@ -4,6 +4,7 @@ import guionJson from "../data/guion.json";
 import instJson from "../config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { RespuestaConversar, ServicioIA, PedidoConversar } from "../lib/ia-tipos";
+import { motivoRechazo } from "../lib/ia-tipos";
 import { arrancar, crearEstado } from "../lib/motor";
 import { turno } from "../lib/turno";
 import { cobertura, catalogo } from "../lib/catalogo";
@@ -102,9 +103,14 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   r = await turno(g, inst, e, { texto: "me corto mucho" }, ia, []);
   ok(r.estado.rojo, "«me corto…» sin modelo: crisis");
 
+  // Validador: nada de escalas de números ni de acuerdo en lo que escribe el modelo.
+  ok(!!motivoRechazo("Del 1 al 5, ¿qué tan de acuerdo estás con esta frase?"), "validador: rechaza «del 1 al 5 / de acuerdo»");
+  ok(!!motivoRechazo("¿Qué tan de acuerdo estás con que la violencia es normal?"), "validador: rechaza «qué tan de acuerdo»");
+  ok(motivoRechazo("Donde vives, ¿qué tanto se ve la violencia como algo normal?") === null, "validador: acepta «¿qué tanto…?»");
+
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.
   r = await turno(g, inst, e, { opciones: ["miedo"] }, ia, []);
-  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0].includes("Del 1 al 10"), "modelo caído: siguiente pregunta del guion con etiquetas");
+  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0].includes("¿Qué tan fuerte"), "modelo caído: siguiente pregunta del guion con etiquetas");
 
   // 8. Escalera de desvíos: al tercero, otro día.
   ia = iaFalsa({ tipo: "fuera_de_tema" });

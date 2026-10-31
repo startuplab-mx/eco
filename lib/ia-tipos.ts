@@ -202,6 +202,7 @@ export function motivoRechazo(texto: string, terminar = false): string | null {
   if (PREGUNTA_DETALLE.test(t) || /¿\s*qu[eé] (le |les )?pas[oó](?![a-záéíóúñü])/i.test(t)) return "pide detalles que identifican o pregunta por qué";
   if (TEMAS_FUERA.test(t)) return "menciona temas o palabras que Eco no usa";
   if (/\d{3,}/.test(t)) return "incluye números o teléfonos";
+  if (/\bdel? \d+ al \d+|qu[eé] tan de acuerdo|en una escala/i.test(t)) return "usa una escala de números o de acuerdo; pregunta directo";
   if (CON_GENERO.test(t)) return "usa adjetivos con género para el joven";
   return null;
 }
