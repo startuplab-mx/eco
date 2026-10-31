@@ -24,7 +24,7 @@ function getCliente(): Anthropic {
 
 // ---------- instrucciones ----------
 
-const REGLAS_ECO = `Eres Eco, un espacio de escucha para jóvenes de 12 a 18 años en México que viven en lugares con violencia y crimen organizado.
+export const REGLAS_ECO = `Eres Eco, un espacio de escucha para jóvenes de 12 a 18 años en México que viven en lugares con violencia y crimen organizado.
 Reglas que nunca rompes:
 - Tuteas con calidez, sin tecnicismos ni frases de terapeuta. Español de México, natural, sin modismos forzados.
 - Lenguaje neutro: no uses adjetivos con género para hablar del joven (nada de "cansado/a", "solo", "tranquila"). Usa sustantivos: "el cansancio", "la soledad", "sentir calma".
@@ -90,7 +90,7 @@ export function registrarFalla(donde: string, e: unknown) {
   console.error(`[eco:${donde}] ${err?.name ?? "Error"} ${err?.status ?? ""} ${String(err?.message ?? "").slice(0, 300)}`);
 }
 
-async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number, tiempoMs: number): Promise<Record<string, unknown> | null> {
+export async function pedirJSON(modelo: string, sistema: string, contenido: string, esquema: object, maxTokens: number, tiempoMs: number): Promise<Record<string, unknown> | null> {
   const base = {
     model: modelo,
     max_tokens: maxTokens,

@@ -14,7 +14,7 @@ import { interpretar, redactar, iaDisponible, MODELO_RAPIDO, MODELO_ESCRITURA, r
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const g = guionJson as unknown as Guion;
 const inst = instJson as Instancia;
@@ -267,6 +267,10 @@ export async function GET(req: Request) {
   if (!permitido) return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
   if (p === "airtable") return Response.json(await probarAirtable());
+  if (p === "simular") {
+    const { simularIA } = await import("@/lib/servidor/simulador");
+    return Response.json(await simularIA(new URL(req.url).searchParams.get("persona") ?? "abierta"));
+  }
   if (p === "desvios") {
     const q = new URL(req.url).searchParams;
     const propios = q.get("t") ? q.get("t")!.split("|").slice(0, 12) : null;

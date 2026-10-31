@@ -98,7 +98,11 @@ export interface Guion {
   escalas: Record<EscalaId, Opcion[]>;
   grupos: Record<string, { texto: string; noAlInicio?: boolean }>;
   validaciones: Record<string, string>;
-  ejercicios: Record<EjercicioId, { titulo: string; pasos: string[] }>;
+  ejercicios: Record<EjercicioId, { titulo: string; pasos: string[]; /** Para qué sirve, en una frase. */ para?: string }>;
+  /** Preguntas que cuentan para la cobertura (el 80%), en orden de referencia. */
+  nucleo?: string[];
+  /** Información aprobada que la IA puede usar al responder preguntas del joven. */
+  ia?: { privacidad: string; proposito: string; rondaIntro: string };
   ruta: {
     prioridad: string[];
     porEmocion: Record<string, string[]>;
@@ -187,4 +191,25 @@ export interface Estado {
   completa: boolean;
   terminada: boolean;
   preguntaCierre: number;
+  /** "ia": la IA conduce la plática; "guion": el motor de preguntas fijas (inicio, ronda, cierre, crisis). */
+  modo?: "guion" | "ia";
+  /** Estado de la conversación con IA (sólo en memoria). */
+  ia?: EstadoIA;
+  /** Preguntas de la ronda rápida final (las que faltan para llegar al 80%). */
+  ronda?: string[];
+}
+
+export interface EstadoIA {
+  /** Mensajes del joven en la fase de IA. */
+  turnos: number;
+  /** Pregunta medida que la IA acaba de hacer (sus opciones se muestran como etiquetas). */
+  item: string | null;
+  /** Últimos mensajes de la plática con IA, ya filtrados. Nunca se guardan. */
+  historial: { quien: "eco" | "joven"; texto: string }[];
+  /** Módulos opcionales (A–I) que ya se tocaron. */
+  opcionales: string[];
+  /** Respiración por termómetro alto: pendiente de ofrecer, ofrecida o no aplica. */
+  respiracion: "no" | "pendiente" | "ofrecida";
+  /** Ejercicios ya mostrados. */
+  ejercicios: string[];
 }

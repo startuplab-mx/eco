@@ -27,7 +27,7 @@ function aleatorio(): number {
 }
 
 function nuevaSesion() {
-  return arrancar(guion, instancia, crearEstado(aleatorio, new Date(), guion.preguntasCierre.length));
+  return arrancar(guion, instancia, crearEstado(aleatorio, new Date(), guion.preguntasCierre.length, true));
 }
 
 export default function Chat() {
