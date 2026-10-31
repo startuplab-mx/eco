@@ -1,4 +1,4 @@
-# Rúbrica de codificación de Eco (guion v0.3)
+# Rúbrica de codificación de Eco (guion v0.4)
 
 Generada automáticamente desde el guion con `npx tsx scripts/rubrica.ts`. No se edita a mano.
 
@@ -20,8 +20,8 @@ Generada automáticamente desde el guion con `npx tsx scripts/rubrica.ts`. No se
 | 0 | Nunca | Nada | Muy poquito |
 | 1 | Casi nunca | Un poco | Poquito |
 | 2 | A veces | Más o menos | Más o menos |
-| 3 | Seguido | Bastante | Fuerte |
-| 4 | Casi siempre | Mucho | Muy fuerte |
+| 3 | Seguido | Bastante | Mucho |
+| 4 | Casi siempre | Mucho | Muchísimo |
 
 Si el joven escribe un número del 1 al 10 en el termómetro, se convierte: 1–2 → 0, 3–4 → 1, 5–6 → 2, 7–8 → 3, 9–10 → 4.
 
@@ -49,7 +49,7 @@ Si el joven escribe un número del 1 al 10 en el termómetro, se convierte: 1–
 
 ## Cuándo una sesión es amarilla
 
-- Termómetro inicial en Muy fuerte (4).
+- Termómetro inicial en Muchísimo (4).
 - Desesperanza en Seguido o más (3+).
 - Malestar global mayor a 60.
 - Presión en Seguido o más (3+).
@@ -72,7 +72,7 @@ Una sesión roja (alarma) sólo registra escuela y semana.
 
 | Pregunta | Columna en Airtable | Código | Se guarda como | Opciones |
 |---|---|---|---|---|
-| ¿Qué tan fuerte sientes eso ahorita? | Termómetro inicial | `V21.inicial` | Número 0–4 (Termómetro) | ver escala |
+| ¿… ahorita? | Termómetro inicial | `V21.inicial` | Número 0–4 (Termómetro) | ver escala |
 | ¿Desde cuándo te sientes así? | Desde cuándo | `V21.cronicidad` | Texto · una categoría | Solo hoy (`hoy`) · Esta semana (`semana`) · Desde hace semanas (`semanas`) · Desde hace mucho (`mucho`) · Casi siempre me siento así (`siempre`) |
 | ¿Qué tan fuerte sientes ahorita lo que sentías al principio? | Termómetro final | `V21.final` | Número 0–4 (Termómetro) | ver escala |
 

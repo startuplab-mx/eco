@@ -5,9 +5,9 @@ import instJson from "../config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { RespuestaConversar, ServicioIA, PedidoConversar } from "../lib/ia-tipos";
 import { acortar, motivoRechazo, quitarConectores, quitarMuletillas } from "../lib/ia-tipos";
-import { arrancar, crearEstado } from "../lib/motor";
+import { arrancar, crearEstado, resolverTexto } from "../lib/motor";
 import { turno } from "../lib/turno";
-import { cobertura, catalogo } from "../lib/catalogo";
+import { cobertura, catalogo, pasoPorId } from "../lib/catalogo";
 import { resumen } from "../lib/indices";
 import { cuantifica, opcionLiteral } from "../lib/literal";
 
@@ -96,7 +96,8 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
     const t = textos(todo);
     const intros = g.ia!.temas!.slice(1).map((x) => x.intro);
     ok(intros.every((i) => t.filter((x) => x === i).length === 1), "cada tema abre con su intro, una sola vez");
-    ok(items.slice(1).every((id) => t.includes(catalogo(g).find((c) => c.id === id)!.texto)), "las preguntas se muestran tal cual el guion");
+    ok(items.slice(1).every((id) => t.includes(resolverTexto(g, inst, e, String(pasoPorId(g, id)!.texto)))), "las preguntas se muestran tal cual el guion");
+    ok(t.includes("¿Qué tanto sientes eso ahorita?") || t.some((x) => /^¿Qué tant[oa] .+ sientes ahorita\?$/.test(x)), "el termómetro nombra la emoción («¿Qué tanta calma sientes ahorita?»)");
     const iIntro = t.indexOf(g.ia!.temas![1].intro);
     ok(iIntro >= 0 && t[iIntro + 1] === catalogo(g).find((c) => c.id === "v1_colonia")!.texto, "la intro va justo antes de la primera pregunta de su tema");
     // Después de los temas: ¿seguimos?, un módulo, lo libre y el cierre.
@@ -259,7 +260,7 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
 
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.
   r = await turno(g, inst, e, { opciones: ["miedo"] }, ia, []);
-  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0].includes("¿Qué tan fuerte"), "modelo caído: siguiente pregunta del guion con etiquetas");
+  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0] === "¿Qué tanto miedo sientes ahorita?", "modelo caído: siguiente pregunta del guion con etiquetas");
 
   // 8. Escalera de desvíos: al tercero, otro día.
   ia = iaFalsa({ tipo: "fuera_de_tema" });

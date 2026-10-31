@@ -39,7 +39,7 @@ export function catalogo(g: Guion): ItemCatalogo[] {
     for (const p of b.pasos) {
       if (EXCLUIR.has(p.id) || !["opcion", "multiple", "abierta"].includes(p.tipo)) continue;
       const textos = (Array.isArray(p.texto) ? p.texto : [p.texto ?? ""]).map((t) =>
-        t.replace("{emocion}", "lo que sientes").replace("{validacion}", "").trim(),
+        t.replace("{emocion}", "lo que sientes").replace("{validacion}", "").replace("{QueTantoSientes}", "Qué tanto sientes eso").replace("{queTantoSientes}", "qué tanto sientes eso").replace("{preguntaTermometroFinal}", "¿qué tanto sientes ahorita lo que sentías al principio?").trim(),
       );
       items.push({
         id: p.id,

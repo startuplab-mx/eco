@@ -322,3 +322,16 @@ Textos nuevos para revisión:
 | Sin frecuencia | El modelo la adivinaba ("no sé ni cómo estoy… no duermo" → A veces) | En las escalas, si no dice cuántas veces o qué tanto, no se registra |
 | Ya contestó y contó más | Eco le pedía que contara más | Eco reconoce lo que sintió en una frase y sigue |
 | No contestó la de botones | Se saltaba | Una sola vez: reconoce lo que dijo y "Para no equivocarme, ¿cuál de estas se parece más?" con los botones; si se abrió, Eco escucha |
+
+## Termómetro: se nombra la emoción y se pregunta por cantidad (31 oct 2026)
+
+"Fuerte" se podía leer como "con fuerza" (estar bien), y "eso / lo" no decía qué se medía.
+
+| | Antes | Ahora |
+|---|---|---|
+| Al inicio | ¿Qué tan fuerte sientes eso ahorita? | ¿Qué tanto miedo sientes ahorita? (la emoción principal: tanto miedo, tanta tristeza, tanto enojo, tanta calma…) |
+| En el cierre | Antes de despedirnos, piensa otra vez en cómo te sentías al principio. ¿Qué tan fuerte lo sientes ahorita? | Antes de despedirnos: ¿qué tanto miedo sientes ahorita? (la misma pregunta, para comparar) |
+| Sin emoción con nombre ("No sé", "Otro") | — | Inicio: ¿Qué tanto sientes eso ahorita? · Cierre: ¿qué tanto sientes ahorita lo que sentías al principio? |
+| Botones | Muy poquito · Poquito · Más o menos · Fuerte · Muy fuerte | Muy poquito · Poquito · Más o menos · Mucho · Muchísimo |
+
+Los códigos no cambian (0–4) y la respiración se sigue ofreciendo en 4. Para el reporte: si la emoción principal es buena (calma, alegría), que el termómetro baje no es mejoría; el campo «Cambio emocional» se lee junto con «Emociones».
