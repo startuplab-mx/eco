@@ -12,6 +12,8 @@ import { airtableDisponible, camposSesion, guardarSesion, registrarRoja } from "
 import { responder } from "@/lib/motor";
 import { interpretar, redactar, iaDisponible, MODELO_RAPIDO, MODELO_ESCRITURA, registrarFalla } from "@/lib/ia-servidor";
 
+import { after } from "next/server";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -268,8 +270,23 @@ export async function GET(req: Request) {
   const p = new URL(req.url).searchParams.get("p") ?? "1";
   if (p === "airtable") return Response.json(await probarAirtable());
   if (p === "simular") {
+    // Tarda varios minutos: se corre después de responder y el resultado se escribe en los registros
+    // de Vercel con la etiqueta [sim <id>].
     const { simularIA } = await import("@/lib/servidor/simulador");
-    return Response.json(await simularIA(new URL(req.url).searchParams.get("persona") ?? "abierta"));
+    const persona = new URL(req.url).searchParams.get("persona") ?? "abierta";
+    const id = `${persona}-${Math.random().toString(36).slice(2, 7)}`;
+    after(async () => {
+      try {
+        const r = await simularIA(persona);
+        const { lineas, ...cifras } = r as { lineas?: string[] } & Record<string, unknown>;
+        console.log(`[sim ${id}] RESUMEN ${JSON.stringify(cifras)}`);
+        (lineas ?? []).forEach((l, i) => console.log(`[sim ${id}] ${String(i).padStart(3, "0")} ${l}`));
+        console.log(`[sim ${id}] FIN`);
+      } catch (e) {
+        console.log(`[sim ${id}] ERROR ${String((e as Error).message).slice(0, 300)}`);
+      }
+    });
+    return Response.json({ iniciado: id });
   }
   if (p === "desvios") {
     const q = new URL(req.url).searchParams;
