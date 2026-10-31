@@ -177,7 +177,7 @@ const PREGUNTA_DETALLE = new RegExp(
 );
 
 /** Frases de muletilla o de terapeuta que hacen sonar a Eco como robot. */
-const MULETILLAS = /aqu[ií] cabe|es (muy )?v[aá]lido|qu[eé] valioso|se nota que|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
+const MULETILLAS = /aqu[ií] cabe|(eso )?dice mucho de ti|es (muy )?v[aá]lido|qu[eé] valioso|se nota que|eso habla de ti|gracias por tu honestidad|estoy aqu[ií] para ti|entiendo perfectamente/i;
 
 /** Agrega el signo de apertura a las preguntas que no lo traen ("Qué tan seguido…?" → "¿Qué tan seguido…?"). */
 export function abrirPreguntas(texto: string): string {
