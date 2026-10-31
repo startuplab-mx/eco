@@ -326,6 +326,8 @@ async function probarAirtable(ultima = false) {
     const ent: Entrada = e.paso.tipo === "numero" ? { texto: "15" } : e.multiple ? { opciones: o ? [o.id] : [] } : o ? { opcion: o.id } : { texto: "algo" };
     ({ estado } = responder(g, inst, estado, ent));
   }
+  // Dos preguntas saltadas (una escala y una de opciones) para probar "Preguntas que saltó".
+  for (const id of ["v2_alerta", "v9_amigos"]) if (estado.respuestas[id]) { estado.respuestas[id] = { valor: "omitida" }; estado.omitidas.push(id); }
   const r = resumen(g, inst, estado);
   const out: Record<string, unknown> = { nivel: r.nivel, consintio: r.consintio, completa: r.completa };
   try { out.fila = await guardarSesion(camposSesion({ ...r, nivel: r.nivel === "rojo" ? "amarillo" : r.nivel }, "PRUEBA")); }

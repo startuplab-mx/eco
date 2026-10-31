@@ -9,6 +9,7 @@ import guionJson from "@/data/guion.json";
 import type { Guion, Paso } from "@/lib/tipos";
 import type { ResumenSesion } from "@/lib/indices";
 import { semanaISO } from "@/lib/motor";
+import { COLUMNAS, SALTADAS, TODAS_LAS_COLUMNAS } from "@/lib/columnas";
 
 const g = guionJson as unknown as Guion;
 // AIRTABLE_API_URL sólo se usa en pruebas locales con un Airtable simulado.
@@ -82,6 +83,29 @@ function respuestasSeguras(items: unknown): string {
   return JSON.stringify(limpio);
 }
 
+/**
+ * Una columna por pregunta (rúbrica): escalas como número 0–4; lo demás como etiqueta.
+ * Las que saltó van en "Preguntas que saltó"; vacío = no le tocó.
+ */
+export function columnasPorPregunta(items: unknown): Record<string, unknown> {
+  const campos: Record<string, unknown> = {};
+  if (!items || typeof items !== "object") return campos;
+  const it = items as Record<string, unknown>;
+  const saltadas: string[] = [];
+  for (const c of TODAS_LAS_COLUMNAS) {
+    const p = pasos().find((x) => x.id === c.paso);
+    if (!p?.item || !(p.item in it)) continue;
+    const v = it[p.item];
+    if (v === "omitida") { saltadas.push(c.nombre); continue; }
+    if (!COLUMNAS.includes(c)) continue; // las columnas previas ya se llenan arriba
+    if (p.escala) campos[c.nombre] = numero(v, 0, 4);
+    else if (p.tipo === "multiple") campos[c.nombre] = varios(etiquetas(p.id), v);
+    else campos[c.nombre] = uno(etiquetas(p.id), v);
+  }
+  campos[SALTADAS] = saltadas;
+  return campos;
+}
+
 /** Convierte el resumen en los campos de la tabla Sesiones. */
 export function camposSesion(r: Partial<ResumenSesion>, escuela: string, hoy = new Date()): Record<string, unknown> {
   const campos: Record<string, unknown> = {
@@ -116,6 +140,7 @@ export function camposSesion(r: Partial<ResumenSesion>, escuela: string, hoy = n
     "Respuestas (datos)": respuestasSeguras(r.items),
   };
   for (const [k, nombre] of Object.entries(INDICES)) campos[nombre] = numero(r.indices?.[k], 0, 100);
+  Object.assign(campos, columnasPorPregunta(r.items));
   for (const k of Object.keys(campos)) if (campos[k] === undefined) delete campos[k];
   return campos;
 }

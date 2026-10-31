@@ -4,6 +4,7 @@ import { writeFileSync } from "node:fs";
 import guionJson from "../data/guion.json";
 import type { Guion, Paso } from "../lib/tipos";
 import { DIRECCION, UMBRALES } from "../lib/indices";
+import { SALTADAS, TODAS_LAS_COLUMNAS } from "../lib/columnas";
 
 const g = guionJson as unknown as Guion;
 const pasos: Paso[] = Object.values(g.bloques).flatMap((b) => b.pasos);
@@ -31,6 +32,7 @@ const tipoDato = (p: Paso) =>
 const opciones = (p: Paso) =>
   p.escala ? "ver escala" : (p.opciones ?? []).map((o) => `${o.label} (\`${o.id}\`)`).join(" · ") || "—";
 const nombreVar = (v: string) => DIRECCION[v]?.nombre ?? OTRAS[v] ?? v;
+const columna = (p: Paso) => TODAS_LAS_COLUMNAS.find((c) => c.paso === p.id)?.nombre ?? "—";
 
 const l: string[] = [];
 l.push(`# Rúbrica de codificación de Eco (guion v${g.version})`, "");
@@ -42,7 +44,8 @@ l.push("3. **Todo lo demás se guarda como texto**, para contar y graficar por c
 l.push("4. **Los mismos códigos significan lo mismo en todas las preguntas:** `si`, `no`, `nose` (No sé) y `nd` (Prefiero no decir).");
 l.push("5. **\"No sé\" y \"Prefiero no decir\" son dato faltante:** no cuentan como 0 ni entran a los índices.");
 l.push("6. **Preguntas abiertas:** sólo se registra si escribió o no. El texto nunca se guarda.");
-l.push("7. **Índices 0–100:** promedio de las escalas de la variable ÷ 4 × 100. Cada índice tiene una dirección fija (ver abajo). Si una pregunta va en contra de su índice, se invierte sólo al calcularlo (4 − valor).", "");
+l.push("7. **Índices 0–100:** promedio de las escalas de la variable ÷ 4 × 100. Cada índice tiene una dirección fija (ver abajo). Si una pregunta va en contra de su índice, se invierte sólo al calcularlo (4 − valor).");
+l.push(`8. **En Airtable cada pregunta con opciones tiene su columna:** las escalas como número 0–4 (para sacar promedios) y lo demás con la etiqueta. Si saltó una pregunta, aparece en "${SALTADAS}"; una celda vacía que no está ahí = no le tocó o dejó la plática antes. Las preguntas abiertas no tienen columna.`, "");
 
 l.push("## Escalas", "");
 l.push("| Valor | Frecuencia (E5) | Qué tanto (A5) | Termómetro (T5) |", "|---|---|---|---|");
@@ -70,8 +73,8 @@ l.push("## Preguntas", "");
 const vars = [...new Set(medidos.map((p) => p.variable!))];
 for (const v of vars) {
   l.push(`### ${v.startsWith("V") ? `${v} ` : ""}${nombreVar(v)}`, "");
-  l.push("| Pregunta | Código | Se guarda como | Opciones |", "|---|---|---|---|");
-  for (const p of medidos.filter((q) => q.variable === v)) l.push(`| ${texto(p)} | \`${p.item}\` | ${tipoDato(p)} | ${opciones(p)} |`);
+  l.push("| Pregunta | Columna en Airtable | Código | Se guarda como | Opciones |", "|---|---|---|---|---|");
+  for (const p of medidos.filter((q) => q.variable === v)) l.push(`| ${texto(p)} | ${columna(p)} | \`${p.item}\` | ${tipoDato(p)} | ${opciones(p)} |`);
   l.push("");
 }
 l.push("### Datos generales", "", "| Pregunta | Se guarda como | Opciones |", "|---|---|---|");

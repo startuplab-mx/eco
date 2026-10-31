@@ -1,6 +1,7 @@
 // Pruebas de la orquestación del turno con una IA simulada (sin llamar al modelo).
 // Uso: npx tsx scripts/probar-turno.ts
 import guionJson from "../data/guion.json";
+import { TODAS_LAS_COLUMNAS } from "../lib/columnas";
 import instJson from "../config/instancia.json";
 import type { Estado, Guion, Instancia, Salida } from "../lib/tipos";
 import type { ServicioIA } from "../lib/ia-tipos";
@@ -314,6 +315,13 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
     ok(r.estado.respuestas["en_termometro"]?.num === n, `termómetro: «${t}» se guarda como ${n}`);
   }
   ok(r.estado.esperando?.paso.id === "en_respirar", "termómetro en «Muy fuerte» (4): ofrece respirar");
+  // Airtable: cada pregunta con opciones tiene su columna, sin nombres repetidos.
+  {
+    const conItem = Object.values(g.bloques).flatMap((b) => b.pasos).filter((p) => p.item && (p.tipo === "opcion" || p.tipo === "multiple"));
+    const cols = new Set(TODAS_LAS_COLUMNAS.map((c) => c.paso));
+    ok(conItem.every((p) => cols.has(p.id)), "Airtable: cada pregunta con opciones tiene su columna");
+    ok(new Set(TODAS_LAS_COLUMNAS.map((c) => c.nombre)).size === TODAS_LAS_COLUMNAS.length, "Airtable: sin nombres de columna repetidos");
+  }
   // Rúbrica: sólo las escalas llevan número, siempre 0–4 y consecutivo.
   for (const [k, ops] of Object.entries(g.escalas)) ok(JSON.stringify(ops.map((o) => o.valor)) === "[0,1,2,3,4]", `rúbrica: escala ${k} va de 0 a 4`);
   ok(Object.values(g.bloques).flatMap((b) => b.pasos).every((p) => !p.opciones?.some((o) => o.valor !== undefined)), "rúbrica: las preguntas que no son escala no llevan número");

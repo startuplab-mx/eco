@@ -2074,6 +2074,8 @@
         {
           "id": "me_psicologo",
           "tipo": "opcion",
+          "variable": "V14",
+          "item": "V14.busca_apoyo",
           "si": {
             "cuenta": {
               "pasos": [
