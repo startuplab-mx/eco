@@ -215,3 +215,10 @@ Si alguien escribe un número en el termómetro ("como un 8") todavía se entien
 - Códigos que no coincidían con su etiqueta: ¿crees que lo puedes lograr? `muy/algo/imposible` → `si/tal_vez/dificil`; barrera "No saber a dónde ir" `no_se` → `no_sabe_donde` (se confundía con `nose`).
 - Rúbrica completa en `docs/rubrica-codificacion.md`, generada desde el guion (`npx tsx scripts/rubrica.ts`).
 - Guion v0.3: en Airtable, "Versión del guion" separa estas filas de las de prueba anteriores.
+
+**Guardado en Airtable para el reporte del piloto (30 oct 2026)**
+- Una columna por pregunta con opciones (43 nuevas, con el prefijo de su variable): escalas como número 0–4, lo demás con la etiqueta. "Preguntas que saltó" lista las que saltó; celda vacía que no está ahí = no le tocó o dejó la plática antes.
+- "¿Quieres saber dónde buscar ese apoyo?" ahora se registra (`V14.busca_apoyo`).
+- Guardado a medias durante la plática (cada 20 s si hay respuestas nuevas), además de al cerrar u ocultar la pantalla. Reintentos si falla; los envíos salen en orden.
+- Una etiqueta nueva ya no rechaza la fila (Airtable crea la opción). Antes, "En ninguna parte" y "Como sin energía" hacían que la sesión no se guardara.
+- El guardado tiene su propio límite por sesión, separado de la IA.
