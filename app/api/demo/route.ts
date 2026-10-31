@@ -8,6 +8,8 @@ import { arrancar, crearEstado, type Entrada } from "@/lib/motor";
 import { turno, type Mensaje } from "@/lib/turno";
 import { hayAlarma } from "@/lib/seguridad";
 import { resumen } from "@/lib/indices";
+import { airtableDisponible, camposSesion, guardarSesion, registrarRoja } from "@/lib/servidor/airtable";
+import { responder } from "@/lib/motor";
 import { interpretar, redactar, iaDisponible, MODELO_RAPIDO, MODELO_ESCRITURA, registrarFalla } from "@/lib/ia-servidor";
 
 export const runtime = "nodejs";
@@ -258,6 +260,7 @@ export async function GET(req: Request) {
   const permitido = process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development";
   if (!permitido) return new Response("No disponible", { status: 404 });
   const p = new URL(req.url).searchParams.get("p") ?? "1";
+  if (p === "airtable") return Response.json(await probarAirtable());
   if (p === "desvios") return Response.json(await probarDesvios(new URL(req.url).searchParams.get("paso")));
   if (p === "riesgo") {
     const r = await probarRiesgo();
@@ -279,4 +282,23 @@ export async function GET(req: Request) {
     conIA,
     fallas: [...new Set(fallas)],
   });
+}
+
+/** Escribe una sesión de prueba (escuela "PRUEBA") y una roja de prueba en el Airtable real. */
+async function probarAirtable() {
+  if (!airtableDisponible()) return { ok: false, error: "Faltan AIRTABLE_TOKEN o AIRTABLE_BASE en esta versión" };
+  let { estado } = arrancar(g, inst, crearEstado());
+  for (let k = 0; estado.esperando && k < 200; k++) {
+    const e = estado.esperando;
+    const o = e.opciones[0];
+    const ent: Entrada = e.paso.tipo === "numero" ? { texto: "15" } : e.multiple ? { opciones: o ? [o.id] : [] } : o ? { opcion: o.id } : { texto: "algo" };
+    ({ estado } = responder(g, inst, estado, ent));
+  }
+  const r = resumen(g, inst, estado);
+  const out: Record<string, unknown> = { nivel: r.nivel, consintio: r.consintio, completa: r.completa };
+  try { out.fila = await guardarSesion(camposSesion({ ...r, nivel: r.nivel === "rojo" ? "amarillo" : r.nivel }, "PRUEBA")); }
+  catch (e) { out.errorSesion = String((e as Error).message); }
+  try { await registrarRoja("PRUEBA", null); out.roja = "ok"; }
+  catch (e) { out.errorRoja = String((e as Error).message); }
+  return out;
 }
