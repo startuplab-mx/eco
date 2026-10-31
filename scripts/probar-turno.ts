@@ -304,11 +304,11 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
     ok(r.estado.respuestas[paso]?.valor === v, `escala con palabras: «${t}» → ${v ?? "no se entiende"}`);
   }
   e = hasta("en_termometro");
-  r = await turno(g, inst, e, { texto: "pues como mas o menos, a veces fuerte" }, null, []);
-  ok(!r.estado.respuestas["en_termometro"] && textos(r.salida)[0] === "¿Cuál se parece más: «Más o menos» o «Fuerte»?", "dos opciones a la vez: pregunta cuál se parece más");
-  r = await turno(g, inst, r.estado, { texto: "fuerte" }, null, []);
+  r = await turno(g, inst, e, { texto: "pues como mas o menos, a veces mucho" }, null, []);
+  ok(!r.estado.respuestas["en_termometro"] && textos(r.salida)[0] === "¿Cuál se parece más: «Más o menos» o «Mucho»?", "dos opciones a la vez: pregunta cuál se parece más");
+  r = await turno(g, inst, r.estado, { texto: "mucho" }, null, []);
   ok(r.estado.respuestas["en_termometro"]?.valor === "t4", "…y luego registra la que elige");
-  ok(r.estado.respuestas["en_termometro"]?.num === 3, "termómetro: «Fuerte» se guarda como 3");
+  ok(r.estado.respuestas["en_termometro"]?.num === 3, "termómetro: «Mucho» se guarda como 3");
   for (const [t, n] of [["muy poquito", 0], ["poquito", 1], ["más o menos", 2], ["como un 8", 3], ["muy fuerte", 4]] as const) {
     e = hasta("en_termometro");
     r = await turno(g, inst, e, { texto: t }, null, []);

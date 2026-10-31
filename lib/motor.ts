@@ -140,7 +140,14 @@ export function opcionesDe(g: Guion, p: Paso): Opcion[] {
 export function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: string): string {
   const elegidas = emocionesElegidas(estado);
   const una = elegidas.length === 1 && elegidas[0] !== "nose";
+  // Termómetro: nombra la emoción principal ("qué tanto miedo sientes"); si no hay, "qué tanto sientes eso".
+  const cuanto = g.termometroEmocion?.[emocionPrincipal(g, estado)];
+  const queTanto = cuanto ? `qué ${cuanto} sientes` : "qué tanto sientes eso";
   return texto
+    .replace("{QueTantoSientes}", queTanto.charAt(0).toUpperCase() + queTanto.slice(1))
+    .replace("{queTantoSientes}", queTanto)
+    // En el cierre, la misma pregunta; si no hay emoción con nombre, se aclara cuál ("lo que sentías al principio").
+    .replace("{preguntaTermometroFinal}", cuanto ? `¿${queTanto} ahorita?` : "¿qué tanto sientes ahorita lo que sentías al principio?")
     .replace("{emocion}", una ? "esa emoción" : "lo que sientes")
     .replace("{validacion}", g.validaciones[emocionPrincipal(g, estado)] ?? "")
     .replace("{preguntaCierre}", g.preguntasCierre[estado.preguntaCierre] ?? g.preguntasCierre[0])

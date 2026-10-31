@@ -3,10 +3,10 @@
 // - qué preguntas del núcleo faltan, el límite de turnos y la ronda rápida final;
 // - la escalera de desvíos (tercer desvío → "¿otro día?") y el directorio cuando pide orientación.
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
-import { activarRojo, esperaIA, evaluar, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
+import { activarRojo, esperaIA, evaluar, resolverTexto, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
 import { elegirModulo, siguientePaso, siguientesPasos } from "./temas";
 import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
-import { itemPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
+import { itemPorId, pasoPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
 import { opcionLiteral } from "./literal";
 import type { ServicioIA } from "./ia-tipos";
@@ -184,7 +184,7 @@ async function conversarYSeguir(
       respiracion: st.respiracion,
       ejercicios: st.ejercicios,
       ofrecidos: st.ofrecidos ?? [],
-      siguientes: siguientesPasos(g, estado, 3).map(({ id, texto, intro }) => ({ id, texto, intro })),
+      siguientes: siguientesPasos(g, estado, 3).map(({ id, texto, intro }) => ({ id, texto: resolverTexto(g, inst, estado, texto), intro })),
       puedeEscuchar: (st.escuchas ?? 0) < 2,
       puedeAclarar: !!it && it.tipo !== "abierta" && !estado.respuestas[it.id] && !(st.aclarados ?? []).includes(it.id),
     });
@@ -304,11 +304,12 @@ function hacerSiguiente(g: Guion, inst: Instancia, estado: Estado, salida: Salid
     st.historial.push({ quien: "eco", texto: sig.intro });
     st.temas = [...new Set([...(st.temas ?? []), sig.tema])];
   }
-  salida.push({ tipo: "eco", texto: sig.texto });
-  st.historial.push({ quien: "eco", texto: sig.texto });
+  const texto = resolverTexto(g, inst, estado, pasoPorId(g, sig.id)?.texto as string ?? sig.texto);
+  salida.push({ tipo: "eco", texto });
+  st.historial.push({ quien: "eco", texto });
   st.item = sig.id;
   marcarPreguntado(st, sig.id);
-  estado.esperando = esperaIA(g, sig.id, sig.texto);
+  estado.esperando = esperaIA(g, sig.id, texto);
 }
 
 /** La pregunta de si sigue: para un tema difícil (C), su propia entrada; si no, la del guion. */

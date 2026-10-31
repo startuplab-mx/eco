@@ -149,24 +149,29 @@
       },
       {
         "id": "t4",
-        "label": "Fuerte",
+        "label": "Mucho",
         "valor": 3,
         "sinonimos": [
+          "mucho",
+          "bastante",
           "fuerte",
-          "bastante"
+          "harto"
         ]
       },
       {
         "id": "t5",
-        "label": "Muy fuerte",
+        "label": "Muchísimo",
         "valor": 4,
         "sinonimos": [
+          "muchisimo",
           "muy fuerte",
           "demasiado",
-          "muchisimo",
           "fuertisimo",
           "lo mas fuerte",
-          "al maximo"
+          "al maximo",
+          "un chingo",
+          "un montón",
+          "un monton"
         ]
       }
     ]
@@ -914,7 +919,7 @@
           "escala": "T5",
           "variable": "V21",
           "item": "V21.inicial",
-          "texto": "¿Qué tan fuerte sientes eso ahorita?"
+          "texto": "¿{QueTantoSientes} ahorita?"
         },
         {
           "id": "en_respirar",
@@ -2522,7 +2527,7 @@
             "paso": "en_termometro",
             "respondido": true
           },
-          "texto": "Antes de despedirnos, piensa otra vez en cómo te sentías al principio. ¿Qué tan fuerte lo sientes ahorita?",
+          "texto": "Antes de despedirnos: {preguntaTermometroFinal}",
           "repetir": "¿Qué tan fuerte sientes ahorita lo que sentías al principio?"
         },
         {
@@ -2954,5 +2959,18 @@
         "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres que alguien te oriente, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
       }
     }
+  },
+  "termometroEmocion": {
+    "miedo": "tanto miedo",
+    "preocupado": "tanta preocupación",
+    "triste": "tanta tristeza",
+    "vacio": "tanto vacío",
+    "enojado": "tanto enojo",
+    "solo": "tanta soledad",
+    "avergonzado": "tanta vergüenza",
+    "cansado": "tanto cansancio",
+    "confundido": "tanta confusión",
+    "tranquilo": "tanta calma",
+    "contento": "tanta alegría"
   }
 }
