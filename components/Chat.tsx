@@ -241,7 +241,7 @@ export default function Chat() {
         )}
         {!escribiendo && terminada && (
           <button className="borrar" onClick={iniciar}>
-            Cerrar y borrar esta plática
+            Cerrar y limpiar la pantalla
           </button>
         )}
       </footer>
