@@ -257,6 +257,7 @@ export default function Chat() {
               <div className="debug-ia">
                 IA: {ia ? "activa" : "apagada"} · llamadas {uso.llamadas} · frases escritas por IA {uso.puentes} · respaldos al guion {uso.respaldos}
                 {fallasIA.length > 0 && <div>Últimas fallas: {fallasIA.join(" · ")}</div>}
+                <div>Airtable: {guardado.current.ultimo ?? "todavía no se ha guardado (se guarda al terminar, o al cambiar de app o cerrar la página)"}</div>
               </div>
               <pre>{JSON.stringify(resumen(guion, instancia, estado), null, 2)}</pre>
             </div>
