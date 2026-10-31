@@ -41,7 +41,7 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   let e = hasta("en_ambito");
   let r = await turno(g, inst, e, { opcion: "colonia" }, iaBuena, []);
   ok(textos(r.salida)[0] === "PUENTE con base", "la validación de la emoción se reescribe");
-  ok(textos(r.salida).some((t) => t.startsWith("Tengo un ejercicio de un minuto")), "la pregunta siguiente queda literal");
+  ok(textos(r.salida).some((t) => t.startsWith("Te propongo un ejercicio de un minuto")), "la pregunta siguiente queda literal");
 
   // Escala con botón y sin reacción: no se llama a la IA.
   e = hasta("v2_alerta");
@@ -314,7 +314,7 @@ const iaCaida: ServicioIA = { interpretar: async () => null, redactar: async () 
   ok(textos(r.salida).at(-1) === "¿Cuántos años tienes?", "tras explicar la privacidad, repite la pregunta");
   e = hasta("v5_lealtad");
   r = await turno(g, inst, e, { texto: "asdf" }, null, []);
-  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que callar o hacer cosas para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
+  ok(textos(r.salida)[1] === "¿Qué tan seguido sientes que tienes que quedarte callado o callada, o hacer cosas, para proteger a alguien?", "pasos que dependen de la oración anterior se repiten completos");
   c = arrancar(g, inst, crearEstado()).estado;
   r = await turno(g, inst, c, { texto: "jajaja" }, null, []);
   ok(textos(r.salida)[1] === "¿Quieres seguir?", "en el consentimiento también se repite la pregunta");

@@ -75,6 +75,8 @@ export interface RespuestaConversar {
   /** Pregunta medida que hace en este mensaje (sus opciones se muestran como etiquetas). */
   item: string | null;
   ejercicio: string | null;
+  /** Ejercicio que se ofrece: el sistema agrega qué es, para qué sirve y los botones Sí / Ahora no. */
+  ofrecer?: string | null;
   terminar: boolean;
   /** El mensaje lo escribió el guion porque la IA no dio uno válido. */
   respaldo?: boolean;

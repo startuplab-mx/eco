@@ -104,7 +104,7 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
 
   // 7. Modelo caído a media plática: sigue con las preguntas del guion sin trabarse.
   r = await turno(g, inst, e, { opciones: ["miedo"] }, ia, []);
-  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0].includes("termómetro"), "modelo caído: siguiente pregunta del guion con etiquetas");
+  ok(!r.estado.rojo && r.estado.ia?.item === "en_termometro" && textos(r.salida)[0].includes("Del 1 al 10"), "modelo caído: siguiente pregunta del guion con etiquetas");
 
   // 8. Escalera de desvíos: al tercero, otro día.
   ia = iaFalsa({ tipo: "fuera_de_tema" });
@@ -131,6 +131,27 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   e = await hastaIA(ia);
   await turno(g, inst, e, { texto: "me siento mal porque mi primo juan se fue" }, ia, []);
   ok(!JSON.stringify(ia.pedidos).includes("juan"), "al servidor no llegan nombres");
+
+  // 12. Oferta de ejercicio: el texto lo pone el código (qué es, para qué sirve) con botones Sí / Ahora no.
+  let ofrecido = false;
+  const iaOferta: ServicioIA = {
+    interpretar: async () => null, redactar: async () => null,
+    conversar: async (p) => {
+      if (!ofrecido) { ofrecido = true; return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "Eso suena muy pesado.", item: null, ofrecer: "anclaje", ejercicio: null, terminar: false }; }
+      return { riesgo: false, tipo: "responde", respuestas: [], mensaje: "¿Cómo te fue con eso?", item: null, ejercicio: null, terminar: false };
+    },
+  };
+  e = await hastaIA(iaOferta);
+  r = await turno(g, inst, e, { texto: "ando bien acelerado" }, iaOferta, []);
+  const oferta = textos(r.salida).at(-1) ?? "";
+  ok(oferta.startsWith("Te propongo un ejercicio de un minuto.") && oferta.includes("5 cosas que ves") && oferta.includes("regresa tu atención"), "la oferta explica qué vas a hacer y para qué sirve");
+  ok(JSON.stringify(r.estado.esperando?.opciones.map((o) => o.label)) === '["Sí, va","Ahora no"]', "la oferta trae botones Sí, va / Ahora no");
+  const trasSi = await turno(g, inst, r.estado, { opcion: "si" }, iaOferta, []);
+  ok(trasSi.salida.some((x) => x.tipo === "ejercicio" && x.ejercicio === "anclaje") && trasSi.estado.esperando?.opciones[0]?.label === "Listo", "«Sí, va» muestra el ejercicio y un botón «Listo»");
+  const trasListo = await turno(g, inst, trasSi.estado, { opcion: "listo" }, iaOferta, []);
+  ok(textos(trasListo.salida)[0] === "¿Cómo te fue con eso?" && trasListo.estado.ia?.oferta === null, "«Listo» regresa a la plática");
+  const trasNo = await turno(g, inst, r.estado, { opcion: "no" }, iaOferta, []);
+  ok(!trasNo.salida.some((x) => x.tipo === "ejercicio") && textos(trasNo.salida)[0] === "¿Cómo te fue con eso?", "«Ahora no» sigue la plática sin ejercicio");
 
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);

@@ -98,11 +98,11 @@ export interface Guion {
   escalas: Record<EscalaId, Opcion[]>;
   grupos: Record<string, { texto: string; noAlInicio?: boolean }>;
   validaciones: Record<string, string>;
-  ejercicios: Record<EjercicioId, { titulo: string; pasos: string[]; /** Para qué sirve, en una frase. */ para?: string }>;
+  ejercicios: Record<EjercicioId, { titulo: string; pasos: string[]; /** Para qué sirve, en una frase. */ para?: string; /** Qué vas a hacer, en una frase. */ como?: string }>;
   /** Preguntas que cuentan para la cobertura (el 80%), en orden de referencia. */
   nucleo?: string[];
   /** Información aprobada que la IA puede usar al responder preguntas del joven. */
-  ia?: { privacidad: string; proposito: string; rondaIntro: string };
+  ia?: { privacidad: string; proposito: string; rondaIntro: string; ofertaEjercicio?: string };
   ruta: {
     prioridad: string[];
     porEmocion: Record<string, string[]>;
@@ -212,4 +212,6 @@ export interface EstadoIA {
   respiracion: "no" | "pendiente" | "ofrecida";
   /** Ejercicios ya mostrados. */
   ejercicios: string[];
+  /** Ejercicio ofrecido que espera un sí o un no; "hecho": se mostró y espera "Listo". */
+  oferta?: string | null;
 }
