@@ -348,6 +348,10 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   ok(!!motivoRechazo("Gracias por ser honesto."), "validador: rechaza «ser honesto»");
   ok(!!motivoRechazo("No tienes que cargarlo solo."), "validador: rechaza «cargarlo solo»");
 
+  // Sólo teléfonos: Línea de la Vida, 911 y 089 (más la respiración); nada de orientador ni lugares.
+  ok(JSON.stringify(inst.directorio.map((x) => x.id)) === '["linea_vida","emergencias","denuncia","respiracion"]', "directorio: sólo Línea de la Vida, 911, 089 y respiración");
+  ok(!/orientador|\{lugar\}|\{horario\}|psicolog/i.test(JSON.stringify(g.bloques) + JSON.stringify(g.ia) + JSON.stringify(g.desvios)), "el guion ya no menciona orientador, lugares ni equipo de psicología");
+
   console.log(fallas ? `\n${fallas} fallas` : "\nTodo bien.");
   process.exit(fallas ? 1 : 0);
 })();

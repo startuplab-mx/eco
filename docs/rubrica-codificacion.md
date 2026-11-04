@@ -1,4 +1,4 @@
-# Rúbrica de codificación de Eco (guion v0.4)
+# Rúbrica de codificación de Eco (guion v0.5)
 
 Generada automáticamente desde el guion con `npx tsx scripts/rubrica.ts`. No se edita a mano.
 
@@ -206,7 +206,6 @@ Una sesión roja (alarma) sólo registra escuela y semana.
 | ¿Qué tan seguido te llegan a la mente recuerdos feos sin que tú quieras? | V14 · Recuerdos feos sin querer | `V14.intrusivos` | Número 0–4 (Frecuencia) | ver escala |
 | ¿Qué tan seguido evitas lugares, ruidos o personas porque te recuerdan algo que te asustó? | V14 · Evita lugares, ruidos o personas | `V14.evitacion` | Número 0–4 (Frecuencia) | ver escala |
 | ¿Qué tan seguido te asustas fácil con ruidos fuertes, como cohetes o portazos? | V14 · Se asusta fácil con ruidos | `V14.sobresalto` | Número 0–4 (Frecuencia) | ver escala |
-| Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. ¿Quieres saber dónde buscar ese apoyo? | V14 · Quiso saber dónde buscar apoyo | `V14.busca_apoyo` | Texto · una categoría | Sí, quiero saber (`como`) · Ahora no (`no`) |
 
 ### V15 Consumo para afrontar
 

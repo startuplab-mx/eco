@@ -151,9 +151,6 @@ export function resolverTexto(g: Guion, inst: Instancia, estado: Estado, texto: 
     .replace("{emocion}", una ? "esa emoción" : "lo que sientes")
     .replace("{validacion}", g.validaciones[emocionPrincipal(g, estado)] ?? "")
     .replace("{preguntaCierre}", g.preguntasCierre[estado.preguntaCierre] ?? g.preguntasCierre[0])
-    .replace("{orientador}", inst.orientador.nombre)
-    .replace("{lugar}", inst.orientador.lugar)
-    .replace("{horario}", inst.orientador.horario)
     .replace("{ejercicio}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.titulo ?? "")
     .replace("{ejercicioPara}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.para ?? "")
     .replace("{ejercicioComo}", g.ejercicios[ejercicioPara(g, estado, "@emocion")]?.como ?? "");

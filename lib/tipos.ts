@@ -137,7 +137,6 @@ export interface Guion {
 
 export interface Instancia {
   escuela: string;
-  orientador: { nombre: string; lugar: string; horario: string };
   directorio: { id: string; label: string; numero?: string; detalle: string }[];
 }
 
