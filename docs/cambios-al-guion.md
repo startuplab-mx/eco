@@ -335,3 +335,23 @@ Textos nuevos para revisión:
 | Botones | Muy poquito · Poquito · Más o menos · Fuerte · Muy fuerte | Muy poquito · Poquito · Más o menos · Mucho · Muchísimo |
 
 Los códigos no cambian (0–4) y la respiración se sigue ofreciendo en 4. Para el reporte: si la emoción principal es buena (calma, alegría), que el termómetro baje no es mejoría; el campo «Cambio emocional» se lee junto con «Emociones».
+
+## Sólo teléfonos: sin orientador, lugares ni equipo de psicología (3 nov 2026)
+
+Para el demo se quitan los datos del orientador o psicólogo de la escuela y las menciones del equipo de psicología. Se quedan la Línea de la Vida (800 911 2000), el 911 y el 089 (denuncia anónima, que no aparece en las crisis).
+
+| Dónde | Antes | Ahora |
+|---|---|---|
+| Directorio | Hablar con orientación escolar · Línea de la Vida · 911 · 089 · Respiración | Línea de la Vida · 911 · 089 · Respiración |
+| Consentimiento | Lo que platiquemos lo ve un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Si me cuentas que estás en peligro, te doy teléfonos y lugares donde te pueden ayudar. | Lo que platiquemos se guarda sin tu nombre, para entender cómo están los jóvenes de tu escuela. Si me cuentas que estás en peligro, te doy teléfonos donde te pueden ayudar. |
+| Tengo dudas | Un equipo de psicología las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela. | Tus respuestas se juntan con las de muchos jóvenes, sin saber quién es quién, para entender cómo están en tu escuela. |
+| Privacidad | Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién eres. | Tus respuestas se ven juntas con las de muchos jóvenes, sin saber quién eres. |
+| Crisis | …marca al 911. También puedes buscar a {orientador} en {lugar}, {horario}. | …marca al 911. |
+| Cierre (amarillo) | …Si quieres que alguien te escuche en persona, puedes buscar a {orientador}… | Gracias por todo lo que me contaste. Lo que sientes merece atención. |
+| Cierre | …hay personas que te pueden escuchar. Aquí tienes algunas opciones: | …Lo que sientes importa. Si lo necesitas, aquí tienes teléfonos donde te escuchan: |
+| Salida | …hay personas que te pueden escuchar. | …Si lo necesitas, aquí tienes teléfonos donde te escuchan: |
+| Pide consejo | …Aquí tienes a quién acudir: / (IA) abajo te aparecen lugares donde lo pueden orientar | …Aquí tienes teléfonos donde te escuchan: / (IA) abajo te aparecen teléfonos donde lo pueden escuchar |
+| Módulo E | ¿Quieres saber dónde buscar ese apoyo? → Puedes buscar a {orientador}… | Se quita la pregunta. Al terminar: Eso le pasa a mucha gente después de vivir algo fuerte. Al final te dejo teléfonos donde te pueden escuchar. |
+| Módulo F | Si algún día quieres que alguien te oriente, la Línea de la Vida… | Si algún día quieres hablar con alguien, la Línea de la Vida… |
+
+La columna de Airtable «V14 · Quiso saber dónde buscar apoyo» ya no se llena.

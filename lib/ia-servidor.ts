@@ -54,7 +54,7 @@ Tu tarea ahora: leer lo que escribió un joven como respuesta a una pregunta y d
 const SISTEMA_REDACTAR = `${REGLAS_ECO}
 
 Tu tarea ahora: escribir la frase de puente que Eco dice justo después de la respuesta del joven y antes de la siguiente pregunta.
-- Recibes el sentido que el equipo de psicología quiere transmitir en este momento ("base"). Conserva ese sentido; puedes ajustar las palabras para que responda a lo que el joven dijo.
+- Recibes el sentido que el guion quiere transmitir en este momento ("base"). Conserva ese sentido; puedes ajustar las palabras para que responda a lo que el joven dijo.
 - Si la base está vacía, escribe un reconocimiento breve de lo que el joven dijo, o deja el puente vacío si no hace falta.
 - Casi siempre una sola frase, de menos de 20 palabras. Dos frases sólo si la base lo necesita. Sin preguntas: la siguiente pregunta la hace Eco después, tal cual, y no la repites ni la adelantas.
 - Sobrio y cercano, nada efusivo. Prohibido: "qué valioso", "qué bonito", "es muy válido", "aquí cabe", "tu voz tiene espacio", "se nota que", "eso habla de ti", "gracias por tu honestidad".

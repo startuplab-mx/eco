@@ -171,13 +171,13 @@ function instrucciones(p: PedidoConversar, tipo: string, forzado: Forzado, respi
   if (forzado === "responder") {
     xs.push("Modo responder (pon modo \"seguir\" en el JSON): la pregunta que le hiciste sigue en pantalla con sus botones. En máximo 2 oraciones y sin preguntas, contesta su duda o, si se desvió, regresa con calma y dile que puede contestar la de arriba cuando quiera. No la repitas.");
     if (tipo === "privacidad") xs.push("Preguntó por su privacidad: contesta con la información de privacidad.");
-    if (tipo === "pide_orientacion") xs.push("Pidió orientación sobre algo serio: reconoce que es importante y dile que abajo le aparecen lugares donde lo pueden orientar. No des consejos.");
+    if (tipo === "pide_orientacion") xs.push("Pidió orientación sobre algo serio: reconoce que es importante y dile que abajo le aparecen teléfonos donde lo pueden escuchar. No des consejos.");
   } else if (forzado === "seguir") {
     xs.push("En este turno el modo es \"seguir\".");
     if (tipo === "no_quiere") xs.push("No quiso contestar la pregunta: está bien. El puente lo dice con naturalidad (\"Va, no pasa nada.\") y seguimos.");
     if (tipo === "privacidad") xs.push("Preguntó por su privacidad: el puente contesta con la información de privacidad (máximo 30 palabras, sin preguntas).");
     if (tipo === "pregunta") xs.push("Hizo una pregunta: el puente la contesta en una o dos frases (máximo 30 palabras, sin preguntas).");
-    if (tipo === "pide_orientacion") xs.push("Pidió orientación: el puente reconoce que es importante y dice que abajo le aparecen lugares donde lo pueden orientar.");
+    if (tipo === "pide_orientacion") xs.push("Pidió orientación: el puente reconoce que es importante y dice que abajo le aparecen teléfonos donde lo pueden escuchar.");
   } else if (p.puedeEscuchar === false) xs.push("Ya escuchaste dos turnos seguidos: en este turno el modo es \"seguir\".");
   if (!sig?.length) xs.push("Ya no quedan preguntas de esta parte: el puente cierra con calidez, sin despedirte (después vienen unas preguntas más).");
   return xs;
@@ -262,7 +262,7 @@ function repararPropuesta(x: Propuesta, modo: "seguir" | "escuchar" | "responder
 /** Cuando la IA no dio un mensaje válido para responder una duda o un desvío: los textos aprobados. */
 function respuestaFija(tipo: string): string {
   if (tipo === "privacidad") return g.desvios.privacidad.slice(0, 2).join(" ");
-  if (tipo === "pide_orientacion") return "Eso es importante. Abajo te aparecen lugares donde te pueden orientar.";
+  if (tipo === "pide_orientacion") return "Eso es importante. Abajo te aparecen teléfonos donde te pueden escuchar.";
   if (tipo === "pregunta") return "Es para saber cómo estás tú. Contesta como quieras: con un botón o con tus palabras.";
   return "Va, sin bronca. Cuando quieras, contesta la de arriba.";
 }

@@ -52,7 +52,6 @@ export const COLUMNAS: Columna[] = [
   { paso: "me_imagenes", nombre: "V14 · Recuerdos feos sin querer" },
   { paso: "me_evito", nombre: "V14 · Evita lugares, ruidos o personas" },
   { paso: "me_sobresalto", nombre: "V14 · Se asusta fácil con ruidos" },
-  { paso: "me_psicologo", nombre: "V14 · Quiso saber dónde buscar apoyo" },
   { paso: "mf_consumo", nombre: "V15 · Toma, vapea o usa sustancias cuando se siente mal" },
   { paso: "mf_motivo", nombre: "V15 · Para qué le ayuda" },
   { paso: "mg_contenido", nombre: "V16 · Ve contenido de armas, dinero fácil o grupos criminales" },

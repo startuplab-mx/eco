@@ -14,11 +14,7 @@ interface Props {
 export default function Directorio({ instancia, guion, excluir, onElegir }: Props) {
   const [abierto, setAbierto] = useState<string | null>(null);
   const lineas = instancia.directorio.filter((l) => !excluir.includes(l.id));
-  const detalle = (t: string) =>
-    t
-      .replace("{orientador}", instancia.orientador.nombre)
-      .replace("{lugar}", instancia.orientador.lugar)
-      .replace("{horario}", instancia.orientador.horario);
+  const detalle = (t: string) => t;
 
   return (
     <div className="tarjeta directorio">

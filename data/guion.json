@@ -1,5 +1,5 @@
 {
-  "version": "0.4",
+  "version": "0.5",
   "escalas": {
     "E5": [
       {
@@ -456,7 +456,7 @@
           "id": "bi_consentimiento",
           "tipo": "opcion",
           "variable": "consentimiento",
-          "texto": "Lo que platiquemos lo ve un equipo de psicología, sin saber quién eres, para crear apoyos en tu escuela. Si me cuentas que estás en peligro, te doy teléfonos y lugares donde te pueden ayudar. ¿Quieres seguir?",
+          "texto": "Lo que platiquemos se guarda sin tu nombre, para entender cómo están los jóvenes de tu escuela. Si me cuentas que estás en peligro, te doy teléfonos donde te pueden ayudar. ¿Quieres seguir?",
           "opciones": [
             {
               "id": "si",
@@ -508,7 +508,7 @@
             "Te explico. Aquí no hay nombres: cada plática tiene un código al azar.",
             "Lo que contestas se guarda como números y temas; lo que escribes no se guarda completo.",
             "Lo que escribes lo lee una inteligencia artificial (un programa de computadora) para entenderte mejor, sin saber quién eres.",
-            "Un equipo de psicología las revisa junto con las de muchos jóvenes, para crear apoyos en la escuela.",
+            "Tus respuestas se juntan con las de muchos jóvenes, sin saber quién es quién, para entender cómo están en tu escuela.",
             "Si alguna pregunta no quieres contestarla, sólo dímelo. Si escribes \"pausa\" o \"salir\", paramos cuando quieras."
           ]
         },
@@ -2089,49 +2089,6 @@
           "variable": "V14",
           "item": "V14.sobresalto",
           "texto": "¿Qué tan seguido te asustas fácil con ruidos fuertes, como cohetes o portazos?"
-        },
-        {
-          "id": "me_psicologo",
-          "tipo": "opcion",
-          "variable": "V14",
-          "item": "V14.busca_apoyo",
-          "si": {
-            "cuenta": {
-              "pasos": [
-                "me_imagenes",
-                "me_evito",
-                "me_sobresalto"
-              ],
-              "gte": 3
-            },
-            "min": 2
-          },
-          "texto": "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. ¿Quieres saber dónde buscar ese apoyo?",
-          "opciones": [
-            {
-              "id": "como",
-              "label": "Sí, quiero saber"
-            },
-            {
-              "id": "no",
-              "label": "Ahora no"
-            }
-          ],
-          "sinEspejo": true
-        },
-        {
-          "id": "me_como",
-          "tipo": "mensaje",
-          "si": {
-            "paso": "me_psicologo",
-            "en": [
-              "como"
-            ]
-          },
-          "texto": [
-            "Puedes buscar a {orientador} en {lugar}, {horario}.",
-            "También la Línea de la Vida, 800 911 2000, te orienta gratis y sin pedir tu nombre."
-          ]
         }
       ]
     },
@@ -2197,7 +2154,7 @@
         {
           "id": "mf_gracias",
           "tipo": "mensaje",
-          "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres que alguien te oriente, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
+          "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres hablar con alguien, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
         }
       ]
     },
@@ -2598,10 +2555,7 @@
           "si": {
             "amarillo": true
           },
-          "texto": [
-            "Gracias por todo lo que me contaste. Lo que sientes merece atención.",
-            "Si quieres que alguien te escuche en persona, puedes buscar a {orientador} en {lugar}, {horario}."
-          ]
+          "texto": "Gracias por todo lo que me contaste. Lo que sientes merece atención."
         },
         {
           "id": "ci_amarillo_ej",
@@ -2648,7 +2602,7 @@
         {
           "id": "ci_gracias",
           "tipo": "mensaje",
-          "texto": "Gracias por platicar conmigo. Lo que sientes importa, y hay personas que te pueden escuchar. Aquí tienes algunas opciones:"
+          "texto": "Gracias por platicar conmigo. Lo que sientes importa. Si lo necesitas, aquí tienes teléfonos donde te escuchan:"
         },
         {
           "id": "ci_directorio",
@@ -2676,7 +2630,7 @@
           "id": "cr_2",
           "tipo": "mensaje",
           "estilo": "crisis",
-          "texto": "Puedes llamar gratis las 24 horas a la Línea de la Vida: 800 911 2000. Si estás en peligro inmediato, marca al 911. También puedes buscar a {orientador} en {lugar}, {horario}."
+          "texto": "Puedes llamar gratis las 24 horas a la Línea de la Vida: 800 911 2000. Si estás en peligro inmediato, marca al 911."
         },
         {
           "id": "cr_ejercicio",
@@ -2727,7 +2681,7 @@
         {
           "id": "sa_gracias",
           "tipo": "mensaje",
-          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes importa, y hay personas que te pueden escuchar."
+          "texto": "Está bien. Gracias por pasar por aquí. Lo que sientes importa. Si lo necesitas, aquí tienes teléfonos donde te escuchan:"
         },
         {
           "id": "sa_directorio",
@@ -2783,10 +2737,10 @@
     "privacidad": [
       "Aquí no hay nombres: cada plática tiene un código al azar.",
       "Eco no te pide ubicación ni teléfono, y lo que escribes no se guarda completo.",
-      "Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién eres."
+      "Tus respuestas se ven juntas con las de muchos jóvenes, sin saber quién eres."
     ],
     "orientacion": [
-      "Eso es importante y merece hablarlo con una persona que sepa ayudarte. Aquí tienes a quién acudir:"
+      "Eso es importante y merece hablarlo con alguien que sepa ayudarte. Aquí tienes teléfonos donde te escuchan:"
     ],
     "fueraDeTema": [
       "Aquí platicamos de cómo estás tú. Te repito la pregunta:",
@@ -2854,8 +2808,8 @@
     "ci_ahora"
   ],
   "ia": {
-    "privacidad": "Eco no pide nombres ni ubicación; cada plática tiene un código al azar. Lo que escribes no se guarda completo: sólo números y temas. Un equipo de psicología ve las respuestas de muchos jóvenes juntas, sin saber quién es quién.",
-    "proposito": "Eco es un espacio para platicar cómo te sientes. Lo que contestas ayuda a que el equipo de psicología entienda cómo están los jóvenes de tu escuela y pueda crear apoyos.",
+    "privacidad": "Eco no pide nombres ni ubicación; cada plática tiene un código al azar. Lo que escribes no se guarda completo: sólo números y temas. Las respuestas se ven juntas con las de muchos jóvenes, sin saber quién es quién.",
+    "proposito": "Eco es un espacio para platicar cómo te sientes. Lo que contestas ayuda a entender cómo están los jóvenes de tu escuela.",
     "rondaIntro": "Antes de terminar, unas preguntas rápidas. Puedes contestar con un toque.",
     "ofertaEjercicio": "Te propongo un ejercicio de un minuto. {como} {para} ¿Quieres intentarlo? Si no te late, no pasa nada.",
     "temas": [
@@ -2942,7 +2896,7 @@
     },
     "cierreModulos": {
       "E": {
-        "texto": "Eso le pasa a mucha gente después de vivir algo fuerte, y hay quien te puede ayudar. Al final te dejo dónde buscar ese apoyo.",
+        "texto": "Eso le pasa a mucha gente después de vivir algo fuerte. Al final te dejo teléfonos donde te pueden escuchar.",
         "si": {
           "cuenta": {
             "pasos": [
@@ -2956,7 +2910,7 @@
         }
       },
       "F": {
-        "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres que alguien te oriente, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
+        "texto": "Gracias por contarme. Aquí nadie te juzga. Si algún día quieres hablar con alguien, la Línea de la Vida también atiende esto, gratis y sin pedir tu nombre."
       }
     }
   },

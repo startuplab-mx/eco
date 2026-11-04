@@ -23,7 +23,7 @@ export interface ItemCatalogo {
 
 /** Pasos que no son preguntas de contenido: ofertas de ejercicio, entradas a temas, ayudas. */
 const EXCLUIR = new Set([
-  "en_respirar", "en_regular", "en_validacion", "en_puente", "mc_entrar", "me_psicologo", "md_bien_ayuda",
+  "en_respirar", "en_regular", "en_validacion", "en_puente", "mc_entrar", "md_bien_ayuda",
 ]);
 const BLOQUES = ["entrada", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "A", "B", "C", "D", "E", "F", "G", "H", "I"];
 
