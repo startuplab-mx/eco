@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   try {
     if (r.nivel === "rojo") {
-      await registrarRoja(inst.escuela, typeof cuerpo.filaPrevia === "string" ? cuerpo.filaPrevia : null);
+      await registrarRoja(inst.escuela, typeof cuerpo.filaPrevia === "string" ? cuerpo.filaPrevia : null, r.alarma ?? null);
       return Response.json({ ok: true, rojo: true });
     }
     // Sin consentimiento no se guarda nada.

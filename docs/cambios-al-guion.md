@@ -355,3 +355,17 @@ Para el demo se quitan los datos del orientador o psicólogo de la escuela y las
 | Módulo F | Si algún día quieres que alguien te oriente, la Línea de la Vida… | Si algún día quieres hablar con alguien, la Línea de la Vida… |
 
 La columna de Airtable «V14 · Quiso saber dónde buscar apoyo» ya no se llena.
+
+## Sesiones rojas: por qué se marcó, sin las palabras del joven (4 nov 2026)
+
+Hasta ahora, de una sesión roja sólo se guardaba escuela y semana. Desde esta versión, «Sesiones rojas» guarda también:
+
+| Campo | Qué es | Ejemplo |
+|---|---|---|
+| Qué la activó | Lista de palabras · IA · Lista de palabras (la IA no respondió) | IA |
+| Tema | En qué parte de la plática ocurrió | Por dentro |
+| Frase de la lista | La frase de NUESTRA lista que coincidió; vacía si fue sólo la IA | me quiero morir |
+| Categoría | Hacerse daño o no querer vivir · Alguien lo amenaza · Alguien lo lastima o abusa · Lo obligan a hacer algo · En peligro ahora · Otro | Alguien lo amenaza |
+| Indicio | Frase neutra escrita por el modelo, máximo 15 palabras, sin nombres, lugares ni números | Dice que alguien lo amenaza |
+
+Nunca se guarda lo que escribió el joven. El indicio lo escribe el mismo modelo que revisa el riesgo, en la misma llamada; el servidor le quita comillas, números, nombres propios y lugares, y sólo acepta como «Frase de la lista» una frase que de verdad está en la lista. Las respuestas de botones de una sesión roja se siguen borrando, como antes.

@@ -7,6 +7,7 @@ import "server-only";
 import guionJson from "@/data/guion.json";
 import type { Guion } from "@/lib/tipos";
 import { catalogo, itemPorId, type ItemCatalogo } from "@/lib/catalogo";
+import { categoriaValida, indicioSeguro } from "@/lib/indicio";
 import { abrirPreguntas, acortar, motivoModo, quitarConectores, quitarMuletillas, TIPOS_RESPUESTA, type ModoTurno, type PedidoConversar, type RespuestaConversar, type TipoRespuesta } from "@/lib/ia-tipos";
 import { cuantifica } from "@/lib/literal";
 import { MODELO_ESCRITURA, MODELO_RAPIDO, REGLAS_ECO, pedirJSON, registrarFalla } from "@/lib/ia-servidor";
@@ -59,7 +60,12 @@ const SISTEMA_VIGILAR = `Lees el último mensaje de un joven de 12 a 18 años en
 - Lee con faltas de ortografía y escritura de celular como lo que son: "aveces" = a veces, "nunka" = nunca, "masomenos" = más o menos, "kasi" = casi, "bastate" = bastante.
 - Termómetro (Muy poquito… Muchísimo): "poquito" → t2, "mucho/bastante" → t4, "muchísimo/muy fuerte/demasiado" → t5; si escribe un número del 1 al 10, va a su rango (8 → t4). Qué tanto (Nada… Mucho): "nada/para nada" → a1, "poquito" → a2, "más o menos" → a3, "bastante" → a4, "mucho/totalmente" → a5. Frecuencias: "diario/siempre" → casi_siempre; "muy seguido/bastante" → seguido; "a veces" → a_veces; "casi no/poco" → casi_nunca; "nunca/para nada" → nunca.
 - Una emoción que no está en la lista va como "otro" si la pregunta tiene esa opción; si no, no la registres. Antes de usar "otro", fíjate si es una forma de decir una de la lista: "chingón", "chido", "poca madre", "bien", "feliz" = contento; "a gusto", "tranqui", "relax" = tranquilo; "de la fregada", "de la v…", "mal" sin más = no la adivines: "otro".
-- Si no es claro, no registres nada. Es mejor dejarla pendiente que adivinar.`;
+- Si no es claro, no registres nada. Es mejor dejarla pendiente que adivinar.
+
+Si "riesgo" es true, llena también:
+- "categoria": una de hacerse_dano (quiere morir o hacerse daño), amenaza (alguien lo amenaza o lo quiere lastimar), lo_lastiman (alguien lo lastima, le pega o abusa de él), lo_obligan (lo obligan o presionan a hacer algo peligroso), peligro_ahora (está en peligro en este momento), otro.
+- "motivo": una frase neutra en tercera persona, de máximo 12 palabras, que diga qué expresó, sin copiar sus palabras ni poner nombres, lugares, fechas o detalles que lo identifiquen. Ejemplos: "Expresa ideas de no querer vivir", "Dice que alguien lo amenaza", "Cuenta que un familiar le pega".
+Si "riesgo" es false, "categoria" y "motivo" van en null.`;
 
 const ESQUEMA_VIGILAR = {
   type: "object",
@@ -67,6 +73,8 @@ const ESQUEMA_VIGILAR = {
   properties: {
     tipo: { type: "string", enum: [...TIPOS_RESPUESTA, "pregunta"] },
     riesgo: { type: "boolean" },
+    categoria: { type: ["string", "null"] },
+    motivo: { type: ["string", "null"] },
     respuestas: {
       type: "array",
       items: {
@@ -77,7 +85,7 @@ const ESQUEMA_VIGILAR = {
       },
     },
   },
-  required: ["tipo", "riesgo", "respuestas"],
+  required: ["tipo", "riesgo", "categoria", "motivo", "respuestas"],
 };
 
 async function vigilar(p: PedidoConversar, _lista: ItemCatalogo[]) {
@@ -107,7 +115,12 @@ async function vigilar(p: PedidoConversar, _lista: ItemCatalogo[]) {
     }
     respuestas.push({ id: it.id, valor });
   }
-  return { tipo: tipo as TipoRespuesta | "pregunta", riesgo: r.riesgo === true, respuestas };
+  const riesgo = r.riesgo === true;
+  return {
+    tipo: tipo as TipoRespuesta | "pregunta", riesgo, respuestas,
+    categoria: riesgo ? categoriaValida(r.categoria) : null,
+    motivo: riesgo ? indicioSeguro(r.motivo) : null,
+  };
 }
 
 // ---------- 2. conductor ----------
@@ -276,7 +289,7 @@ export async function conversar(p: PedidoConversar): Promise<RespuestaConversar>
   if (p.texto) {
     const v = await vigilar(p, [...nucleo, ...opcionales]);
     if (!v) throw new Error("vigilante sin respuesta");
-    if (v.riesgo) return { riesgo: true, tipo: v.tipo === "pregunta" ? "responde" : v.tipo, respuestas: [], mensaje: null, modo: "seguir", ejercicio: null };
+    if (v.riesgo) return { riesgo: true, tipo: v.tipo === "pregunta" ? "responde" : v.tipo, respuestas: [], mensaje: null, modo: "seguir", ejercicio: null, categoria: v.categoria, motivo: v.motivo };
     tipo = v.tipo;
     respuestas = v.respuestas;
   }

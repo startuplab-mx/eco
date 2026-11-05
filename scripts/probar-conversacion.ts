@@ -10,6 +10,7 @@ import { turno } from "../lib/turno";
 import { cobertura, catalogo, pasoPorId } from "../lib/catalogo";
 import { resumen } from "../lib/indices";
 import { cuantifica, opcionLiteral } from "../lib/literal";
+import { indicioSeguro } from "../lib/indicio";
 
 const g = guionJson as unknown as Guion;
 const inst = instJson as Instancia;
@@ -347,6 +348,35 @@ async function hastaElFinal(estado: Estado, ia: ServicioIA | null, max = 120) {
   }
   ok(!!motivoRechazo("Gracias por ser honesto."), "validador: rechaza «ser honesto»");
   ok(!!motivoRechazo("No tienes que cargarlo solo."), "validador: rechaza «cargarlo solo»");
+
+  // Sesión roja: queda por qué se marcó (sin palabras del joven).
+  {
+    let ia = iaFalsa();
+    let e = await hastaIA(ia);
+    let r = await turno(g, inst, e, { texto: "ya no quiero vivir" }, ia, []);
+    ok(r.estado.alarma?.origen === "lista" && !!r.estado.alarma?.frase && g.alarma.includes(r.estado.alarma.frase) && r.estado.alarma.tema === "Cómo te sientes hoy", `roja por la lista: origen, frase de nuestra lista y tema (${r.estado.alarma?.frase} · ${r.estado.alarma?.tema})`);
+    const iaR: ServicioIA = {
+      interpretar: async () => null, redactar: async () => null,
+      conversar: async () => ({ riesgo: true, tipo: "responde", respuestas: [], mensaje: null, modo: "seguir", ejercicio: null, categoria: "amenaza", motivo: "Dice que alguien lo amenaza" }),
+    };
+    e = await hastaIA(iaR);
+    r = await turno(g, inst, e, { texto: "unos vatos me andan buscando" }, iaR, []);
+    const res = resumen(g, inst, r.estado);
+    ok(r.estado.rojo && res.alarma?.origen === "ia" && res.alarma.categoria === "amenaza" && res.alarma.motivo === "Dice que alguien lo amenaza" && !JSON.stringify(res).includes("vatos"), "roja por la IA: categoría e indicio en el resumen, sin sus palabras");
+    ia = iaFalsa({ nada: true });
+    e = await hastaIA(ia);
+    r = await turno(g, inst, e, { texto: "me corto mucho" }, ia, []);
+    ok(r.estado.alarma?.origen === "lista_sin_ia", "roja por frase dudosa sin IA: queda marcado");
+    // En las partes del guion (sin la plática con IA), el modelo que lee la respuesta también deja su indicio.
+    const iaG: ServicioIA = {
+      interpretar: async () => ({ riesgo: true, tipo: "responde", opciones: [], repregunta: null, categoria: "hacerse_dano", motivo: "Expresa ideas de no querer vivir" }),
+      redactar: async () => null,
+    };
+    e = await hastaIA(iaG);
+    r = await turno(g, inst, e, { texto: "a veces pienso que mejor ya no estaría aquí" }, iaG, []);
+    ok(r.estado.rojo && r.estado.alarma?.origen === "ia" && r.estado.alarma.categoria === "hacerse_dano" && !!r.estado.alarma.tema, `guion: roja por el modelo, con categoría y tema (${r.estado.alarma?.tema})`);
+    ok(indicioSeguro('"Dice que Juan Pérez lo amenaza en la colonia Centro, tel 6561234567"')?.includes("Juan") === false, "el indicio no lleva nombres, comillas ni teléfonos");
+  }
 
   // Sólo teléfonos: Línea de la Vida, 911 y 089 (más la respiración); nada de orientador ni lugares.
   ok(JSON.stringify(inst.directorio.map((x) => x.id)) === '["linea_vida","emergencias","denuncia","respiracion"]', "directorio: sólo Línea de la Vida, 911, 089 y respiración");

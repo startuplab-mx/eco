@@ -42,6 +42,12 @@ export function nivelAlarma(texto: string, alarma: string[], alarmaRevisar: stri
   return null;
 }
 
+/** La frase de la lista de alarma que coincidió (la nuestra, no la del joven), o null. */
+export function fraseAlarma(texto: string, alarma: string[], alarmaRevisar: string[] = []): string | null {
+  const t = paraAlarma(texto);
+  return alarma.find((f) => contiene(t, f)) ?? alarmaRevisar.find((f) => contiene(t, f)) ?? null;
+}
+
 /** true si el texto contiene alguna frase de alarma (segura o ambigua). */
 export function hayAlarma(texto: string, alarma: string[], alarmaRevisar: string[] = []): boolean {
   return nivelAlarma(texto, alarma, alarmaRevisar) !== null;

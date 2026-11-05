@@ -255,7 +255,7 @@ async function probarRiesgo() {
         opciones: g.escalas.E5.map((o) => ({ id: o.id, label: o.label })), texto: frase,
       });
       const lista = hayAlarma(frase, g.alarma, g.alarmaRevisar);
-      return { frase, esperado, modelo: r?.riesgo ?? null, lista, ok: r?.riesgo === esperado };
+      return { frase, esperado, modelo: r?.riesgo ?? null, lista, ok: r?.riesgo === esperado, categoria: r?.categoria ?? null, indicio: r?.motivo ?? null };
     } catch (e) {
       return { frase, esperado, modelo: null, lista: hayAlarma(frase, g.alarma, g.alarmaRevisar), error: String((e as Error).message).slice(0, 200), ok: false };
     }
@@ -356,7 +356,11 @@ async function probarAirtable(ultima = false) {
   const out: Record<string, unknown> = { nivel: r.nivel, consintio: r.consintio, completa: r.completa };
   try { out.fila = await guardarSesion(camposSesion({ ...r, nivel: r.nivel === "rojo" ? "amarillo" : r.nivel }, "PRUEBA")); }
   catch (e) { out.errorSesion = String((e as Error).message); }
-  try { await registrarRoja("PRUEBA", null); out.roja = "ok"; }
+  try {
+    await registrarRoja("PRUEBA", null, { origen: "ia", tema: "Por dentro", frase: null, categoria: "hacerse_dano", motivo: "Expresa ideas de no querer vivir" });
+    await registrarRoja("PRUEBA", null, { origen: "lista", tema: "libre", frase: g.alarma[0], categoria: null, motivo: null });
+    out.roja = "ok";
+  }
   catch (e) { out.errorRoja = String((e as Error).message); }
   return out;
 }
