@@ -5,7 +5,7 @@
 import type { EjercicioId, Estado, Guion, Instancia, Salida } from "./tipos";
 import { activarRojo, esperaIA, evaluar, resolverTexto, ofrecerOtroDia, porSinonimos, seguirGuion, type Entrada } from "./motor";
 import { elegirModulo, siguientePaso, siguientesPasos } from "./temas";
-import { filtrarIdentificadores, nivelAlarma } from "./seguridad";
+import { filtrarIdentificadores, fraseAlarma, nivelAlarma } from "./seguridad";
 import { itemPorId, pasoPorId, leerLocal, omitir, opcionesCompletas, registrar } from "./catalogo";
 import { opcionParecida } from "./ortografia";
 import { opcionLiteral } from "./literal";
@@ -141,7 +141,10 @@ export async function turnoIA(
 
   // 2. Lista de alarma: lo inequívoco activa la crisis sin esperar a nadie.
   const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
-  if (nivel === "segura") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
+  if (nivel === "segura") {
+    activarRojo(g, inst, estado, salida, { origen: "lista", frase: fraseAlarma(texto!, g.alarma, g.alarmaRevisar) });
+    return { estado, salida, uso };
+  }
 
   // Pidió respirar: se le muestra el ejercicio en ese momento, sin preguntarle nada más.
   if (!nivel && pideRespirar(texto)) {
@@ -193,12 +196,18 @@ async function conversarYSeguir(
   // 3a. Sin IA: si lo ambiguo de la lista no se pudo revisar, gana la crisis; si no, sigue el guion.
   if (!r) {
     uso.respaldos++;
-    if (nivel === "revisar") { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
+    if (nivel === "revisar") {
+      activarRojo(g, inst, estado, salida, { origen: "lista_sin_ia", frase: texto ? fraseAlarma(texto, g.alarma, g.alarmaRevisar) : null });
+      return { estado, salida, uso };
+    }
     respaldoSinRepetir(g, inst, estado, salida, texto, filtrado);
     return { estado, salida, uso };
   }
 
-  if (r.riesgo) { activarRojo(g, inst, estado, salida); return { estado, salida, uso }; }
+  if (r.riesgo) {
+    activarRojo(g, inst, estado, salida, { origen: "ia", categoria: r.categoria ?? null, motivo: r.motivo ?? null, frase: texto ? fraseAlarma(texto, g.alarma, g.alarmaRevisar) : null });
+    return { estado, salida, uso };
+  }
 
   // 4. Lo que el vigilante entendió de su mensaje.
   for (const x of r.respuestas) {

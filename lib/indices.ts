@@ -1,7 +1,7 @@
 // Índices, nivel de riesgo y resumen de sesión.
 // El resumen es lo único que sale del navegador: números y categorías, sin texto.
 
-import type { Estado, Guion, Instancia, Nivel, Paso } from "./tipos";
+import type { Estado, Guion, InfoAlarma, Instancia, Nivel, Paso } from "./tipos";
 
 /**
  * Dirección de cada índice (rúbrica): "riesgo" = más alto es peor; "proteccion" = más alto es mejor.
@@ -110,6 +110,8 @@ export interface ResumenSesion {
   omitidas: number;
   /** Sesión a revisar antes de incluirla en el análisis (3 o más desvíos). */
   revisarCalidad: boolean;
+  /** Sólo en sesiones rojas: por qué se marcó (sin palabras del joven). */
+  alarma?: InfoAlarma | null;
 }
 
 export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesion {
@@ -162,5 +164,6 @@ export function resumen(g: Guion, inst: Instancia, estado: Estado): ResumenSesio
     desvios: estado.desviosTotal,
     omitidas: estado.omitidas.length,
     revisarCalidad: estado.desviosTotal >= 3,
+    alarma: estado.rojo ? estado.alarma ?? null : null,
   };
 }

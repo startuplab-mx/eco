@@ -73,7 +73,7 @@ export async function turno(
     };
     modeloSinRiesgo = !!r && !r.riesgo;
     if (!r) uso.respaldos++; // sin modelo: las reglas de palabras se encargan
-    else if (r.riesgo) final = { alarma: true };
+    else if (r.riesgo) final = { alarma: true, alarmaInfo: { categoria: r.categoria ?? null, motivo: r.motivo ?? null } };
     else if (estado.pausa) {
       // Pausa, "salir" u "otro día": el riesgo ya se revisó; la opción la decide el motor.
       final = r.opciones[0] ? { opcion: r.opciones[0], texto } : entrada;

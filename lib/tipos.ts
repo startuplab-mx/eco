@@ -204,6 +204,8 @@ export interface Estado {
   modo?: "guion" | "ia";
   /** Estado de la conversación con IA (sólo en memoria). */
   ia?: EstadoIA;
+  /** Por qué se marcó roja (sin palabras del joven): qué la activó, en qué tema, la frase de la lista o el indicio del modelo. */
+  alarma?: InfoAlarma;
   /** Preguntas de la ronda rápida final (las que faltan para llegar al 80%). */
   ronda?: string[];
 }
@@ -237,4 +239,16 @@ export interface EstadoIA {
   aclarados?: string[];
   /** Ejercicio ofrecido que espera un sí o un no; "hecho": se mostró y espera "Listo". */
   oferta?: string | null;
+}
+
+export interface InfoAlarma {
+  /** lista: una frase de la lista de alarma · ia: el modelo marcó riesgo · lista_sin_ia: frase dudosa y el modelo no respondió. */
+  origen: "lista" | "ia" | "lista_sin_ia";
+  /** Tema o bloque de la plática donde ocurrió. */
+  tema: string | null;
+  /** Frase de NUESTRA lista que coincidió. */
+  frase?: string | null;
+  categoria?: string | null;
+  /** Frase neutra del modelo ("Expresa ideas de no querer vivir"). */
+  motivo?: string | null;
 }

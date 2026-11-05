@@ -4,9 +4,9 @@
 // Es puro: recibe un estado y devuelve uno nuevo más lo que hay que mostrar.
 
 import type {
-  Bloque, Condicion, EjercicioId, Espera, Estado, Guion, Instancia, Opcion, Paso, Respuesta, Salida,
+  Bloque, Condicion, EjercicioId, Espera, Estado, Guion, InfoAlarma, Instancia, Opcion, Paso, Respuesta, Salida,
 } from "./tipos";
-import { esGroseriaDirigida, filtrarIdentificadores, nivelAlarma, normalizar, pareceSinSentido } from "./seguridad";
+import { esGroseriaDirigida, filtrarIdentificadores, fraseAlarma, nivelAlarma, normalizar, pareceSinSentido } from "./seguridad";
 import { calcularNivel } from "./indices";
 import { opcionParecida } from "./ortografia";
 
@@ -21,6 +21,8 @@ export interface Entrada {
   alarma?: boolean;
   /** El modelo revisó el texto y descartó el riesgo: las frases ambiguas no activan la crisis. */
   alarmaDescartada?: boolean;
+  /** Si el modelo marcó riesgo: categoría e indicio neutro. */
+  alarmaInfo?: { categoria?: string | null; motivo?: string | null };
   /** El modelo ya interpretó el texto: no aplicar las reglas de palabras sobre él. */
   sinReglas?: boolean;
   /** El joven ya confirmó el espejo ("¿Es así?" → Sí). */
@@ -460,10 +462,27 @@ export function consintio(estado: Estado): boolean {
   return estado.respuestas["bi_consentimiento"]?.valor === "si" || estado.respuestas["bi_consentimiento2"]?.valor === "si";
 }
 
+/** En qué parte de la plática va: el tema de la plática con IA o el bloque del guion. */
+export function temaActual(g: Guion, estado: Estado): string | null {
+  const item = estado.ia?.item ?? (estado.modo === "ia" ? null : estado.esperando?.paso.id);
+  if (estado.modo === "ia" && estado.ia) {
+    if (!item) return estado.ia.oferta ? "ejercicio" : "plática (escuchando)";
+    const t = g.ia?.temas?.find((x) => x.items.includes(item));
+    if (t) return t.nombre;
+    const b = Object.entries(g.bloques).find(([, bl]) => bl.pasos.some((p) => p.id === item));
+    return b ? `Módulo ${b[0]}` : item;
+  }
+  const id = estado.esperando?.paso.id;
+  const b = id ? Object.entries(g.bloques).find(([, bl]) => bl.pasos.some((p) => p.id === id)) : undefined;
+  return b ? (g.bloques[b[0]].clase === "modulo" ? `Módulo ${b[0]}` : b[0]) : estado.bloque ?? null;
+}
+
 /** Bloques permitidos después de una crisis: no se regresa al cuestionario. */
 const TRAS_CRISIS = ["crisis", "salida", "otrodia"];
 
-export function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[]) {
+export function activarRojo(g: Guion, inst: Instancia, estado: Estado, salida: Salida[], info?: Omit<InfoAlarma, "tema">) {
+  // Se guarda la primera alarma: qué la activó y en qué parte de la plática (nunca el texto del joven).
+  if (info && !estado.alarma) estado.alarma = { ...info, tema: temaActual(g, estado) };
   if (estado.rojo) {
     // Ya está en crisis: repite a dónde llamar y sigue donde iba.
     const cr2 = g.bloques.crisis.pasos.find((p) => p.id === "cr_2");
@@ -653,7 +672,11 @@ export function responder(g: Guion, inst: Instancia, estadoPrevio: Estado, entra
   // 1. Riesgo primero, en cualquier texto escrito (lista de palabras o clasificador).
   const nivel = texto ? nivelAlarma(texto, g.alarma, g.alarmaRevisar) : null;
   if (entrada.alarma || nivel === "segura" || (nivel === "revisar" && !entrada.alarmaDescartada)) {
-    activarRojo(g, inst, estado, salida);
+    const frase = texto ? fraseAlarma(texto, g.alarma, g.alarmaRevisar) : null;
+    activarRojo(g, inst, estado, salida,
+      entrada.alarma && nivel !== "segura"
+        ? { origen: "ia", categoria: entrada.alarmaInfo?.categoria ?? null, motivo: entrada.alarmaInfo?.motivo ?? null, frase }
+        : { origen: nivel === "segura" ? "lista" : "lista_sin_ia", frase });
     return { estado, salida };
   }
 

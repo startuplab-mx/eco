@@ -17,11 +17,37 @@ export const TIPOS_RESPUESTA: TipoRespuesta[] = [
   "responde", "sin_sentido", "groseria", "fuera_de_tema", "no_quiere", "se_quiere_ir", "privacidad", "pide_orientacion",
 ];
 
+/** Categorías de riesgo que el modelo asigna cuando marca una sesión roja. */
+export const CATEGORIAS_RIESGO = ["hacerse_dano", "amenaza", "lo_lastiman", "lo_obligan", "peligro_ahora", "otro"] as const;
+export type CategoriaRiesgo = (typeof CATEGORIAS_RIESGO)[number];
+export const NOMBRE_CATEGORIA: Record<CategoriaRiesgo, string> = {
+  hacerse_dano: "Hacerse daño o no querer vivir",
+  amenaza: "Alguien lo amenaza",
+  lo_lastiman: "Alguien lo lastima o abusa",
+  lo_obligan: "Lo obligan a hacer algo",
+  peligro_ahora: "En peligro ahora",
+  otro: "Otro",
+};
+
+/**
+ * El indicio de por qué se marcó roja: una frase neutra escrita por el modelo, nunca las palabras del joven.
+ * Sin comillas, sin números largos, máximo 15 palabras. Los nombres y lugares se quitan después con el filtro.
+ */
+export function limpiarIndicio(x: unknown): string | null {
+  if (typeof x !== "string") return null;
+  const t = x.replace(/["“”«»]/g, "").replace(/\d{3,}/g, "").replace(/\s+/g, " ").trim();
+  if (!t) return null;
+  return t.split(" ").slice(0, 15).join(" ").slice(0, 140);
+}
+
 export interface RespuestaInterpretar {
   /** Qué clase de respuesta es (para la escalera de desvíos). */
   tipo?: TipoRespuesta;
   /** Señal de riesgo que activa el protocolo rojo. */
   riesgo: boolean;
+  /** Si hay riesgo: la categoría y una frase neutra de por qué (sin sus palabras). */
+  categoria?: CategoriaRiesgo | null;
+  motivo?: string | null;
   /** Opciones que corresponden a lo escrito (vacío si no queda claro). */
   opciones: string[];
   /** Repregunta breve cuando no queda claro. */
@@ -86,6 +112,9 @@ export type ModoTurno = "seguir" | "escuchar" | "responder" | "aclarar";
 
 export interface RespuestaConversar {
   riesgo: boolean;
+  /** Si hay riesgo: la categoría y una frase neutra de por qué (sin sus palabras). */
+  categoria?: CategoriaRiesgo | null;
+  motivo?: string | null;
   tipo: TipoRespuesta;
   /** Respuestas que se desprenden de lo que escribió. */
   respuestas: { id: string; valor: string[] }[];

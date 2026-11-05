@@ -1,12 +1,15 @@
 // Guarda el resumen anónimo de cada sesión en Airtable. Sólo corre en el servidor: la llave nunca llega al navegador.
 // Reglas (decididas con el equipo):
 // - Sin consentimiento no se guarda nada.
-// - Sesión roja: sólo "hubo una en esta escuela esta semana" (tabla Sesiones rojas). Si ya se había guardado
-//   algo de esa sesión, se borra.
+// - Sesión roja: "hubo una en esta escuela esta semana" (tabla Sesiones rojas) y por qué se marcó: qué la
+//   activó, en qué tema, la frase de nuestra lista y un indicio neutro del modelo. Nunca las palabras del joven.
+//   Si ya se había guardado algo de esa sesión, se borra.
 // - Fecha: sólo el día, sin hora. Ningún texto escrito por el joven.
 import "server-only";
 import guionJson from "@/data/guion.json";
-import type { Guion, Paso } from "@/lib/tipos";
+import type { Guion, InfoAlarma, Paso } from "@/lib/tipos";
+import { categoriaValida, indicioSeguro } from "@/lib/indicio";
+import { NOMBRE_CATEGORIA } from "@/lib/ia-tipos";
 import type { ResumenSesion } from "@/lib/indices";
 import { semanaISO } from "@/lib/motor";
 import { COLUMNAS, SALTADAS, TODAS_LAS_COLUMNAS } from "@/lib/columnas";
@@ -168,11 +171,35 @@ export async function guardarSesion(campos: Record<string, unknown>): Promise<st
   return d.records?.[0]?.id ?? null;
 }
 
-/** Registra una sesión roja: sólo escuela y semana. Si había una fila parcial de esa sesión, se borra. */
-export async function registrarRoja(escuela: string, filaPrevia: string | null, hoy = new Date()): Promise<void> {
+const ORIGEN: Record<InfoAlarma["origen"], string> = {
+  lista: "Lista de palabras",
+  ia: "IA",
+  lista_sin_ia: "Lista de palabras (la IA no respondió)",
+};
+
+/**
+ * Por qué se marcó roja, sin palabras del joven: qué la activó, en qué tema, la frase de NUESTRA lista
+ * (sólo si de verdad está en la lista) y la categoría con el indicio neutro del modelo.
+ */
+export function camposAlarma(a: Partial<InfoAlarma> | null | undefined): Record<string, string> {
+  if (!a || typeof a !== "object") return {};
+  const campos: Record<string, string> = {};
+  if (a.origen && a.origen in ORIGEN) campos["Qué la activó"] = ORIGEN[a.origen];
+  if (typeof a.tema === "string" && a.tema.trim()) campos["Tema"] = a.tema.replace(/[^\p{L}\p{N} ()·,.-]/gu, "").slice(0, 60);
+  const lista = [...(g.alarma ?? []), ...(g.alarmaRevisar ?? [])];
+  if (typeof a.frase === "string" && lista.includes(a.frase)) campos["Frase de la lista"] = a.frase;
+  const cat = categoriaValida(a.categoria);
+  if (cat) campos["Categoría"] = NOMBRE_CATEGORIA[cat];
+  const indicio = indicioSeguro(a.motivo);
+  if (indicio) campos["Indicio"] = indicio;
+  return campos;
+}
+
+/** Registra una sesión roja: escuela, semana y por qué se marcó. Si había una fila parcial de esa sesión, se borra. */
+export async function registrarRoja(escuela: string, filaPrevia: string | null, alarma?: Partial<InfoAlarma> | null, hoy = new Date()): Promise<void> {
   const res = await pedir(encodeURIComponent(T_ROJAS), {
     method: "POST",
-    body: JSON.stringify({ records: [{ fields: { Escuela: escuela, Semana: semanaMexico(hoy) } }] }),
+    body: JSON.stringify({ typecast: true, records: [{ fields: { Escuela: escuela, Semana: semanaMexico(hoy), ...camposAlarma(alarma) } }] }),
   });
   if (!res.ok) throw new Error(`Airtable ${res.status}: ${(await res.text()).slice(0, 200)}`);
   if (filaPrevia && /^rec[A-Za-z0-9]{14}$/.test(filaPrevia)) {

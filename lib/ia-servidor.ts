@@ -1,5 +1,6 @@
 // Llamadas al modelo. Sólo corre en el servidor: la llave nunca llega al navegador.
 import "server-only";
+import { categoriaValida, indicioSeguro } from "./indicio";
 import Anthropic from "@anthropic-ai/sdk";
 import {
   validarPuente, validarRepregunta, validarFrase, TIPOS_RESPUESTA, type TipoRespuesta,
@@ -49,7 +50,12 @@ Tu tarea ahora: leer lo que escribió un joven como respuesta a una pregunta y d
 1. "riesgo": true SOLO si el texto dice, de forma explícita o con modismos claros, que quiere morir o hacerse daño, que alguien lo amenaza, lo lastima o lo obliga a algo, o que está en peligro ahora. Ejemplos de true: "ya no le veo caso a vivir", "me quieren levantar", "mi tío me pega", "me voy a cortar", "me obligan a vender". La tristeza, el miedo o el enojo en general NO son riesgo: "estoy triste", "me da miedo la colonia", "ya no puedo con la escuela" son false. Contar que vende, consume o hace algo ilegal, sin decir que lo obligan o que está en peligro, NO es riesgo ("vendo droga a buen precio", "soy el chapo"): es "fuera_de_tema". Las expresiones coloquiales tampoco: "me muero de risa", "me muero de hambre", "me quiero morir de la pena" (vergüenza), "me mata la tarea", "mi mamá me va a matar si repruebo", "ando muerto de cansancio".
 2. "opciones": los id de las opciones que corresponden a lo que escribió. Si la pregunta es de una sola opción, devuelve como máximo uno. Si no queda claro, devuelve una lista vacía. Si la pregunta es abierta, devuelve lista vacía.
 3. "otro": si lo que escribió SÍ responde la pregunta pero no corresponde a ninguna opción, una frase breve (máximo 5 palabras) en lenguaje neutro que complete la idea de la pregunta. Quédate lo más cerca posible de SUS palabras: sólo quita el género o lo que identifique, no reinterpretes ni suavices. Debe sonar bien después de la pregunta (p. ej. después de "te sientes"). Ejemplos: a "¿Dónde la notas?" con "en mi rodilla" → "en la rodilla"; a "¿Cómo te sientes hoy?" con "ansioso" → "con ansiedad", con "normal" → "normal", con "ahí la llevo" → "más o menos", con "más o menos" → "más o menos"; a "¿Con qué tiene que ver?" con "el trabajo de mi papá" → "el trabajo en casa". Sin nombres ni lugares identificables. Si corresponde a una opción o no responde la pregunta, null.
-4. "repregunta": si no quedó claro y la pregunta tiene opciones, una pregunta breve y cálida (máximo 25 palabras) que le ayude a elegir, mencionando dos o tres opciones con su texto exacto. Si quedó claro o la pregunta es abierta, null.`;
+4. "repregunta": si no quedó claro y la pregunta tiene opciones, una pregunta breve y cálida (máximo 25 palabras) que le ayude a elegir, mencionando dos o tres opciones con su texto exacto. Si quedó claro o la pregunta es abierta, null.
+
+Si "riesgo" es true, llena también:
+- "categoria": una de hacerse_dano (quiere morir o hacerse daño), amenaza (alguien lo amenaza o lo quiere lastimar), lo_lastiman (alguien lo lastima, le pega o abusa de él), lo_obligan (lo obligan o presionan a hacer algo peligroso), peligro_ahora (está en peligro en este momento), otro.
+- "motivo": una frase neutra en tercera persona, de máximo 12 palabras, que diga qué expresó, sin copiar sus palabras ni poner nombres, lugares, fechas o detalles que lo identifiquen. Ejemplos: "Expresa ideas de no querer vivir", "Dice que alguien lo amenaza", "Cuenta que un familiar le pega".
+Si "riesgo" es false, "categoria" y "motivo" van en null.`;
 
 const SISTEMA_REDACTAR = `${REGLAS_ECO}
 
@@ -67,11 +73,13 @@ const ESQUEMA_INTERPRETAR = {
   properties: {
     tipo: { type: "string", enum: TIPOS_RESPUESTA },
     riesgo: { type: "boolean" },
+    categoria: { type: ["string", "null"] },
+    motivo: { type: ["string", "null"] },
     opciones: { type: "array", items: { type: "string" } },
     repregunta: { type: ["string", "null"] },
     otro: { type: ["string", "null"] },
   },
-  required: ["tipo", "riesgo", "opciones", "repregunta", "otro"],
+  required: ["tipo", "riesgo", "categoria", "motivo", "opciones", "repregunta", "otro"],
   additionalProperties: false,
 };
 
@@ -156,6 +164,8 @@ export async function interpretar(p: PedidoInterpretar): Promise<RespuestaInterp
   return {
     tipo: opciones.length ? "responde" : tipo,
     riesgo: r.riesgo === true,
+    categoria: r.riesgo === true ? categoriaValida(r.categoria) : null,
+    motivo: r.riesgo === true ? indicioSeguro(r.motivo) : null,
     opciones,
     repregunta: opciones.length ? null : validarRepregunta(r.repregunta, p.opciones),
     otro: opciones.length ? null : validarFrase(r.otro),
